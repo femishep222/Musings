@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find . -iname \"*.css\" -o -iname \"*.md\")",
+      "Read(//c/Users/femi1/OneDrive/Desktop/Projects/**)",
+      "Bash(rmdir \"c:\\\\Users\\\\femi1\\\\OneDrive\\\\Desktop\\\\Projects\\\\Projects\")",
+      "Read(//c/Users/femi1/OneDrive/Desktop/**)",
+      "Bash(rm -f \"Projects/Musings/styles.css\")",
+      "Bash(rmdir \"Projects/Musings\")",
+      "Bash(rmdir \"Projects\")",
+      "Bash(rm -f adoption_ohms_law/styles.css)",
+      "Bash(rmdir adoption_ohms_law)",
+      "Bash(start chrome *)",
+      "Bash(cmd.exe /c start chrome \"adoption_ohms_law_triple_mode.html\")"
+    ]
+  }
+}
