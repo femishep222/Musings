@@ -9,7 +9,7 @@
   var s1=document.getElementById('stream1'), s2=document.getElementById('stream2'), outpool=document.getElementById('outpool'), headtick=document.getElementById('headtick');
   var wall=document.getElementById('wall'), push=document.getElementById('push');
   var X0=50,X1=350,Y0=20,Y1=320;
-  var mode='phys';
+  var mode='biz';
   function lerp(a,b,t){return a+(b-a)*t;}
   function qual(x,lo,hi){return x<lo?'Low':(x<hi?'Med':'High');}
 
@@ -55,7 +55,7 @@
     s1.setAttribute('opacity',fl); s2.setAttribute('opacity',fl);
     s1.setAttribute('stroke-width',(1+fl*3).toFixed(1)); s2.setAttribute('stroke-width',(1+fl*3).toFixed(1));
     var oh=Math.max(2,Math.min(46,b*46)); outpool.setAttribute('height',oh.toFixed(1)); outpool.setAttribute('y',(168-oh).toFixed(1));
-    var wh=40+R*96; wall.setAttribute('height',wh.toFixed(1)); wall.setAttribute('y',(152-wh).toFixed(1));
+    var wh=20+R*116; wall.setAttribute('height',wh.toFixed(1)); wall.setAttribute('y',(152-wh).toFixed(1));
     var pw=8+V*40; push.setAttribute('x2',(116+pw).toFixed(1));
     var ck=curKey(px,py);
     var frac=Math.max(0,Math.min(1,I/2.0));
@@ -78,6 +78,10 @@
     var s=L[mode], tt=titles[mode];
     document.getElementById('xaxis').textContent=s.x;
     document.getElementById('yaxis').textContent=s.y;
+    document.getElementById('xlo').textContent=s.xlo;
+    document.getElementById('xhi').textContent=s.xhi;
+    document.getElementById('ylo').textContent=s.ylo;
+    document.getElementById('yhi').textContent=s.yhi;
     document.getElementById('t-v').textContent=s.v;
     document.getElementById('t-r').textContent=s.r;
     document.getElementById('t-i').textContent=s.i;
