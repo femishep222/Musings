@@ -1,0 +1,227 @@
+<h2 class="sr-only">Interactive model of market adoption as Ohm's law, with three modes: physics (circuit), water (tank and pipe), and business (market crossing a barrier). Resistance horizontal, potential vertical. Drag the operating point to see flow and throughput; the segmented control swaps all labels and the diagram.</h2>
+
+<div style="display:inline-flex; border:0.5px solid var(--border-strong); border-radius:8px; overflow:hidden; margin-bottom:14px;">
+<button id="m-phys" style="border:none; background:var(--text-accent); color:#fff; padding:7px 16px; font-size:13px; font-weight:500; cursor:pointer;">Physics</button>
+<button id="m-water" style="border:none; border-left:0.5px solid var(--border-strong); background:transparent; color:var(--text-secondary); padding:7px 16px; font-size:13px; font-weight:500; cursor:pointer;">Water</button>
+<button id="m-biz" style="border:none; border-left:0.5px solid var(--border-strong); background:transparent; color:var(--text-secondary); padding:7px 16px; font-size:13px; font-weight:500; cursor:pointer;">Business</button>
+</div>
+
+<div style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start;">
+
+<div style="flex:1; min-width:340px;">
+<svg id="plane" width="100%" viewBox="0 0 380 362" role="img" style="touch-action:none; cursor:crosshair;">
+<title>adoption plane</title><desc>Resistance horizontal, potential vertical, both from zero. Four regions and a draggable point with a ray whose slope is flow.</desc>
+<rect x="50" y="20" width="150" height="150" fill="#EAF3DE"/>
+<rect x="200" y="20" width="150" height="150" fill="#E6F1FB"/>
+<rect x="50" y="170" width="150" height="150" fill="#FAEEDA"/>
+<rect x="200" y="170" width="150" height="150" fill="#FCEBEB"/>
+<text id="c-tl" x="60" y="40" font-family="sans-serif" font-size="13.5" font-weight="500" fill="#27500A">Hot</text>
+<text id="c-tr" x="210" y="40" font-family="sans-serif" font-size="13.5" font-weight="500" fill="#042C53">Displacement</text>
+<text id="c-bl" x="60" y="190" font-family="sans-serif" font-size="13.5" font-weight="500" fill="#633806">Dormant</text>
+<text id="c-br" x="210" y="190" font-family="sans-serif" font-size="13.5" font-weight="500" fill="#501313">Phantom</text>
+<line x1="50" y1="320" x2="350" y2="20" stroke="#5F5E5A" stroke-width="1" stroke-dasharray="4 4"/>
+<text id="threshlbl" x="305" y="78" font-family="sans-serif" font-size="11" fill="#5F5E5A">I = 1</text>
+<line x1="200" y1="20" x2="200" y2="320" stroke="#B4B2A9" stroke-width="0.5"/>
+<line x1="50" y1="170" x2="350" y2="170" stroke="#B4B2A9" stroke-width="0.5"/>
+<line id="ray" x1="50" y1="320" x2="125" y2="95" stroke="#26215C" stroke-width="1.5" stroke-dasharray="2 3" opacity="0.6"/>
+<line x1="50" y1="320" x2="350" y2="320" stroke="#3d3d3a" stroke-width="1"/>
+<line x1="50" y1="20" x2="50" y2="320" stroke="#3d3d3a" stroke-width="1"/>
+<text id="xaxis" x="200" y="350" font-family="sans-serif" font-size="13" font-weight="500" fill="#3d3d3a" text-anchor="middle">R  (resistance) →</text>
+<text id="yaxis" x="18" y="170" font-family="sans-serif" font-size="13" font-weight="500" fill="#3d3d3a" text-anchor="middle" transform="rotate(-90 18 170)">V (potential difference) →</text>
+<text x="52" y="332" font-family="sans-serif" font-size="10" fill="#888780">0</text>
+<circle id="probe" cx="125" cy="95" r="9" fill="#26215C" stroke="#fff" stroke-width="2"/>
+</svg>
+</div>
+
+<div style="flex:1; min-width:280px;">
+
+<svg id="circuit" width="100%" viewBox="0 0 280 180" role="img" style="margin-bottom:8px;">
+<title>circuit with bulb</title><desc>A battery drives current through one bulb; brightness reflects power.</desc>
+<rect x="20" y="22" width="240" height="120" rx="10" fill="none" stroke="#B4B2A9" stroke-width="1"/>
+<line x1="50" y1="52" x2="120" y2="52" stroke="#26215C" stroke-width="3"/>
+<line x1="160" y1="52" x2="230" y2="52" stroke="#26215C" stroke-width="3"/>
+<line x1="230" y1="52" x2="230" y2="112" stroke="#26215C" stroke-width="3"/>
+<line x1="230" y1="112" x2="50" y2="112" stroke="#26215C" stroke-width="3"/>
+<line x1="50" y1="112" x2="50" y2="52" stroke="#26215C" stroke-width="3"/>
+<line x1="44" y1="64" x2="56" y2="64" stroke="#3d3d3a" stroke-width="2"/>
+<line x1="40" y1="78" x2="60" y2="78" stroke="#3d3d3a" stroke-width="4"/>
+<line x1="44" y1="92" x2="56" y2="92" stroke="#3d3d3a" stroke-width="2"/>
+<text x="14" y="82" font-family="sans-serif" font-size="12" font-weight="500" fill="#3d3d3a" text-anchor="middle">V</text>
+<circle id="halo" cx="140" cy="52" r="20" fill="#FAC775" opacity="0"/>
+<circle id="bulb" cx="140" cy="52" r="13" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="1"/>
+<line x1="140" y1="65" x2="140" y2="72" stroke="#5F5E5A" stroke-width="1"/>
+<path id="filament" d="M133 52 Q137 46 140 52 Q143 58 147 52" fill="none" stroke="#B4B2A9" stroke-width="1.5"/>
+</svg>
+
+<svg id="water" width="100%" viewBox="0 0 280 180" role="img" style="margin-bottom:8px; display:none;">
+<title>tank and pipe</title><desc>Water at height V drains through a pipe whose narrowness is R. Stream vigour reflects flow.</desc>
+<rect x="40" y="30" width="90" height="110" rx="4" fill="none" stroke="#B4B2A9" stroke-width="1.5"/>
+<rect id="watercol" x="42" y="80" width="86" height="58" fill="#85B7EB" opacity="0.8"/>
+<text id="headlbl" x="85" y="22" font-family="sans-serif" font-size="11" font-weight="500" fill="#185FA5" text-anchor="middle">head (pressure)</text>
+<line id="headtick" x1="34" y1="80" x2="40" y2="80" stroke="#185FA5" stroke-width="2"/>
+<rect id="pipe" x="130" y="126" width="60" height="10" fill="#B5D4F4" stroke="#378ADD" stroke-width="1"/>
+<text id="pipelbl" x="160" y="118" font-family="sans-serif" font-size="11" fill="#185FA5" text-anchor="middle">pipe (R)</text>
+<rect x="196" y="120" width="60" height="50" rx="3" fill="none" stroke="#B4B2A9" stroke-width="1"/>
+<rect id="outpool" x="198" y="150" width="56" height="18" rx="2" fill="#85B7EB" opacity="0.8"/>
+<line id="stream1" x1="205" y1="131" x2="205" y2="150" stroke="#378ADD" stroke-width="2" opacity="0"/>
+<line id="stream2" x1="214" y1="131" x2="214" y2="150" stroke="#378ADD" stroke-width="2" opacity="0"/>
+<text x="226" y="166" font-family="sans-serif" font-size="10" fill="#185FA5" text-anchor="middle">flow</text>
+</svg>
+
+<svg id="barrier" width="100%" viewBox="0 0 280 180" role="img" style="margin-bottom:8px; display:none;">
+<title>market crossing a barrier</title><desc>Drive at top pushes the market across a switching-cost barrier into adopters. Ball colour reflects the region.</desc>
+<defs><marker id="pa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<text x="60" y="16" font-family="sans-serif" font-size="11" fill="#888780" text-anchor="middle">market</text>
+<text x="225" y="16" font-family="sans-serif" font-size="11" fill="#3B6D11" text-anchor="middle">adopters</text>
+<text id="drivelbl" x="140" y="30" font-family="sans-serif" font-size="11" font-weight="500" fill="#854F0B" text-anchor="middle">drive</text>
+<line id="push" x1="116" y1="40" x2="164" y2="40" stroke="#BA7517" stroke-width="3" marker-end="url(#pa)"/>
+<rect id="wall" x="134" y="56" width="14" height="96" rx="2" fill="#F4C0D1" stroke="#D4537E" stroke-width="1"/>
+<text id="costlbl" x="141" y="168" font-family="sans-serif" font-size="11" fill="#993556" text-anchor="middle">cost</text>
+<g id="balls"></g>
+</svg>
+
+<div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:12px;">
+<div style="background:var(--surface-1); border-radius:8px; padding:8px;"><div id="t-v" style="font-size:12px; color:var(--text-secondary);">V</div><div id="vval" style="font-size:18px; font-weight:500;">0.8</div></div>
+<div style="background:var(--surface-1); border-radius:8px; padding:8px;"><div id="t-r" style="font-size:12px; color:var(--text-secondary);">R</div><div id="rval" style="font-size:18px; font-weight:500;">0.3</div></div>
+<div style="background:var(--surface-1); border-radius:8px; padding:8px;"><div id="t-i" style="font-size:12px; color:var(--text-secondary);">I</div><div id="ival" style="font-size:18px; font-weight:500;">2.7</div></div>
+<div style="background:var(--surface-1); border-radius:8px; padding:8px;"><div id="t-p" style="font-size:12px; color:var(--text-secondary);">P</div><div id="pval" style="font-size:18px; font-weight:500;">2.1</div></div>
+</div>
+
+<div id="verdict" style="font-size:13.5px; padding:10px 12px; border-radius:8px; background:#EAF3DE; color:#27500A; line-height:1.5;"></div>
+
+</div>
+</div>
+
+<script>
+(function(){
+  var svg=document.getElementById('plane');
+  var probe=document.getElementById('probe'), ray=document.getElementById('ray');
+  var bulb=document.getElementById('bulb'), halo=document.getElementById('halo'), fil=document.getElementById('filament');
+  var watercol=document.getElementById('watercol'), pipe=document.getElementById('pipe');
+  var s1=document.getElementById('stream1'), s2=document.getElementById('stream2'), outpool=document.getElementById('outpool'), headtick=document.getElementById('headtick');
+  var wall=document.getElementById('wall'), push=document.getElementById('push');
+  var X0=50,X1=350,Y0=20,Y1=320;
+  var mode='phys';
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function qual(x,lo,hi){return x<lo?'Low':(x<hi?'Med':'High');}
+  var titles={
+    phys:{tl:'High current',tr:'Driven load',bl:'No EMF',br:'Open circuit'},
+    water:{tl:'High flow',tr:'Forced flow',bl:'No head',br:'Blocked pipe'},
+    biz:{tl:'Hot demand',tr:'Displacement demand',bl:'Dormant demand',br:'Phantom demand'}
+  };
+  var L={
+    phys:{x:'R  (resistance) →',y:'V (potential difference) →',v:'V',r:'R',i:'I = V/R',p:'P = V·I'},
+    water:{x:'Pipe narrowness →',y:'Pressure head →',v:'Head',r:'Pipe R',i:'Flow',p:'Power'},
+    biz:{x:'Switching cost →',y:'Trigger / drive →',v:'Trigger',r:'Cost',i:'Adoption',p:'Throughput'}
+  };
+  var fills={tl:'#639922',tr:'#378ADD',bl:'#EF9F27',br:'#E24B4A'};
+  var cells={
+    tl:{bg:'#EAF3DE',fg:'#27500A',
+        signsP:'Low R, high V. Steep ray, bright bulb.',actP:'Large current flows freely.',
+        signsW:'Low pipe resistance, high head. Strong flow.',actW:'Water gushes through.',
+        signsB:'Easy to switch, strong pull. Peers adopting, urgency now.',actB:'Move fast — the window is open.'},
+    tr:{bg:'#E6F1FB',fg:'#042C53',
+        signsP:'High R, high V. EMF overcomes the load.',actP:'Current flows despite resistance.',
+        signsW:'Narrow pipe, but high head forces water through.',actW:'Flow despite the restriction.',
+        signsB:'Costly to switch, but a real trigger forces it. Price hike, breach, new leadership.',actB:'Build and invest — long game, real payoff.'},
+    bl:{bg:'#FAEEDA',fg:'#633806',
+        signsP:'Low R, but no V. No potential to drive flow.',actP:'Almost no current, bulb dark.',
+        signsW:'Wide pipe, but no head. Nothing to push the water.',actW:'A trickle at best.',
+        signsB:'Cheap to adopt, but no consequence or urgency to act.',actB:'Show value to create drive, or wait.'},
+    br:{bg:'#FCEBEB',fg:'#501313',
+        signsP:'High R, weak V. Stored potential, no flow.',actP:'No current, no power delivered.',
+        signsW:'Pinched pipe, low head. Water sits, barely seeps.',actW:'Effectively blocked.',
+        signsB:'Chronic complaint, nobody has switched in years. No trigger.',actB:'Don\u2019t build — resource pit.'}
+  };
+  var N=8, ballState=[];
+  (function initBalls(){
+    var g=document.getElementById('balls');
+    for(var i=0;i<N;i++){
+      var c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('r','6'); c.setAttribute('cy', 56 + i*12 + 4);
+      c.setAttribute('cx','40'); c.setAttribute('fill','#888780');
+      c.style.transition='cx .25s ease, fill .25s ease';
+      g.appendChild(c); ballState.push(c);
+    }
+  })();
+  function curKey(px,py){var right=px>200, top=py<170; return top?(right?'tr':'tl'):(right?'br':'bl');}
+  function draw(px,py){
+    px=Math.max(X0,Math.min(X1,px)); py=Math.max(Y0,Math.min(Y1,py));
+    probe.setAttribute('cx',px); probe.setAttribute('cy',py);
+    ray.setAttribute('x2',px); ray.setAttribute('y2',py);
+    var R=(px-X0)/(X1-X0)*0.9+0.1;
+    var V=(Y1-py)/(Y1-Y0)*1.0; V=Math.max(0.001,V);
+    var I=V/R, P=V*I;
+    if(mode==='biz'){
+      document.getElementById('vval').textContent=qual(V,0.33,0.66);
+      document.getElementById('rval').textContent=qual(R,0.4,0.7);
+      document.getElementById('ival').textContent=qual(I,0.7,1.4);
+      document.getElementById('pval').textContent=qual(P,0.5,1.3);
+    } else {
+      document.getElementById('vval').textContent=V.toFixed(2);
+      document.getElementById('rval').textContent=R.toFixed(2);
+      document.getElementById('ival').textContent=I.toFixed(2);
+      document.getElementById('pval').textContent=P.toFixed(2);
+    }
+    var b=Math.max(0,Math.min(1,P/2.5));
+    var rr=Math.round(lerp(241,250,b)), gg=Math.round(lerp(239,199,b)), bb2=Math.round(lerp(232,39,b));
+    bulb.setAttribute('fill','rgb('+rr+','+gg+','+bb2+')');
+    fil.setAttribute('stroke', b>0.15?'#854F0B':'#B4B2A9');
+    halo.setAttribute('opacity',(b*0.55).toFixed(2)); halo.setAttribute('r',(18+b*16).toFixed(1));
+    var colH=20+V*116; watercol.setAttribute('height',colH.toFixed(1)); watercol.setAttribute('y',(138-colH).toFixed(1));
+    headtick.setAttribute('y1',(138-colH).toFixed(1)); headtick.setAttribute('y2',(138-colH).toFixed(1));
+    var ph=10-R*8; pipe.setAttribute('height',ph.toFixed(1)); pipe.setAttribute('y',(131-ph/2).toFixed(1));
+    var fl=Math.max(0,Math.min(1,I/2.5));
+    s1.setAttribute('opacity',fl); s2.setAttribute('opacity',fl);
+    s1.setAttribute('stroke-width',(1+fl*3).toFixed(1)); s2.setAttribute('stroke-width',(1+fl*3).toFixed(1));
+    var oh=Math.max(2,Math.min(46,b*46)); outpool.setAttribute('height',oh.toFixed(1)); outpool.setAttribute('y',(168-oh).toFixed(1));
+    var wh=40+R*96; wall.setAttribute('height',wh.toFixed(1)); wall.setAttribute('y',(152-wh).toFixed(1));
+    var pw=8+V*40; push.setAttribute('x2',(116+pw).toFixed(1));
+    var ck=curKey(px,py);
+    var frac=Math.max(0,Math.min(1,I/2.0));
+    var crossed=Math.round(frac*N); var col=fills[ck];
+    for(var i=0;i<N;i++){
+      ballState[i].setAttribute('cx', i<crossed?(180+(i%4)*18+8).toFixed(0):(28+(i%3)*16).toFixed(0));
+      ballState[i].setAttribute('fill', i<crossed?col:'#B4B2A9');
+    }
+    var c=cells[ck], v=document.getElementById('verdict');
+    v.style.background=c.bg; v.style.color=c.fg;
+    var tt=titles[mode];
+    var title=tt[ck];
+    var signs = mode==='phys'?c.signsP:(mode==='water'?c.signsW:c.signsB);
+    var act = mode==='phys'?c.actP:(mode==='water'?c.actW:c.actB);
+    v.innerHTML='<div style="font-weight:500; font-size:15px; margin-bottom:4px;">'+title+'</div>'+
+      '<div style="margin-bottom:3px;"><span style="opacity:.7;">Signs: </span>'+signs+'</div>'+
+      '<div><span style="opacity:.7;">Action: </span>'+act+'</div>';
+  }
+  function relabel(){
+    var s=L[mode], tt=titles[mode];
+    document.getElementById('xaxis').textContent=s.x;
+    document.getElementById('yaxis').textContent=s.y;
+    document.getElementById('t-v').textContent=s.v;
+    document.getElementById('t-r').textContent=s.r;
+    document.getElementById('t-i').textContent=s.i;
+    document.getElementById('t-p').textContent=s.p;
+    document.getElementById('c-tl').textContent=tt.tl;
+    document.getElementById('c-tr').textContent=tt.tr;
+    document.getElementById('c-bl').textContent=tt.bl;
+    document.getElementById('c-br').textContent=tt.br;
+    document.getElementById('circuit').style.display=mode==='phys'?'block':'none';
+    document.getElementById('water').style.display=mode==='water'?'block':'none';
+    document.getElementById('barrier').style.display=mode==='biz'?'block':'none';
+    function setbtn(id,on){var b=document.getElementById(id); b.style.background=on?'var(--text-accent)':'transparent'; b.style.color=on?'#fff':'var(--text-secondary)';}
+    setbtn('m-phys',mode==='phys'); setbtn('m-water',mode==='water'); setbtn('m-biz',mode==='biz');
+  }
+  function setMode(m){mode=m; relabel(); draw(parseFloat(probe.getAttribute('cx')),parseFloat(probe.getAttribute('cy')));}
+  document.getElementById('m-phys').addEventListener('click',function(){setMode('phys');});
+  document.getElementById('m-water').addEventListener('click',function(){setMode('water');});
+  document.getElementById('m-biz').addEventListener('click',function(){setMode('biz');});
+  function toSvg(e){var pt=svg.createSVGPoint(); var t=e.touches?e.touches[0]:e; pt.x=t.clientX; pt.y=t.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse());}
+  var dragging=false;
+  function start(e){dragging=true; var p=toSvg(e); draw(p.x,p.y); e.preventDefault();}
+  function move(e){if(!dragging)return; var p=toSvg(e); draw(p.x,p.y); e.preventDefault();}
+  svg.addEventListener('mousedown',start); window.addEventListener('mousemove',move); window.addEventListener('mouseup',function(){dragging=false;});
+  svg.addEventListener('touchstart',start); svg.addEventListener('touchmove',move); window.addEventListener('touchend',function(){dragging=false;});
+  relabel(); draw(125,95);
+})();
+</script>
