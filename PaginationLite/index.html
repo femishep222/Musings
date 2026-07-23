@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pagination Lite — docx to print-ready PDF</title>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.12.0/mammoth.browser.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f3f0;
+    --panel: #ffffff;
+    --border: #dcd8d0;
+    --ink: #23201b;
+    --muted: #756f64;
+    --accent: #7a3b2e;
+    --accent-ink: #ffffff;
+    --warn-bg: #fff4d6;
+    --warn-ink: #8a5a00;
+    --ok-bg: #e8f3e6;
+    --ok-ink: #2e6b2a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 15px/1.5 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  header {
+    padding: 22px 28px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+  header h1 { margin: 0 0 4px; font-size: 20px; }
+  header p { margin: 0; color: var(--muted); font-size: 13.5px; }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 28px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .full { grid-column: 1 / -1; }
+  section.panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  section.panel h2 {
+    margin: 0 0 4px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--muted);
+  }
+  section.panel .hint { margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+  .row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .row label { font-size: 12.5px; color: var(--muted); display: block; margin-bottom: 3px; }
+  .field { display: flex; flex-direction: column; }
+  input[type="number"], input[type="text"], select {
+    font: inherit;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--ink);
+  }
+  input[type="number"] { width: 76px; }
+  button {
+    font: inherit;
+    padding: 9px 18px;
+    border: none;
+    border-radius: 7px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+  }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.secondary { background: #e9e5dd; color: var(--ink); }
+  #uploadStatus, #detectionSummary { font-size: 13px; color: var(--muted); margin-top: 8px; white-space: pre-line; }
+  .style-row {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .style-row .type-label { font-weight: 600; font-size: 13.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .font-sample {
+    font-size: 15px;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--muted);
+    background: #faf9f6;
+  }
+  .image-note {
+    font-size: 13px;
+    color: var(--muted);
+    background: #f6f4ef;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 4px;
+  }
+  .margin-grid {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 10px 22px;
+    margin-bottom: 12px;
+  }
+  .spine-note { font-size: 12.5px; color: var(--muted); margin: -4px 0 14px; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  footer {
+    max-width: 1100px;
+    margin: 0 auto 60px;
+    padding: 0 28px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  footer .scope-note {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+  }
+  footer .scope-note strong { color: var(--ink); }
+  .placeholder { color: var(--muted); font-style: italic; font-size: 13.5px; }
+  @media (max-width: 860px) {
+    main { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Pagination Lite</h1>
+  <p>docx → paginated print preview → PDF via your browser's print dialog. Everything runs locally; the manuscript never leaves this machine.</p>
+</header>
+
+<main>
+
+  <section class="panel full">
+    <h2>1. Manuscript</h2>
+    <p class="hint">Upload the .docx. Paragraph styles Heading&nbsp;1 / Heading&nbsp;2 are treated as titles; centered inline images get their own layout rule; everything else is body text.</p>
+    <div class="row">
+      <input type="file" id="docxInput" accept=".docx">
+    </div>
+    <div id="uploadStatus"></div>
+    <div id="detectionSummary"></div>
+  </section>
+
+  <section class="panel">
+    <h2>2. Style Panel</h2>
+    <p class="hint">Auto-populated from what was detected in the manuscript. Edit freely.</p>
+    <div id="stylePanel">
+      <p class="placeholder">Upload a .docx to detect paragraph types.</p>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>3. Page Setup</h2>
+    <p class="hint">Trim size and margins. Inner/outer mirror between left and right pages via <code>@page&nbsp;:left</code> / <code>:right</code>.</p>
+
+    <div class="margin-grid">
+      <div class="field">
+        <label for="pageWidth">Trim width (in)</label>
+        <input type="number" id="pageWidth" value="6" step="0.0625" min="1">
+      </div>
+      <div class="field">
+        <label for="pageHeight">Trim height (in)</label>
+        <input type="number" id="pageHeight" value="9" step="0.0625" min="1">
+      </div>
+    </div>
+
+    <div class="margin-grid">
+      <div class="field">
+        <label for="marginTop">Top margin (in)</label>
+        <input type="number" id="marginTop" value="0.75" step="0.0625" min="0">
+      </div>
+      <div class="field">
+        <label for="marginBottom">Bottom margin (in)</label>
+        <input type="number" id="marginBottom" value="0.75" step="0.0625" min="0">
+      </div>
+      <div class="field">
+        <label for="marginInner">Inner / spine margin (in)</label>
+        <input type="number" id="marginInner" value="0.75" step="0.0625" min="0">
+      </div>
+      <div class="field">
+        <label for="marginOuter">Outer margin (in)</label>
+        <input type="number" id="marginOuter" value="0.5" step="0.0625" min="0">
+      </div>
+    </div>
+    <p class="spine-note">Inner = the spine-side edge (left edge of right-hand pages, right edge of left-hand pages). IngramSpark's minimum gutter grows with page count — check their spec sheet once the final page count is known.</p>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="bleedToggle">
+      <label for="bleedToggle" style="margin:0;">Add bleed</label>
+      <input type="number" id="bleedAmount" value="0.125" step="0.0625" min="0" style="width:64px;" disabled>
+      <span style="font-size:12.5px;color:var(--muted);">in, added evenly to page dimensions (simplified — off by default; this manuscript's inline diagrams likely don't need it)</span>
+    </div>
+  </section>
+
+  <section class="panel full">
+    <h2>4. Preview / Export</h2>
+    <p class="hint">Opens the paginated book layout in a new tab. Page count, the even/odd-page warning, and the Export button (gated on fonts finishing download) all live in that tab.</p>
+    <button id="openPreviewBtn" disabled>Open Paginated Preview</button>
+    <span id="previewHint" style="margin-left:10px;font-size:13px;color:var(--muted);">Upload a manuscript first.</span>
+    <p class="spine-note" style="margin-top:12px;">In Chrome's print dialog: destination "Save as PDF", Paper size set to match your trim size exactly (Chrome offers a "Manage custom sizes…" option), Margins "None", Scale 100%, and headers/footers off — otherwise Chrome may scale or crop the page instead of exporting it at true size.</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="scope-note">
+    <strong>Scope note:</strong> this tool produces an RGB PDF via the browser's native print-to-PDF. IngramSpark's file checker may or may not accept an RGB interior with black text + grayscale diagrams — untested until a real export is run through it. If it's rejected, the fix is a one-time Ghostscript CMYK/PDF-X-1a conversion pass on the exported file; that's a separate script, not something this tool does. This tool also does not upload, store, or transmit the manuscript anywhere — conversion and pagination happen entirely in your browser tab.
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var PAGEDJS_CDN = "https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.min.js";
+
+  var CURATED_FONTS = [
+    { group: "Serif — body & headings", fonts: [
+      "EB Garamond", "Crimson Text", "Crimson Pro", "Lora", "Merriweather",
+      "Playfair Display", "Libre Baskerville", "Source Serif 4", "PT Serif",
+      "Noto Serif", "Cormorant Garamond", "Spectral", "Bitter", "Vollkorn",
+      "Alegreya", "Frank Ruhl Libre", "IBM Plex Serif", "Domine", "Zilla Slab",
+      "Literata", "Gelasio", "Old Standard TT"
+    ]},
+    { group: "Sans / Display — headings", fonts: [
+      "Montserrat", "Raleway", "Inter", "Oswald", "Cinzel"
+    ]}
+  ];
+
+  var TYPE_ORDER = ["part", "chapter", "body"];
+  var TYPE_LABELS = {
+    part: "Part / Section Title (Heading 1)",
+    chapter: "Chapter Title (Heading 2)",
+    body: "Body Text"
+  };
+  var DEFAULT_STYLES = {
+    part:    { font: "Playfair Display", size: 22, weight: "700", italic: false },
+    chapter: { font: "Playfair Display", size: 16, weight: "600", italic: false },
+    body:    { font: "EB Garamond",      size: 11, weight: "400", italic: false }
+  };
+
+  var state = { processedHtml: null, counts: null, fileName: "manuscript" };
+
+  var docxInput = document.getElementById("docxInput");
+  var uploadStatus = document.getElementById("uploadStatus");
+  var detectionSummary = document.getElementById("detectionSummary");
+  var stylePanel = document.getElementById("stylePanel");
+  var openPreviewBtn = document.getElementById("openPreviewBtn");
+  var previewHint = document.getElementById("previewHint");
+
+  // ---------- docx ingest ----------
+
+  docxInput.addEventListener("change", function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    openPreviewBtn.disabled = true;
+    previewHint.textContent = "Processing…";
+    uploadStatus.textContent = "Reading file…";
+    detectionSummary.textContent = "";
+
+    file.arrayBuffer().then(function (arrayBuffer) {
+      uploadStatus.textContent = "Converting…";
+      return mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+    }).then(function (result) {
+      var classified = detectAndClassify(result.value);
+      state.processedHtml = classified.html;
+      state.counts = classified.counts;
+      state.fileName = file.name.replace(/\.docx$/i, "");
+
+      uploadStatus.textContent = "Loaded \"" + file.name + "\".";
+      detectionSummary.textContent =
+        classified.counts.part + " part/section title(s), " +
+        classified.counts.chapter + " chapter title(s), " +
+        classified.counts.body + " body paragraph(s), " +
+        classified.counts.image + " image paragraph(s) detected.";
+
+      if (result.messages && result.messages.length) {
+        console.warn("Mammoth conversion messages:", result.messages);
+      }
+
+      buildStylePanel(classified.counts);
+      openPreviewBtn.disabled = false;
+      previewHint.textContent = "Ready — opens in a new tab, reflecting current style/page settings.";
+    }).catch(function (err) {
+      console.error(err);
+      uploadStatus.textContent = "Failed to convert this file: " + err.message;
+      previewHint.textContent = "Upload a manuscript first.";
+    });
+  });
+
+  function detectAndClassify(rawHtml) {
+    var container = document.createElement("div");
+    container.innerHTML = rawHtml;
+    var counts = { part: 0, chapter: 0, body: 0, image: 0 };
+
+    Array.prototype.slice.call(container.children).forEach(function (el) {
+      var tag = el.tagName;
+      if (tag === "H1") {
+        el.classList.add("pl-part");
+        counts.part++;
+      } else if (tag === "H2") {
+        el.classList.add("pl-chapter");
+        counts.chapter++;
+      } else if (tag === "P") {
+        var text = el.textContent.replace(/[\s ]+/g, "");
+        var hasImg = el.querySelector("img") !== null;
+        if (hasImg && text.length === 0) {
+          el.classList.add("pl-image");
+          counts.image++;
+        } else if (text.length === 0) {
+          // empty paragraph (blank line) — drop it, don't render a gap
+          el.parentNode.removeChild(el);
+        } else {
+          el.classList.add("pl-body");
+          counts.body++;
+        }
+      } else {
+        // unexpected top-level element (list, table, stray heading level, etc.)
+        // — treat as body text rather than dropping it
+        el.classList.add("pl-body");
+        counts.body++;
+      }
+    });
+
+    return { html: container.innerHTML, counts: counts };
+  }
+
+  // ---------- style panel ----------
+
+  function buildStylePanel(counts) {
+    stylePanel.innerHTML = "";
+
+    TYPE_ORDER.forEach(function (type) {
+      if (!counts[type]) return;
+      stylePanel.appendChild(buildStyleRow(type));
+    });
+
+    if (counts.image) {
+      var note = document.createElement("div");
+      note.className = "image-note";
+      note.textContent = counts.image + " image paragraph(s) detected — rendered centered, block-level, no text indent. This is automatic, not a font style.";
+      stylePanel.appendChild(note);
+    }
+
+    if (!counts.part && !counts.chapter && !counts.body) {
+      stylePanel.innerHTML = "<p class=\"placeholder\">No recognizable paragraph types found.</p>";
+    }
+  }
+
+  function buildStyleRow(type) {
+    var d = DEFAULT_STYLES[type];
+    var row = document.createElement("div");
+    row.className = "style-row";
+
+    var labelRow = document.createElement("div");
+    labelRow.className = "type-label";
+    labelRow.innerHTML = "<span>" + TYPE_LABELS[type] + "</span>";
+    var sample = document.createElement("span");
+    sample.className = "font-sample";
+    sample.textContent = "Aa";
+    sample.style.fontFamily = "'" + d.font + "', serif";
+    labelRow.appendChild(sample);
+    row.appendChild(labelRow);
+
+    var controls = document.createElement("div");
+    controls.className = "row";
+
+    var fontField = fieldWrap("Font", buildFontSelect(type, d.font, sample));
+    var sizeField = fieldWrap("Size (pt)", inputNumber("style-" + type + "-size", d.size, 6, 96, 0.5));
+    var weightField = fieldWrap("Weight", buildWeightSelect(type, d.weight));
+    var italicField = document.createElement("div");
+    italicField.className = "field";
+    italicField.innerHTML = "<label>Italic</label>";
+    var italicCb = document.createElement("input");
+    italicCb.type = "checkbox";
+    italicCb.id = "style-" + type + "-italic";
+    italicCb.checked = d.italic;
+    italicField.appendChild(italicCb);
+
+    controls.appendChild(fontField);
+    controls.appendChild(sizeField);
+    controls.appendChild(weightField);
+    controls.appendChild(italicField);
+    row.appendChild(controls);
+
+    return row;
+  }
+
+  function fieldWrap(labelText, inputEl) {
+    var f = document.createElement("div");
+    f.className = "field";
+    var l = document.createElement("label");
+    l.textContent = labelText;
+    f.appendChild(l);
+    f.appendChild(inputEl);
+    return f;
+  }
+
+  function inputNumber(id, value, min, max, step) {
+    var el = document.createElement("input");
+    el.type = "number";
+    el.id = id;
+    el.value = value;
+    el.min = min;
+    el.max = max;
+    el.step = step;
+    return el;
+  }
+
+  function buildFontSelect(type, selected, sampleEl) {
+    var sel = document.createElement("select");
+    sel.id = "style-" + type + "-font";
+    CURATED_FONTS.forEach(function (grp) {
+      var og = document.createElement("optgroup");
+      og.label = grp.group;
+      grp.fonts.forEach(function (name) {
+        var opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        if (name === selected) opt.selected = true;
+        og.appendChild(opt);
+      });
+      sel.appendChild(og);
+    });
+    sel.addEventListener("change", function () {
+      loadFontForPreviewSample(sel.value);
+      sampleEl.style.fontFamily = "'" + sel.value + "', serif";
+    });
+    return sel;
+  }
+
+  function buildWeightSelect(type, selected) {
+    var sel = document.createElement("select");
+    sel.id = "style-" + type + "-weight";
+    [300, 400, 500, 600, 700, 800].forEach(function (w) {
+      var opt = document.createElement("option");
+      opt.value = String(w);
+      opt.textContent = String(w);
+      if (String(w) === String(selected)) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    return sel;
+  }
+
+  var loadedSampleFonts = {};
+  function loadFontForPreviewSample(fontName) {
+    if (loadedSampleFonts[fontName]) return;
+    loadedSampleFonts[fontName] = true;
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = buildGoogleFontsHref([fontName]);
+    document.head.appendChild(link);
+  }
+
+  // preload default fonts' samples once panel exists
+  TYPE_ORDER.forEach(function (type) { loadFontForPreviewSample(DEFAULT_STYLES[type].font); });
+
+  // ---------- config collection ----------
+
+  function collectStyleConfig() {
+    var cfg = {};
+    TYPE_ORDER.forEach(function (type) {
+      var fontEl = document.getElementById("style-" + type + "-font");
+      if (!fontEl) { cfg[type] = DEFAULT_STYLES[type]; return; }
+      cfg[type] = {
+        font: fontEl.value,
+        size: document.getElementById("style-" + type + "-size").value,
+        weight: document.getElementById("style-" + type + "-weight").value,
+        italic: document.getElementById("style-" + type + "-italic").checked
+      };
+    });
+    return cfg;
+  }
+
+  function collectPageConfig() {
+    return {
+      widthIn: parseFloat(document.getElementById("pageWidth").value) || 6,
+      heightIn: parseFloat(document.getElementById("pageHeight").value) || 9,
+      marginTop: parseFloat(document.getElementById("marginTop").value) || 0,
+      marginBottom: parseFloat(document.getElementById("marginBottom").value) || 0,
+      marginInner: parseFloat(document.getElementById("marginInner").value) || 0,
+      marginOuter: parseFloat(document.getElementById("marginOuter").value) || 0,
+      bleedOn: document.getElementById("bleedToggle").checked,
+      bleedIn: parseFloat(document.getElementById("bleedAmount").value) || 0
+    };
+  }
+
+  document.getElementById("bleedToggle").addEventListener("change", function (e) {
+    document.getElementById("bleedAmount").disabled = !e.target.checked;
+  });
+
+  // ---------- CSS + Google Fonts ----------
+
+  function buildGoogleFontsHref(names) {
+    var seen = {};
+    var unique = names.filter(function (n) {
+      if (!n || seen[n]) return false;
+      seen[n] = true;
+      return true;
+    });
+    var params = unique.map(function (n) {
+      return "family=" + n.replace(/ /g, "+") + ":wght@300;400;500;600;700;800";
+    }).join("&");
+    return "https://fonts.googleapis.com/css2?" + params + "&display=swap";
+  }
+
+  // Explicit font-loading specs (CSS font shorthand strings) for document.fonts.load().
+  // Needed because @font-face rules only start downloading once the browser decides
+  // they're needed for on-screen rendering — content inside a display:none source div
+  // does not trigger that, so pagination could otherwise run against fallback-font
+  // metrics before the real font arrives. Also covers inline <em>/<strong> emphasis
+  // in body text, which needs the italic/bold faces regardless of the body paragraph
+  // style's own weight/italic setting.
+  function buildFontLoadSpecs(styleConfig, counts) {
+    var specs = [];
+    function add(weight, italic, size, font) {
+      specs.push((italic ? "italic " : "") + weight + " " + size + "pt '" + font + "'");
+    }
+    if (counts.part) {
+      add(styleConfig.part.weight, styleConfig.part.italic, styleConfig.part.size, styleConfig.part.font);
+    }
+    if (counts.chapter) {
+      add(styleConfig.chapter.weight, styleConfig.chapter.italic, styleConfig.chapter.size, styleConfig.chapter.font);
+    }
+    if (counts.body) {
+      var b = styleConfig.body;
+      add(b.weight, b.italic, b.size, b.font);
+      add("400", true, b.size, b.font);
+      add("700", false, b.size, b.font);
+    }
+    return specs;
+  }
+
+  function buildGeneratedCss(styleConfig, pageConfig, counts) {
+    var part = styleConfig.part || DEFAULT_STYLES.part;
+    var chapter = styleConfig.chapter || DEFAULT_STYLES.chapter;
+    var body = styleConfig.body || DEFAULT_STYLES.body;
+
+    var w = pageConfig.widthIn + (pageConfig.bleedOn ? 2 * pageConfig.bleedIn : 0);
+    var h = pageConfig.heightIn + (pageConfig.bleedOn ? 2 * pageConfig.bleedIn : 0);
+
+    return "" +
+      "@page {\n" +
+      "  size: " + w + "in " + h + "in;\n" +
+      "  margin-top: " + pageConfig.marginTop + "in;\n" +
+      "  margin-bottom: " + pageConfig.marginBottom + "in;\n" +
+      "}\n" +
+      "@page :right {\n" +
+      "  margin-left: " + pageConfig.marginInner + "in;\n" +
+      "  margin-right: " + pageConfig.marginOuter + "in;\n" +
+      "  @bottom-right { content: counter(page); font-family: '" + body.font + "', serif; font-size: 9pt; }\n" +
+      "}\n" +
+      "@page :left {\n" +
+      "  margin-left: " + pageConfig.marginOuter + "in;\n" +
+      "  margin-right: " + pageConfig.marginInner + "in;\n" +
+      "  @bottom-left { content: counter(page); font-family: '" + body.font + "', serif; font-size: 9pt; }\n" +
+      "}\n" +
+      "html, body { margin: 0; padding: 0; }\n" +
+      ".pl-part {\n" +
+      "  font-family: '" + part.font + "', serif;\n" +
+      "  font-size: " + part.size + "pt;\n" +
+      "  font-weight: " + part.weight + ";\n" +
+      "  font-style: " + (part.italic ? "italic" : "normal") + ";\n" +
+      "  text-align: center;\n" +
+      "  text-indent: 0;\n" +
+      "  break-before: right;\n" +
+      "  margin: 2em 0 1em 0;\n" +
+      "}\n" +
+      ".pl-chapter {\n" +
+      "  font-family: '" + chapter.font + "', serif;\n" +
+      "  font-size: " + chapter.size + "pt;\n" +
+      "  font-weight: " + chapter.weight + ";\n" +
+      "  font-style: " + (chapter.italic ? "italic" : "normal") + ";\n" +
+      "  text-align: center;\n" +
+      "  text-indent: 0;\n" +
+      "  break-before: page;\n" +
+      "  margin: 1.5em 0 1em 0;\n" +
+      "}\n" +
+      ".pl-body {\n" +
+      "  font-family: '" + body.font + "', serif;\n" +
+      "  font-size: " + body.size + "pt;\n" +
+      "  font-weight: " + body.weight + ";\n" +
+      "  font-style: " + (body.italic ? "italic" : "normal") + ";\n" +
+      "  text-align: justify;\n" +
+      "  text-indent: 1.5em;\n" +
+      "  margin: 0;\n" +
+      "  orphans: 2;\n" +
+      "  widows: 2;\n" +
+      "}\n" +
+      ".pl-image {\n" +
+      "  text-align: center;\n" +
+      "  text-indent: 0;\n" +
+      "  margin: 1em auto;\n" +
+      "  break-inside: avoid;\n" +
+      "}\n" +
+      ".pl-image img { max-width: 100%; height: auto; }\n";
+  }
+
+  // ---------- preview document ----------
+
+  function escapeAttr(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function toBase64Utf8(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  function buildPreviewDocument(opts) {
+    var cssDataUrl = "data:text/css;base64," + toBase64Utf8(opts.css);
+    return "<!doctype html>\n" +
+"<html>\n" +
+"<head>\n" +
+"<meta charset=\"utf-8\">\n" +
+"<title>" + escapeHtml(opts.docTitle) + " — Paginated Preview</title>\n" +
+"<link rel=\"stylesheet\" href=\"" + escapeAttr(opts.fontsHref) + "\">\n" +
+"<scr" + "ipt src=\"" + PAGEDJS_CDN + "\"></scr" + "ipt>\n" +
+"<style>\n" +
+"  html, body { margin:0; padding:0; background:#525659; }\n" +
+"  #pl-toolbar {\n" +
+"    position: fixed; top:0; left:0; right:0; z-index:1000;\n" +
+"    background:#2b2f33; color:#fff; padding:10px 16px;\n" +
+"    display:flex; align-items:center; gap:16px; flex-wrap:wrap;\n" +
+"    font: 13px/1.4 -apple-system, 'Segoe UI', sans-serif;\n" +
+"  }\n" +
+"  #pl-toolbar button {\n" +
+"    padding:7px 16px; font-size:13px; border-radius:5px; border:none; cursor:pointer;\n" +
+"    background:#7a3b2e; color:#fff;\n" +
+"  }\n" +
+"  #pl-toolbar button:disabled { opacity:.5; cursor:not-allowed; }\n" +
+"  #pl-toolbar .pl-warn { color:#ffcc66; font-weight:600; }\n" +
+"  #pl-toolbar .pl-ok { color:#9be09b; }\n" +
+"  #pl-spacer { height:52px; }\n" +
+"  #source { display:none; }\n" +
+"  @media print {\n" +
+"    #pl-toolbar, #pl-spacer { display:none !important; }\n" +
+"    html, body { background: none; }\n" +
+"  }\n" +
+"</style>\n" +
+"</head>\n" +
+"<body>\n" +
+"<div id=\"pl-toolbar\">\n" +
+"  <strong>Pagination Lite Preview</strong>\n" +
+"  <span id=\"pl-status\">Loading fonts…</span>\n" +
+"  <span id=\"pl-pagecount\"></span>\n" +
+"  <span id=\"pl-warning\" class=\"pl-warn\"></span>\n" +
+"  <button id=\"pl-export\" disabled>Fonts loading…</button>\n" +
+"</div>\n" +
+"<div id=\"pl-spacer\"></div>\n" +
+"<div id=\"source\">" + opts.contentHtml + "</div>\n" +
+"<div id=\"pagedjs-print\"></div>\n" +
+"<scr" + "ipt>\n" +
+"(function () {\n" +
+"  var statusEl = document.getElementById('pl-status');\n" +
+"  var pageCountEl = document.getElementById('pl-pagecount');\n" +
+"  var warningEl = document.getElementById('pl-warning');\n" +
+"  var exportBtn = document.getElementById('pl-export');\n" +
+"  var CSS_URL = " + JSON.stringify(cssDataUrl) + ";\n" +
+"  var FONT_LOAD_SPECS = " + JSON.stringify(opts.fontLoadSpecs) + ";\n" +
+"\n" +
+"  function go() {\n" +
+"    Promise.all(FONT_LOAD_SPECS.map(function (spec) {\n" +
+"      return document.fonts.load(spec).catch(function () {});\n" +
+"    })).then(function () {\n" +
+"      return document.fonts.ready;\n" +
+"    }).then(function () {\n" +
+"      statusEl.textContent = 'Paginating…';\n" +
+"      var source = document.getElementById('source');\n" +
+"      var target = document.getElementById('pagedjs-print');\n" +
+"      var previewer = new PagedModule.Previewer();\n" +
+"      return previewer.preview(source, [CSS_URL], target);\n" +
+"    }).then(function (flow) {\n" +
+"      var total = flow.total;\n" +
+"      pageCountEl.textContent = total + ' page' + (total === 1 ? '' : 's');\n" +
+"      if (total % 2 !== 0) {\n" +
+"        warningEl.textContent = 'Odd page count — IngramSpark expects the interior PDF to end on an even page count.';\n" +
+"      } else {\n" +
+"        warningEl.className = 'pl-ok';\n" +
+"        warningEl.textContent = 'Even page count.';\n" +
+"      }\n" +
+"      return document.fonts.ready;\n" +
+"    }).then(function () {\n" +
+"      statusEl.textContent = 'Ready.';\n" +
+"      exportBtn.disabled = false;\n" +
+"      exportBtn.textContent = 'Export / Print';\n" +
+"      exportBtn.addEventListener('click', function () { window.print(); });\n" +
+"    }).catch(function (err) {\n" +
+"      statusEl.textContent = 'Error: ' + err.message;\n" +
+"      console.error(err);\n" +
+"    });\n" +
+"  }\n" +
+"\n" +
+"  if (document.readyState === 'complete') { go(); }\n" +
+"  else { window.addEventListener('load', go); }\n" +
+"})();\n" +
+"</scr" + "ipt>\n" +
+"</body>\n" +
+"</html>";
+  }
+
+  // ---------- wire up preview open ----------
+
+  openPreviewBtn.addEventListener("click", function () {
+    if (!state.processedHtml) return;
+
+    var styleConfig = collectStyleConfig();
+    var pageConfig = collectPageConfig();
+    var counts = state.counts;
+
+    var fontNames = [];
+    if (counts.part) fontNames.push(styleConfig.part.font);
+    if (counts.chapter) fontNames.push(styleConfig.chapter.font);
+    if (counts.body) fontNames.push(styleConfig.body.font);
+
+    var css = buildGeneratedCss(styleConfig, pageConfig, counts);
+    var fontsHref = buildGoogleFontsHref(fontNames);
+    var fontLoadSpecs = buildFontLoadSpecs(styleConfig, counts);
+    var html = buildPreviewDocument({
+      contentHtml: state.processedHtml,
+      css: css,
+      fontsHref: fontsHref,
+      fontLoadSpecs: fontLoadSpecs,
+      docTitle: state.fileName
+    });
+
+    var blob = new Blob([html], { type: "text/html" });
+    var url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+  });
+
+})();
+</script>
+</body>
+</html>
