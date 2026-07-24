@@ -664,7 +664,8 @@
         classified.counts.chapter + " chapter title(s), " +
         classified.counts.body + " body paragraph(s), " +
         classified.counts.image + " image paragraph(s), " +
-        classified.counts.pageBreak + " manual page break(s) detected.";
+        classified.counts.pageBreak + " manual page break(s), " +
+        classified.counts.blank + " blank-line spacer(s) detected.";
 
       if (result.messages && result.messages.length) {
         console.warn("Mammoth conversion messages:", result.messages);
@@ -683,7 +684,7 @@
   function detectAndClassify(rawHtml) {
     var container = document.createElement("div");
     container.innerHTML = rawHtml;
-    var counts = { part: 0, chapter: 0, body: 0, image: 0, pageBreak: 0 };
+    var counts = { part: 0, chapter: 0, body: 0, image: 0, pageBreak: 0, blank: 0 };
 
     Array.prototype.slice.call(container.children).forEach(function (el) {
       var tag = el.tagName;
@@ -698,6 +699,13 @@
       } else if (tag === "H2") {
         el.classList.add("pl-chapter");
         counts.chapter++;
+      } else if (tag === "HR" && el.classList.contains("pl-page-break")) {
+        // Mammoth's paragraph-wrapping can place our styleMap-mapped page
+        // break marker as its own top-level element rather than nested
+        // inside a <p> — handle it directly rather than falling into the
+        // generic "unexpected element" bucket below, which would silently
+        // turn it into styled body text and lose the break entirely.
+        counts.pageBreak++;
       } else if (tag === "P") {
         var hasPageBreak = el.querySelector("hr.pl-page-break") !== null;
         var text = el.textContent.replace(/[\s\u00A0]+/g, "");
@@ -722,6 +730,7 @@
           // content risks being measured as zero height regardless of CSS.
           el.textContent = "\u00A0";
           el.classList.add("pl-blank");
+          counts.blank++;
         } else {
           el.classList.add("pl-body");
           counts.body++;
