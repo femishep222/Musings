@@ -1,4 +1,7 @@
-Line spaces between quotes
-Need page breaks to render before 'books by femi fadugba' and before 'The Mirror World' image and before dedication 
+Lets hide/grey out the print via browser optoin for now since that's not working great and we shoold rely on the pdf export instead....
+automatically create extra page if odd page count?
+call current 'Kindle Standard A' 'Kindle Paperback - 5 x 8' instead and make this the default (rather than Custom option)
+
 Ensure rendered images have same scale/size as in Word
-Get printout formatting working (only renders first paragarph of each page currently)
+
+Do research to refine margin amounts specifically for kindle paperback based on net feedback and kindle documentation

@@ -757,8 +757,18 @@
     var isHeading = function (el) {
       return !!el && (el.classList.contains("pl-part") || el.classList.contains("pl-chapter"));
     };
+    // Skip past blank-line spacers (this manuscript has ~200 of them
+    // scattered throughout) when looking for the "real" next element — a
+    // spacer sitting between a marker and the heading it precedes would
+    // otherwise hide that adjacency, causing the marker to force a break on
+    // the spacer instead of being dropped as redundant.
+    var nextSignificant = function (el) {
+      var n = el.nextElementSibling;
+      while (n && n.classList.contains("pl-blank")) n = n.nextElementSibling;
+      return n;
+    };
     Array.prototype.slice.call(container.querySelectorAll(".pl-page-break")).forEach(function (marker) {
-      var next = marker.nextElementSibling;
+      var next = nextSignificant(marker);
       if (next && !isHeading(next)) {
         next.classList.add("pl-force-break");
       }
