@@ -1,4 +1,4 @@
-Fox double hyphen rendering glitch (which is causing margin spillover / letter overlap)
-Ensure rendered images have same scale/size as in Word
 Line spaces between quotes
 Need page breaks to render before 'books by femi fadugba' and before 'The Mirror World' image and before dedication 
+Ensure rendered images have same scale/size as in Word
+Get printout formatting working (only renders first paragarph of each page currently)

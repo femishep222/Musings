@@ -628,7 +628,20 @@
 
     file.arrayBuffer().then(function (arrayBuffer) {
       uploadStatus.textContent = "Converting…";
-      return mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
+      return mammoth.convertToHtml({ arrayBuffer: arrayBuffer }, {
+        // Word's manual "Insert Page Break" (Ctrl+Enter) is a run-level
+        // w:br[type=page], not a paragraph style — mammoth drops it silently
+        // by default (no sensible generic HTML mapping). Map it explicitly to
+        // a marker element so we can turn it into a real page break instead
+        // of losing it or, worse, having it fall into the generic "empty
+        // paragraph" bucket alongside intentional blank-line spacers.
+        styleMap: ["br[type='page'] => hr.pl-page-break"],
+        // Mammoth's default (true) silently drops genuinely empty paragraphs
+        // before we ever see them — which is exactly what Word's "blank
+        // line" spacing convention (pressing Enter twice) produces. Keep
+        // them so detectAndClassify can turn them into visible spacers.
+        ignoreEmptyParagraphs: false
+      });
     }).then(function (result) {
       // Strip soft hyphens (U+00AD) — Word inserts these as invisible optional
       // break points (often from automatic hyphenation), meant to render as a
@@ -650,7 +663,8 @@
         classified.counts.part + " part/section title(s), " +
         classified.counts.chapter + " chapter title(s), " +
         classified.counts.body + " body paragraph(s), " +
-        classified.counts.image + " image paragraph(s) detected.";
+        classified.counts.image + " image paragraph(s), " +
+        classified.counts.pageBreak + " manual page break(s) detected.";
 
       if (result.messages && result.messages.length) {
         console.warn("Mammoth conversion messages:", result.messages);
@@ -669,7 +683,7 @@
   function detectAndClassify(rawHtml) {
     var container = document.createElement("div");
     container.innerHTML = rawHtml;
-    var counts = { part: 0, chapter: 0, body: 0, image: 0 };
+    var counts = { part: 0, chapter: 0, body: 0, image: 0, pageBreak: 0 };
 
     Array.prototype.slice.call(container.children).forEach(function (el) {
       var tag = el.tagName;
@@ -685,21 +699,36 @@
         el.classList.add("pl-chapter");
         counts.chapter++;
       } else if (tag === "P") {
-        var text = el.textContent.replace(/[\s ]+/g, "");
+        var hasPageBreak = el.querySelector("hr.pl-page-break") !== null;
+        var text = el.textContent.replace(/[\s\u00A0]+/g, "");
         var hasImg = el.querySelector("img") !== null;
-        if (hasImg && text.length === 0) {
+        if (hasPageBreak && text.length === 0 && !hasImg) {
+          // Word's manual "Insert Page Break" (Ctrl+Enter), mapped by our
+          // mammoth styleMap rule to hr.pl-page-break. Distinct from a plain
+          // blank-line spacer: this paragraph carries no visible content of
+          // its own -- it exists purely to force a new page after it.
+          el.innerHTML = "";
+          el.classList.add("pl-page-break");
+          counts.pageBreak++;
+        } else if (hasImg && text.length === 0) {
           el.classList.add("pl-image");
           counts.image++;
         } else if (text.length === 0) {
-          // empty paragraph (blank line) -- drop it, do not render a gap
-          el.parentNode.removeChild(el);
+          // Genuinely empty paragraph -- Word's "blank line" convention (e.g.
+          // pressing Enter twice between quotes for breathing room). Give it
+          // a real (invisible) character rather than relying on CSS
+          // min-height alone: paged.js's chunker measures actual rendered
+          // text lines to lay out pages, so an element with zero text
+          // content risks being measured as zero height regardless of CSS.
+          el.textContent = "\u00A0";
+          el.classList.add("pl-blank");
         } else {
           el.classList.add("pl-body");
           counts.body++;
         }
       } else {
         // unexpected top-level element (list, table, stray heading level, etc.)
-        // — treat as body text rather than dropping it
+        // -- treat as body text rather than dropping it
         el.classList.add("pl-body");
         counts.body++;
       }
@@ -1069,6 +1098,18 @@
       "  text-indent: 1.5em;\n" +
       "  margin: 0 !important;\n" +
       "  padding: 0 !important;\n" +
+      "}\n" +
+      ".pl-blank {\n" +
+      "  font-size: " + body.size + "pt;\n" +
+      "  line-height: 1.3;\n" +
+      "  margin: 0;\n" +
+      "}\n" +
+      ".pl-page-break {\n" +
+      "  height: 0;\n" +
+      "  margin: 0;\n" +
+      "  padding: 0;\n" +
+      "  border: none;\n" +
+      "  break-after: page;\n" +
       "}\n" +
       ".pl-image {\n" +
       "  text-align: center;\n" +
