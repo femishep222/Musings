@@ -163,6 +163,13 @@
     <h2>3. Page Setup</h2>
     <p class="hint">Trim size and margins. Inner/outer mirror between left and right pages via <code>@page&nbsp;:left</code> / <code>:right</code>.</p>
 
+    <div class="row">
+      <div class="field">
+        <label for="pageSetupPreset">Preset</label>
+        <select id="pageSetupPreset"></select>
+      </div>
+    </div>
+
     <div class="margin-grid">
       <div class="field">
         <label for="pageWidth">Trim width (in)</label>
@@ -223,6 +230,341 @@
   "use strict";
 
   var PAGEDJS_CDN = "https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.min.js";
+  var JSPDF_CDN = "https://cdn.jsdelivr.net/npm/jspdf@4.2.1/dist/jspdf.umd.min.js";
+
+  // The popup's runtime logic (pagination trigger, WOFF1->SFNT font decoding,
+  // per-word DOM extraction, PDF assembly). Embedded as a template literal
+  // and injected via a self-contained data: URL script src, rather than a
+  // separate .js file loaded cross-context from the blob: popup — that
+  // pattern isn't reliably permitted by Chrome's security model for a
+  // file://-opened page (it can silently no-op instead of erroring, which is
+  // exactly what caused the popup to hang on "Loading fonts…").
+  var RUNTIME_JS = `
+(function () {
+  "use strict";
+
+  var config = window.PL_CONFIG;
+  var statusEl = document.getElementById("pl-status");
+  var pageCountEl = document.getElementById("pl-pagecount");
+  var warningEl = document.getElementById("pl-warning");
+  var pdfBtn = document.getElementById("pl-export-pdf");
+  var printBtn = document.getElementById("pl-print");
+
+  var FONTSOURCE_VERSION = "5.3.0";
+
+  function fontSlug(name) {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+
+  // ---------- WOFF1 -> SFNT (TTF/OTF) decoder ----------
+  // @fontsource ships genuine WOFF1 files alongside WOFF2. WOFF1 is just
+  // zlib-compressed SFNT tables behind a simple fixed header — no exotic
+  // glyf/loca transform like WOFF2 — so it can be reconstructed into a
+  // plain TTF/OTF with nothing but the browser's native DecompressionStream,
+  // no WASM/bundled library required. jsPDF needs that TTF/OTF to embed
+  // real vector text with the correct font.
+
+  function inflateZlib(bytes) {
+    var ds = new DecompressionStream("deflate");
+    var stream = new Blob([bytes]).stream().pipeThrough(ds);
+    return new Response(stream).arrayBuffer();
+  }
+
+  function woff1ToSfnt(woffBuffer) {
+    var view = new DataView(woffBuffer);
+    var bytes = new Uint8Array(woffBuffer);
+    if (view.getUint32(0) !== 0x774f4646) throw new Error("Not a WOFF1 file");
+    var flavor = view.getUint32(4);
+    var numTables = view.getUint16(12);
+
+    var tables = [];
+    var pos = 44;
+    for (var i = 0; i < numTables; i++) {
+      tables.push({
+        tag: String.fromCharCode(bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]),
+        offset: view.getUint32(pos + 4),
+        compLength: view.getUint32(pos + 8),
+        origLength: view.getUint32(pos + 12),
+        checksum: view.getUint32(pos + 16)
+      });
+      pos += 20;
+    }
+
+    return Promise.all(tables.map(function (t) {
+      var slice = bytes.slice(t.offset, t.offset + t.compLength);
+      if (t.compLength === t.origLength) {
+        return Promise.resolve(slice.buffer.slice(slice.byteOffset, slice.byteOffset + slice.byteLength));
+      }
+      return inflateZlib(slice);
+    })).then(function (tableDatas) {
+      var order = tables.map(function (_, idx) { return idx; }).sort(function (a, b) {
+        return tables[a].tag < tables[b].tag ? -1 : (tables[a].tag > tables[b].tag ? 1 : 0);
+      });
+
+      var entrySelector = 0;
+      while ((1 << (entrySelector + 1)) <= numTables) entrySelector++;
+      var searchRange = (1 << entrySelector) * 16;
+      var rangeShift = numTables * 16 - searchRange;
+
+      var headerSize = 12 + numTables * 16;
+      var offsets = [];
+      var total = headerSize;
+      order.forEach(function (idx) {
+        offsets[idx] = total;
+        total += (tableDatas[idx].byteLength + 3) & ~3;
+      });
+
+      var out = new Uint8Array(total);
+      var outView = new DataView(out.buffer);
+      outView.setUint32(0, flavor);
+      outView.setUint16(4, numTables);
+      outView.setUint16(6, searchRange);
+      outView.setUint16(8, entrySelector);
+      outView.setUint16(10, rangeShift);
+
+      var dirPos = 12;
+      order.forEach(function (idx) {
+        var t = tables[idx];
+        for (var c = 0; c < 4; c++) out[dirPos + c] = t.tag.charCodeAt(c);
+        outView.setUint32(dirPos + 4, t.checksum);
+        outView.setUint32(dirPos + 8, offsets[idx]);
+        outView.setUint32(dirPos + 12, tableDatas[idx].byteLength);
+        dirPos += 16;
+      });
+
+      order.forEach(function (idx) {
+        out.set(new Uint8Array(tableDatas[idx]), offsets[idx]);
+      });
+
+      return out.buffer;
+    });
+  }
+
+  function arrayBufferToBase64(buffer) {
+    var binary = "";
+    var bytes = new Uint8Array(buffer);
+    for (var i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  }
+
+  function fetchFontFaceSfnt(family, weight, italic) {
+    var slug = fontSlug(family);
+    var style = italic ? "italic" : "normal";
+    var url = "https://cdn.jsdelivr.net/npm/@fontsource/" + slug + "@" + FONTSOURCE_VERSION +
+      "/files/" + slug + "-latin-" + weight + "-" + style + ".woff";
+    return fetch(url).then(function (r) {
+      if (!r.ok) {
+        throw new Error("Font file not found for " + family + " " + weight + (italic ? " italic" : "") + " (" + url + ")");
+      }
+      return r.arrayBuffer();
+    }).then(woff1ToSfnt);
+  }
+
+  // ---------- pagination ----------
+
+  function paginate() {
+    return Promise.all(config.fontLoadSpecs.map(function (spec) {
+      return document.fonts.load(spec).catch(function () {});
+    })).then(function () {
+      return document.fonts.ready;
+    }).then(function () {
+      statusEl.textContent = "Paginating…";
+      var source = document.getElementById("source");
+      var target = document.getElementById("pagedjs-print");
+      var previewer = new PagedModule.Previewer();
+      return previewer.preview(source, [config.cssUrl], target);
+    }).then(function (flow) {
+      var total = flow.total;
+      pageCountEl.textContent = total + " page" + (total === 1 ? "" : "s");
+      if (total % 2 !== 0) {
+        warningEl.textContent = "Odd page count — IngramSpark expects the interior PDF to end on an even page count.";
+      } else {
+        warningEl.className = "pl-ok";
+        warningEl.textContent = "Even page count.";
+      }
+      return document.fonts.ready;
+    }).then(function () {
+      statusEl.textContent = "Ready.";
+      pdfBtn.disabled = false;
+      printBtn.disabled = false;
+    });
+  }
+
+  // ---------- PDF export (vector text, bypasses window.print()) ----------
+
+  var registeredFaces = []; // {family, weight, italic, id}
+
+  function registerFace(doc, family, weight, italic) {
+    return fetchFontFaceSfnt(family, weight, italic).then(function (sfnt) {
+      var id = "F" + registeredFaces.length;
+      doc.addFileToVFS(id + ".ttf", arrayBufferToBase64(sfnt));
+      doc.addFont(id + ".ttf", id, "normal");
+      registeredFaces.push({ family: family, weight: Number(weight), italic: !!italic, id: id });
+    });
+  }
+
+  function findFace(family, weight, italic) {
+    var candidates = registeredFaces.filter(function (f) { return f.family === family; });
+    if (!candidates.length) candidates = registeredFaces;
+    var sameStyle = candidates.filter(function (f) { return f.italic === italic; });
+    var pool = sameStyle.length ? sameStyle : candidates;
+    pool = pool.slice().sort(function (a, b) { return Math.abs(a.weight - weight) - Math.abs(b.weight - weight); });
+    return pool[0];
+  }
+
+  function ptFromPx(px) { return px * 0.75; }
+
+  // A regex \S+ "word" can still visually wrap across two lines in the
+  // browser — most commonly a hyphenated compound like "double-parked",
+  // where a line break after the hyphen is a normal soft-wrap point. When
+  // that happens a single Range over the whole token yields more than one
+  // client rect. Binary-search the split point so each visual line
+  // fragment gets its own correctly positioned draw call, instead of the
+  // whole token being drawn at the first fragment's position (which is
+  // what caused text to overrun the right margin).
+  function splitRangeByLine(node, start, end) {
+    var range = document.createRange();
+    range.setStart(node, start);
+    range.setEnd(node, end);
+    var rects = range.getClientRects();
+    if (rects.length <= 1) {
+      return [{ start: start, end: end, rect: rects[0] }];
+    }
+    var lo = 1, hi = end - start, best = 1;
+    while (lo <= hi) {
+      var mid = (lo + hi) >> 1;
+      var r = document.createRange();
+      r.setStart(node, start);
+      r.setEnd(node, start + mid);
+      if (r.getClientRects().length <= 1) { best = mid; lo = mid + 1; }
+      else { hi = mid - 1; }
+    }
+    var firstRange = document.createRange();
+    firstRange.setStart(node, start);
+    firstRange.setEnd(node, start + best);
+    var firstPart = { start: start, end: start + best, rect: firstRange.getClientRects()[0] };
+    return [firstPart].concat(splitRangeByLine(node, start + best, end));
+  }
+
+  function drawPageContent(doc, pageEl, scale) {
+    var pageRect = pageEl.getBoundingClientRect();
+
+    var blocks = pageEl.querySelectorAll(".pl-part, .pl-chapter, .pl-body");
+    blocks.forEach(function (block) {
+      var walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT, null);
+      var node;
+      while ((node = walker.nextNode())) {
+        var text = node.nodeValue;
+        if (!text || !text.trim()) continue;
+
+        var parentEl = node.parentElement;
+        var cs = getComputedStyle(parentEl);
+        var weight = parseInt(cs.fontWeight, 10) || 400;
+        var italic = cs.fontStyle === "italic";
+        var family = cs.fontFamily.split(",")[0].replace(/['"]/g, "").trim();
+        var sizePt = ptFromPx(parseFloat(cs.fontSize));
+        var face = findFace(family, weight, italic);
+        if (!face) continue;
+
+        doc.setFont(face.id, "normal");
+        doc.setFontSize(sizePt);
+
+        var wordRe = /\\S+/g;
+        var m;
+        while ((m = wordRe.exec(text))) {
+          var segments = splitRangeByLine(node, m.index, m.index + m[0].length);
+          segments.forEach(function (seg) {
+            if (!seg.rect) return;
+            var segText = text.slice(seg.start, seg.end);
+            var xIn = (seg.rect.left - pageRect.left) * scale;
+            var yIn = (seg.rect.top - pageRect.top) * scale;
+            doc.text(segText, xIn, yIn, { baseline: "top" });
+          });
+        }
+      }
+    });
+
+    var images = pageEl.querySelectorAll(".pl-image img");
+    images.forEach(function (img) {
+      var rect = img.getBoundingClientRect();
+      var xIn = (rect.left - pageRect.left) * scale;
+      var yIn = (rect.top - pageRect.top) * scale;
+      var wIn = rect.width * scale;
+      var hIn = rect.height * scale;
+      try {
+        doc.addImage(img.src, xIn, yIn, wIn, hIn);
+      } catch (e) {
+        console.error("Failed to embed image in PDF:", e);
+      }
+    });
+  }
+
+  function yieldToBrowser() {
+    return new Promise(function (resolve) { setTimeout(resolve, 0); });
+  }
+
+  function exportPdf() {
+    pdfBtn.disabled = true;
+    printBtn.disabled = true;
+    var originalLabel = pdfBtn.textContent;
+    pdfBtn.textContent = "Embedding fonts…";
+
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF({
+      unit: "in",
+      format: [config.pageConfig.widthIn, config.pageConfig.heightIn],
+      compress: true
+    });
+
+    Promise.all(config.pdfFontFaces.map(function (spec) {
+      return registerFace(doc, spec.family, spec.weight, spec.italic);
+    })).then(function () {
+      var pages = document.querySelectorAll(".pagedjs_page");
+      var i = 0;
+
+      function nextPage() {
+        if (i >= pages.length) {
+          doc.save((config.docTitle || "manuscript") + ".pdf");
+          pdfBtn.disabled = false;
+          printBtn.disabled = false;
+          pdfBtn.textContent = originalLabel;
+          return;
+        }
+        pdfBtn.textContent = "Rendering page " + (i + 1) + " / " + pages.length + "…";
+        if (i > 0) doc.addPage([config.pageConfig.widthIn, config.pageConfig.heightIn]);
+        var pageEl = pages[i];
+        var pageRect = pageEl.getBoundingClientRect();
+        var scale = config.pageConfig.widthIn / pageRect.width;
+        drawPageContent(doc, pageEl, scale);
+        i++;
+        return yieldToBrowser().then(nextPage);
+      }
+
+      return nextPage();
+    }).catch(function (err) {
+      console.error(err);
+      pdfBtn.disabled = false;
+      printBtn.disabled = false;
+      pdfBtn.textContent = "Export failed — see console (F12)";
+    });
+  }
+
+  // ---------- wire up ----------
+
+  function go() {
+    paginate().catch(function (err) {
+      statusEl.textContent = "Error: " + err.message;
+      console.error(err);
+    });
+  }
+
+  pdfBtn.addEventListener("click", exportPdf);
+  printBtn.addEventListener("click", function () { window.print(); });
+
+  if (document.readyState === "complete") go();
+  else window.addEventListener("load", go);
+})();
+`;
 
   var CURATED_FONTS = [
     { group: "Serif — body & headings", fonts: [
@@ -236,6 +578,16 @@
       "Montserrat", "Raleway", "Inter", "Oswald", "Cinzel"
     ]}
   ];
+
+  // Page setup presets — add more entries here as needed.
+  var PAGE_SETUP_PRESETS = {
+    "PRH - TMW": {
+      widthIn: 5.075, heightIn: 7.795,
+      marginTop: 0.5, marginBottom: 0.625,
+      marginInner: 0.875, marginOuter: 0.5,
+      bleedOn: false
+    }
+  };
 
   var TYPE_ORDER = ["part", "chapter", "body"];
   var TYPE_LABELS = {
@@ -305,6 +657,11 @@
 
     Array.prototype.slice.call(container.children).forEach(function (el) {
       var tag = el.tagName;
+      // Strip any inline style mammoth carried over from the Word paragraph's
+      // own formatting (e.g. "space after paragraph"). Inline styles beat our
+      // CSS classes regardless of specificity, so leaving them in place would
+      // silently override the style panel's margin/spacing rules per-paragraph.
+      el.removeAttribute("style");
       if (tag === "H1") {
         el.classList.add("pl-part");
         counts.part++;
@@ -318,7 +675,7 @@
           el.classList.add("pl-image");
           counts.image++;
         } else if (text.length === 0) {
-          // empty paragraph (blank line) — drop it, don't render a gap
+          // empty paragraph (blank line) -- drop it, do not render a gap
           el.parentNode.removeChild(el);
         } else {
           el.classList.add("pl-body");
@@ -499,6 +856,45 @@
     document.getElementById("bleedAmount").disabled = !e.target.checked;
   });
 
+  // ---------- page setup presets ----------
+
+  var PAGE_SETUP_FIELD_IDS = ["pageWidth", "pageHeight", "marginTop", "marginBottom", "marginInner", "marginOuter"];
+  var presetSelect = document.getElementById("pageSetupPreset");
+
+  (function populatePresetSelect() {
+    var customOpt = document.createElement("option");
+    customOpt.value = "";
+    customOpt.textContent = "Custom";
+    presetSelect.appendChild(customOpt);
+    Object.keys(PAGE_SETUP_PRESETS).forEach(function (name) {
+      var opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      presetSelect.appendChild(opt);
+    });
+  })();
+
+  presetSelect.addEventListener("change", function () {
+    var preset = PAGE_SETUP_PRESETS[presetSelect.value];
+    if (!preset) return;
+    document.getElementById("pageWidth").value = preset.widthIn;
+    document.getElementById("pageHeight").value = preset.heightIn;
+    document.getElementById("marginTop").value = preset.marginTop;
+    document.getElementById("marginBottom").value = preset.marginBottom;
+    document.getElementById("marginInner").value = preset.marginInner;
+    document.getElementById("marginOuter").value = preset.marginOuter;
+    document.getElementById("bleedToggle").checked = preset.bleedOn;
+    document.getElementById("bleedAmount").disabled = !preset.bleedOn;
+  });
+
+  // Hand-editing a field after picking a preset means the values no longer
+  // match it exactly — fall back to "Custom" so the dropdown doesn't lie.
+  PAGE_SETUP_FIELD_IDS.concat(["bleedToggle", "bleedAmount"]).forEach(function (id) {
+    document.getElementById(id).addEventListener("input", function () {
+      presetSelect.value = "";
+    });
+  });
+
   // ---------- CSS + Google Fonts ----------
 
   function buildGoogleFontsHref(names) {
@@ -512,6 +908,44 @@
       return "family=" + n.replace(/ /g, "+") + ":wght@300;400;500;600;700;800";
     }).join("&");
     return "https://fonts.googleapis.com/css2?" + params + "&display=swap";
+  }
+
+  function arrayBufferToBase64(buffer) {
+    var binary = "";
+    var bytes = new Uint8Array(buffer);
+    for (var i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  }
+
+  // Chrome's PDF-export pass has a known reliability problem embedding
+  // *remotely linked* web fonts — a font can render correctly on screen and
+  // in the interactive preview yet silently fall back to a system font (with
+  // different metrics) specifically during print-to-PDF, with no error. To
+  // avoid that, fetch the actual Google Fonts CSS + font binaries ourselves
+  // and rewrite it into a fully self-contained stylesheet with base64
+  // data: URIs, so nothing needs re-fetching at print time.
+  function fetchEmbeddedFontsCss(fontsHref) {
+    return fetch(fontsHref).then(function (r) { return r.text(); }).then(function (cssText) {
+      var urlRegex = /url\((https:\/\/fonts\.gstatic\.com\/[^)]+)\)/g;
+      var urls = [];
+      var seen = {};
+      var m;
+      while ((m = urlRegex.exec(cssText)) !== null) {
+        if (!seen[m[1]]) { seen[m[1]] = true; urls.push(m[1]); }
+      }
+      return Promise.all(urls.map(function (url) {
+        return fetch(url).then(function (r) { return r.arrayBuffer(); }).then(function (buf) {
+          var mime = /\.woff2($|\?)/.test(url) ? "font/woff2" : (/\.woff($|\?)/.test(url) ? "font/woff" : "font/ttf");
+          return "data:" + mime + ";base64," + arrayBufferToBase64(buf);
+        });
+      })).then(function (dataUris) {
+        var embedded = cssText;
+        urls.forEach(function (url, i) {
+          embedded = embedded.split(url).join(dataUris[i]);
+        });
+        return embedded;
+      });
+    });
   }
 
   // Explicit font-loading specs (CSS font shorthand strings) for document.fonts.load().
@@ -541,6 +975,29 @@
     return specs;
   }
 
+  // Structured version of the same face set, for jsPDF font registration
+  // (which needs real font binaries per family/weight/style, not just a
+  // CSS shorthand string).
+  function buildPdfFontFaces(styleConfig, counts) {
+    var faces = [];
+    var seen = {};
+    function add(font, weight, italic) {
+      var key = font + "|" + weight + "|" + italic;
+      if (seen[key]) return;
+      seen[key] = true;
+      faces.push({ family: font, weight: Number(weight), italic: !!italic });
+    }
+    if (counts.part) add(styleConfig.part.font, styleConfig.part.weight, styleConfig.part.italic);
+    if (counts.chapter) add(styleConfig.chapter.font, styleConfig.chapter.weight, styleConfig.chapter.italic);
+    if (counts.body) {
+      var b = styleConfig.body;
+      add(b.font, b.weight, b.italic);
+      add(b.font, 400, true);
+      add(b.font, 700, false);
+    }
+    return faces;
+  }
+
   function buildGeneratedCss(styleConfig, pageConfig, counts) {
     var part = styleConfig.part || DEFAULT_STYLES.part;
     var chapter = styleConfig.chapter || DEFAULT_STYLES.chapter;
@@ -566,6 +1023,7 @@
       "  @bottom-left { content: counter(page); font-family: '" + body.font + "', serif; font-size: 9pt; }\n" +
       "}\n" +
       "html, body { margin: 0; padding: 0; }\n" +
+      "p, h1, h2 { margin: 0; padding: 0; }\n" +
       ".pl-part {\n" +
       "  font-family: '" + part.font + "', serif;\n" +
       "  font-size: " + part.size + "pt;\n" +
@@ -593,9 +1051,8 @@
       "  font-style: " + (body.italic ? "italic" : "normal") + ";\n" +
       "  text-align: justify;\n" +
       "  text-indent: 1.5em;\n" +
-      "  margin: 0;\n" +
-      "  orphans: 2;\n" +
-      "  widows: 2;\n" +
+      "  margin: 0 !important;\n" +
+      "  padding: 0 !important;\n" +
       "}\n" +
       ".pl-image {\n" +
       "  text-align: center;\n" +
@@ -608,9 +1065,6 @@
 
   // ---------- preview document ----------
 
-  function escapeAttr(s) {
-    return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-  }
   function escapeHtml(s) {
     return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
@@ -619,14 +1073,23 @@
   }
 
   function buildPreviewDocument(opts) {
-    var cssDataUrl = "data:text/css;base64," + toBase64Utf8(opts.css);
+    var cssDataUrl = "data:text/css;charset=utf-8;base64," + toBase64Utf8(opts.css);
+    var runtimeJsUrl = "data:text/javascript;charset=utf-8;base64," + toBase64Utf8(RUNTIME_JS);
+    var config = {
+      cssUrl: cssDataUrl,
+      fontLoadSpecs: opts.fontLoadSpecs,
+      pdfFontFaces: opts.pdfFontFaces,
+      pageConfig: { widthIn: opts.pageConfig.widthIn, heightIn: opts.pageConfig.heightIn },
+      docTitle: opts.docTitle
+    };
     return "<!doctype html>\n" +
 "<html>\n" +
 "<head>\n" +
 "<meta charset=\"utf-8\">\n" +
 "<title>" + escapeHtml(opts.docTitle) + " — Paginated Preview</title>\n" +
-"<link rel=\"stylesheet\" href=\"" + escapeAttr(opts.fontsHref) + "\">\n" +
+"<style>\n" + opts.embeddedFontsCss + "\n</style>\n" +
 "<scr" + "ipt src=\"" + PAGEDJS_CDN + "\"></scr" + "ipt>\n" +
+"<scr" + "ipt src=\"" + JSPDF_CDN + "\"></scr" + "ipt>\n" +
 "<style>\n" +
 "  html, body { margin:0; padding:0; background:#525659; }\n" +
 "  #pl-toolbar {\n" +
@@ -639,6 +1102,7 @@
 "    padding:7px 16px; font-size:13px; border-radius:5px; border:none; cursor:pointer;\n" +
 "    background:#7a3b2e; color:#fff;\n" +
 "  }\n" +
+"  #pl-toolbar button.secondary { background:#4a4f55; }\n" +
 "  #pl-toolbar button:disabled { opacity:.5; cursor:not-allowed; }\n" +
 "  #pl-toolbar .pl-warn { color:#ffcc66; font-weight:600; }\n" +
 "  #pl-toolbar .pl-ok { color:#9be09b; }\n" +
@@ -656,56 +1120,14 @@
 "  <span id=\"pl-status\">Loading fonts…</span>\n" +
 "  <span id=\"pl-pagecount\"></span>\n" +
 "  <span id=\"pl-warning\" class=\"pl-warn\"></span>\n" +
-"  <button id=\"pl-export\" disabled>Fonts loading…</button>\n" +
+"  <button id=\"pl-export-pdf\" disabled>Export PDF</button>\n" +
+"  <button id=\"pl-print\" class=\"secondary\" disabled>Print via browser…</button>\n" +
 "</div>\n" +
 "<div id=\"pl-spacer\"></div>\n" +
 "<div id=\"source\">" + opts.contentHtml + "</div>\n" +
 "<div id=\"pagedjs-print\"></div>\n" +
-"<scr" + "ipt>\n" +
-"(function () {\n" +
-"  var statusEl = document.getElementById('pl-status');\n" +
-"  var pageCountEl = document.getElementById('pl-pagecount');\n" +
-"  var warningEl = document.getElementById('pl-warning');\n" +
-"  var exportBtn = document.getElementById('pl-export');\n" +
-"  var CSS_URL = " + JSON.stringify(cssDataUrl) + ";\n" +
-"  var FONT_LOAD_SPECS = " + JSON.stringify(opts.fontLoadSpecs) + ";\n" +
-"\n" +
-"  function go() {\n" +
-"    Promise.all(FONT_LOAD_SPECS.map(function (spec) {\n" +
-"      return document.fonts.load(spec).catch(function () {});\n" +
-"    })).then(function () {\n" +
-"      return document.fonts.ready;\n" +
-"    }).then(function () {\n" +
-"      statusEl.textContent = 'Paginating…';\n" +
-"      var source = document.getElementById('source');\n" +
-"      var target = document.getElementById('pagedjs-print');\n" +
-"      var previewer = new PagedModule.Previewer();\n" +
-"      return previewer.preview(source, [CSS_URL], target);\n" +
-"    }).then(function (flow) {\n" +
-"      var total = flow.total;\n" +
-"      pageCountEl.textContent = total + ' page' + (total === 1 ? '' : 's');\n" +
-"      if (total % 2 !== 0) {\n" +
-"        warningEl.textContent = 'Odd page count — IngramSpark expects the interior PDF to end on an even page count.';\n" +
-"      } else {\n" +
-"        warningEl.className = 'pl-ok';\n" +
-"        warningEl.textContent = 'Even page count.';\n" +
-"      }\n" +
-"      return document.fonts.ready;\n" +
-"    }).then(function () {\n" +
-"      statusEl.textContent = 'Ready.';\n" +
-"      exportBtn.disabled = false;\n" +
-"      exportBtn.textContent = 'Export / Print';\n" +
-"      exportBtn.addEventListener('click', function () { window.print(); });\n" +
-"    }).catch(function (err) {\n" +
-"      statusEl.textContent = 'Error: ' + err.message;\n" +
-"      console.error(err);\n" +
-"    });\n" +
-"  }\n" +
-"\n" +
-"  if (document.readyState === 'complete') { go(); }\n" +
-"  else { window.addEventListener('load', go); }\n" +
-"})();\n" +
-"</scr" + "ipt>\n" +
+"<scr" + "ipt>window.PL_CONFIG = " + JSON.stringify(config) + ";</scr" + "ipt>\n" +
+"<scr" + "ipt src=\"" + runtimeJsUrl + "\"></scr" + "ipt>\n" +
 "</body>\n" +
 "</html>";
   }
@@ -727,17 +1149,32 @@
     var css = buildGeneratedCss(styleConfig, pageConfig, counts);
     var fontsHref = buildGoogleFontsHref(fontNames);
     var fontLoadSpecs = buildFontLoadSpecs(styleConfig, counts);
-    var html = buildPreviewDocument({
-      contentHtml: state.processedHtml,
-      css: css,
-      fontsHref: fontsHref,
-      fontLoadSpecs: fontLoadSpecs,
-      docTitle: state.fileName
-    });
+    var pdfFontFaces = buildPdfFontFaces(styleConfig, counts);
 
-    var blob = new Blob([html], { type: "text/html" });
-    var url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
+    var originalLabel = openPreviewBtn.textContent;
+    openPreviewBtn.disabled = true;
+    openPreviewBtn.textContent = "Embedding fonts…";
+
+    fetchEmbeddedFontsCss(fontsHref).then(function (embeddedFontsCss) {
+      var html = buildPreviewDocument({
+        contentHtml: state.processedHtml,
+        css: css,
+        embeddedFontsCss: embeddedFontsCss,
+        fontLoadSpecs: fontLoadSpecs,
+        pdfFontFaces: pdfFontFaces,
+        pageConfig: pageConfig,
+        docTitle: state.fileName
+      });
+      var blob = new Blob([html], { type: "text/html" });
+      var url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    }).catch(function (err) {
+      console.error(err);
+      previewHint.textContent = "Failed to fetch fonts: " + err.message;
+    }).then(function () {
+      openPreviewBtn.disabled = false;
+      openPreviewBtn.textContent = originalLabel;
+    });
   });
 
 })();
