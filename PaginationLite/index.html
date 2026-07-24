@@ -586,6 +586,12 @@
       marginTop: 0.5, marginBottom: 0.625,
       marginInner: 0.875, marginOuter: 0.5,
       bleedOn: false
+    },
+    "Kindle Standard A": {
+      widthIn: 5, heightIn: 8,
+      marginTop: 0.5, marginBottom: 0.625,
+      marginInner: 0.875, marginOuter: 0.5,
+      bleedOn: false
     }
   };
 
@@ -624,7 +630,17 @@
       uploadStatus.textContent = "Converting…";
       return mammoth.convertToHtml({ arrayBuffer: arrayBuffer });
     }).then(function (result) {
-      var classified = detectAndClassify(result.value);
+      // Strip soft hyphens (U+00AD) — Word inserts these as invisible optional
+      // break points (often from automatic hyphenation), meant to render as a
+      // visible "-" only if a line actually wraps there. Browsers honor that
+      // conditional rendering; our PDF export draws literal string content, so
+      // every soft hyphen was rendering as a real hyphen regardless of whether
+      // a break happened, producing doubled dashes next to real hyphens and
+      // stray leading dashes. Removing them loses only that one extra optional
+      // break point — normal word/hyphen boundaries still provide plenty of
+      // places to wrap.
+      var rawHtml = result.value.replace(/­/g, "");
+      var classified = detectAndClassify(rawHtml);
       state.processedHtml = classified.html;
       state.counts = classified.counts;
       state.fileName = file.name.replace(/\.docx$/i, "");
