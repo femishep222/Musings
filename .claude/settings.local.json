@@ -11,7 +11,12 @@
       "Bash(rm -f adoption_ohms_law/styles.css)",
       "Bash(rmdir adoption_ohms_law)",
       "Bash(start chrome *)",
-      "Bash(cmd.exe /c start chrome \"adoption_ohms_law_triple_mode.html\")"
+      "Bash(cmd.exe /c start chrome \"adoption_ohms_law_triple_mode.html\")",
+      "Bash(node -e \"require\\('playwright'\\)\")",
+      "Bash(npx --yes playwright --version)",
+      "PowerShell(node --version)",
+      "PowerShell(npx --version)",
+      "PowerShell(Start-Process \"c:\\\\Users\\\\femi1\\\\OneDrive\\\\Desktop\\\\Projects\\\\Musings\\\\PosterPopulator\\\\index.html\")"
     ]
   }
 }

@@ -92,6 +92,21 @@ body{
 .field select{ min-height:auto; }
 .field select option{ background:#221f2e; }
 
+.field-val{
+  text-transform:none;
+  font-weight:400;
+  color:#c8c6d8;
+  letter-spacing:0;
+  font-size:12px;
+}
+.field input[type=range]{
+  width:100%;
+  accent-color:var(--c2);
+  height:20px;
+  cursor:pointer;
+  background:transparent;
+}
+
 .colors-row{ display:flex; gap:14px; }
 .color-field{ flex:1; }
 .color-field .swatch-input{
@@ -174,7 +189,7 @@ body{
 }
 
 .eyebrow{
-  font-size:15px;
+  font-size:calc(15px * var(--text-scale, 1));
   font-weight:700;
   text-transform:uppercase;
   letter-spacing:2.2px;
@@ -186,9 +201,9 @@ body{
   font-weight:400;
   line-height:1.18;
   max-width:760px;
-  max-height:112px;
+  max-height:128px;
   overflow:hidden;
-  font-size:34px;
+  font-size:40px;
 }
 .block-solves{ margin-top:auto; }
 
@@ -202,19 +217,21 @@ body{
 }
 .hero-shape{
   position:absolute;
-  top:8%; left:11%; right:11%; bottom:8%;
   z-index:0;
 }
 .hero-shape svg{ width:100%; height:100%; display:block; }
 .hero-inner{
-  position:absolute;
-  top:8%; left:11%; right:11%; bottom:8%;
+  position:relative;
   z-index:1;
   display:flex;
   flex-direction:column;
   align-items:stretch;
   justify-content:center;
-  padding:6% 17%;
+  max-width:84%;
+  max-height:88%;
+  font-size:26px;
+  padding:1.1em 2.2em;
+  box-sizing:border-box;
   text-align:center;
 }
 .hero-eyebrow{
@@ -222,6 +239,10 @@ body{
   color:var(--on-c2);
   opacity:.85;
   flex:0 0 auto;
+  /* rides the same damped scale as the name (see NAME_DIAL_RESPONSE) instead
+     of the shared --text-scale, so it grows in step with the name it sits
+     above rather than racing ahead of it inside the oval */
+  font-size:calc(15px * var(--hero-scale, 1));
 }
 .hero-name{
   color:var(--on-c2);
@@ -229,8 +250,6 @@ body{
   line-height:1.3;
   font-size:120px;
   width:100%;
-  max-height:70%;
-  overflow:hidden;
   word-break:break-word;
   flex:0 1 auto;
   text-decoration:underline;
@@ -296,6 +315,11 @@ body{
   </div>
 
   <div class="field">
+    <label for="textSizeInput">Text size <span class="field-val" id="textSizeVal"></span></label>
+    <input type="range" id="textSizeInput" min="0.7" max="2" step="0.05">
+  </div>
+
+  <div class="field">
     <label>Main colours</label>
     <div class="colors-row">
       <div class="color-field">
@@ -319,6 +343,11 @@ body{
     <div class="shapes-hint" id="shapesHint">2 of 2 selected</div>
   </div>
 
+  <div class="field">
+    <label for="shapeDensityInput">Shape density <span class="field-val" id="shapeDensityVal"></span></label>
+    <input type="range" id="shapeDensityInput" min="0" max="40" step="1">
+  </div>
+
   <div class="actions">
     <button class="btn btn-secondary" id="shuffleBtn">Shuffle layout</button>
   </div>
@@ -332,22 +361,22 @@ body{
         <div class="content">
           <div class="block block-love">
             <div class="eyebrow">I love</div>
-            <div class="body-text" id="loveText" data-max-font="34" data-min-font="15"></div>
+            <div class="body-text" id="loveText" data-max-font="40" data-min-font="20"></div>
           </div>
           <div class="block block-problem">
             <div class="eyebrow">But the problem is</div>
-            <div class="body-text" id="problemText" data-max-font="34" data-min-font="15"></div>
+            <div class="body-text" id="problemText" data-max-font="40" data-min-font="20"></div>
           </div>
           <div class="hero-row" id="heroRow">
             <div class="hero-shape" id="heroShape"></div>
-            <div class="hero-inner">
+            <div class="hero-inner" id="heroInner">
               <div class="eyebrow hero-eyebrow">That's why I created</div>
               <div class="hero-name" id="nameText" data-max-font="128" data-min-font="34"></div>
             </div>
           </div>
           <div class="block block-solves">
             <div class="eyebrow">It solves this problem by</div>
-            <div class="body-text" id="solvesText" data-max-font="34" data-min-font="15"></div>
+            <div class="body-text" id="solvesText" data-max-font="40" data-min-font="20"></div>
           </div>
         </div>
         <div class="brandmark">Poster Populator</div>
@@ -392,8 +421,10 @@ body{
   var state = {
     love:'', problem:'', name:'', solves:'',
     font:'poppins',
+    textScale:1,
     color1:'#1c1b29', color2:'#ff6b35',
     shapes:['blob','triangle'],
+    shapeDensity:9,
     scatter:null
   };
 
@@ -446,7 +477,7 @@ body{
 
   function generateScatter(){
     var items = [];
-    var n = 9;
+    var n = state.shapeDensity;
     for(var i=0;i<n;i++){
       var type = pick(state.shapes);
       var size = rand(55, 175);
@@ -500,24 +531,115 @@ body{
     return FONTS[0];
   }
 
-  function fitText(el){
-    var maxFont = parseFloat(el.dataset.maxFont);
-    var minFont = parseFloat(el.dataset.minFont);
+  // ---------- Per-font optical-size normalization ----------
+  // Different typefaces have very different x-heights at the same nominal
+  // font-size (e.g. condensed display faces read much taller than a serif
+  // at "34px"). We measure each font's actual lowercase glyph height on a
+  // canvas and scale its max/min fit-text sizes so all fonts land at a
+  // comparable *visual* size rather than a comparable nominal one.
+  var fontScaleCache = {};
+  var referenceXHeight = null;
+
+  function measureXHeightRatio(family, weight){
+    try{
+      if(!measureXHeightRatio._canvas) measureXHeightRatio._canvas = document.createElement('canvas');
+      var ctx = measureXHeightRatio._canvas.getContext('2d');
+      var refPx = 200;
+      ctx.font = weight + ' ' + refPx + 'px "' + family + '", sans-serif';
+      var m = ctx.measureText('xoeanmrsvwz');
+      if(m.actualBoundingBoxAscent == null) return null;
+      var h = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+      return h > 0 ? h / refPx : null;
+    }catch(e){ return null; }
+  }
+
+  function getFontScale(f){
+    if(fontScaleCache[f.id] != null) return fontScaleCache[f.id];
+    if(referenceXHeight == null) referenceXHeight = measureXHeightRatio('Poppins', 400) || 0.5;
+    var xh = measureXHeightRatio(f.family, f.bold);
+    var scale = 1;
+    if(xh) scale = Math.max(0.85, Math.min(1.3, referenceXHeight / xh));
+    fontScaleCache[f.id] = scale;
+    return scale;
+  }
+
+  function fitText(el, scale, boundEl){
+    scale = scale || 1;
+    boundEl = boundEl || el;
+    var maxFont = parseFloat(el.dataset.maxFont) * scale;
+    var minFont = parseFloat(el.dataset.minFont) * scale;
     var size = maxFont;
     el.style.fontSize = size + 'px';
     var guard = 0;
-    while(size > minFont && (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) && guard < 200){
+    // guard must cover the full possible shrink range (size drops 1px/iter),
+    // not a fixed constant -- otherwise a large max-font (big textScale x
+    // font optical-scale) can exhaust the guard before the text actually fits.
+    var maxIter = Math.ceil(maxFont - minFont) + 5;
+    while(size > minFont && (boundEl.scrollWidth > boundEl.clientWidth + 1 || boundEl.scrollHeight > boundEl.clientHeight + 1) && guard < maxIter){
       size -= 1;
       el.style.fontSize = size + 'px';
       guard++;
     }
   }
 
+  // The blob is rendered at this multiple of the text's own tightly-fit
+  // bounding box -- pure visual presence, independent of text size, so the
+  // text can be left alone while the blob still reads as bigger by default.
+  var BLOB_SCALE = 1.2;
+
+  function layoutHeroShape(){
+    var heroRow = document.getElementById('heroRow');
+    var heroInner = document.getElementById('heroInner');
+    var heroShape = document.getElementById('heroShape');
+    // hero-inner's own box can be capped by its max-width/max-height (so it
+    // never forces the poster layout to blow up), but the eyebrow + name
+    // inside it might still render wider/taller than that cap allows for.
+    // Take the larger of the two (offset = capped box, scroll = actual
+    // content) as the true content size, then blow it up by BLOB_SCALE
+    // around its own center, clamped by the hero row so it never spills
+    // past the poster.
+    var contentW = Math.max(heroInner.offsetWidth, heroInner.scrollWidth);
+    var contentH = Math.max(heroInner.offsetHeight, heroInner.scrollHeight);
+    var centerX = heroInner.offsetLeft + heroInner.offsetWidth / 2;
+    var centerY = heroInner.offsetTop + heroInner.offsetHeight / 2;
+    var w = Math.min(contentW * BLOB_SCALE, heroRow.clientWidth);
+    var h = Math.min(contentH * BLOB_SCALE, heroRow.clientHeight);
+    heroShape.style.left = (centerX - w / 2) + 'px';
+    heroShape.style.top = (centerY - h / 2) + 'px';
+    heroShape.style.width = w + 'px';
+    heroShape.style.height = h + 'px';
+  }
+
+  // The name reacts to the text-size dial only partway (it's already large
+  // and was called out as "fine" at 100% -- a full 1:1 response makes it
+  // swing much harder than the body copy for the same drag of the dial).
+  var NAME_DIAL_RESPONSE = 0.45;
+
+  // hero-inner's own padding is set in em, so its breathing room around the
+  // eyebrow + name scales with whatever size the name actually lands at,
+  // instead of a fixed pixel margin that looks cramped when the name is huge
+  // and bloated when it's small. Because that padding affects the very box
+  // fitText measures against, we fit once, resize the oval's "em" to match,
+  // then fit again so the wrap reflects the updated padding.
+  function fitNameAndOval(scale){
+    var nameEl = document.getElementById('nameText');
+    var heroInner = document.getElementById('heroInner');
+    fitText(nameEl, scale, heroInner);
+    var nameSize = parseFloat(nameEl.style.fontSize) || parseFloat(nameEl.dataset.maxFont);
+    heroInner.style.fontSize = Math.max(16, nameSize * 0.22) + 'px';
+    fitText(nameEl, scale, heroInner);
+    layoutHeroShape();
+  }
+
   function fitAll(){
     requestAnimationFrame(function(){
-      ['loveText','problemText','solvesText','nameText'].forEach(function(id){
-        fitText(document.getElementById(id));
+      var fontScale = getFontScale(fontDef());
+      var bodyScale = fontScale * state.textScale;
+      var nameScale = fontScale * (1 + (state.textScale - 1) * NAME_DIAL_RESPONSE);
+      ['loveText','problemText','solvesText'].forEach(function(id){
+        fitText(document.getElementById(id), bodyScale);
       });
+      fitNameAndOval(nameScale);
     });
   }
 
@@ -556,6 +678,32 @@ body{
     renderScatter();
     fitAll();
     save();
+  }
+
+  function updateTextSizeLabel(){
+    document.getElementById('textSizeVal').textContent = Math.round(state.textScale * 100) + '%';
+  }
+
+  function applyTextScale(){
+    document.documentElement.style.setProperty('--text-scale', state.textScale);
+    // hero-eyebrow tracks the name's damped response, not the raw dial, so
+    // it grows in step with the name inside the oval -- see NAME_DIAL_RESPONSE.
+    document.documentElement.style.setProperty('--hero-scale', 1 + (state.textScale - 1) * NAME_DIAL_RESPONSE);
+  }
+
+  function syncTextSizeInput(){
+    document.getElementById('textSizeInput').value = state.textScale;
+    updateTextSizeLabel();
+    applyTextScale();
+  }
+
+  function updateShapeDensityLabel(){
+    document.getElementById('shapeDensityVal').textContent = state.shapeDensity;
+  }
+
+  function syncShapeDensityInput(){
+    document.getElementById('shapeDensityInput').value = state.shapeDensity;
+    updateShapeDensityLabel();
   }
 
   function buildFontOptions(){
@@ -632,6 +780,22 @@ body{
       save();
     });
 
+    document.getElementById('textSizeInput').addEventListener('input', function(e){
+      state.textScale = parseFloat(e.target.value);
+      updateTextSizeLabel();
+      applyTextScale();
+      fitAll();
+      save();
+    });
+
+    document.getElementById('shapeDensityInput').addEventListener('input', function(e){
+      state.shapeDensity = parseInt(e.target.value, 10);
+      updateShapeDensityLabel();
+      generateScatter();
+      renderScatter();
+      save();
+    });
+
     document.getElementById('color1Input').addEventListener('input', function(e){
       state.color1 = e.target.value;
       applyColors();
@@ -671,6 +835,8 @@ body{
     load();
     restoreFormFromState();
     buildFontOptions();
+    syncTextSizeInput();
+    syncShapeDensityInput();
     buildShapeGrid();
     bindInputs();
     applyColors();
