@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poster Populator</title>
+<style>
+
+/* ---------- Self-hosted fonts ---------- */
+@font-face { font-family:'Anton'; src:url('fonts/anton-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Bebas Neue'; src:url('fonts/bebas-neue-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Archivo Black'; src:url('fonts/archivo-black-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Poppins'; src:url('fonts/poppins-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Poppins'; src:url('fonts/poppins-700.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'Montserrat'; src:url('fonts/montserrat-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Montserrat'; src:url('fonts/montserrat-700.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'Oswald'; src:url('fonts/oswald-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Oswald'; src:url('fonts/oswald-700.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'Raleway'; src:url('fonts/raleway-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Raleway'; src:url('fonts/raleway-700.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'Playfair Display'; src:url('fonts/playfair-display-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Playfair Display'; src:url('fonts/playfair-display-700.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'Space Grotesk'; src:url('fonts/space-grotesk-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+@font-face { font-family:'Space Grotesk'; src:url('fonts/space-grotesk-700.woff2') format('woff2'); font-weight:700; font-display:swap; }
+@font-face { font-family:'DM Serif Display'; src:url('fonts/dm-serif-display-400.woff2') format('woff2'); font-weight:400; font-display:swap; }
+
+:root{
+  --c1:#1c1b29;
+  --c2:#ff6b35;
+  --on-c1:#ffffff;
+  --on-c2:#111111;
+  --poster-font:'Poppins';
+}
+
+*{ box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+html,body{ height:100%; margin:0; }
+body{
+  font-family:-apple-system,Segoe UI,Roboto,sans-serif;
+  background:#0f0f14;
+  color:#eee;
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* ---------- Sidebar controls ---------- */
+.controls{
+  width:340px;
+  flex:0 0 340px;
+  background:#17161f;
+  border-right:1px solid #2a2938;
+  overflow-y:auto;
+  padding:22px 20px 40px;
+}
+.controls h1{
+  font-size:18px;
+  margin:0 0 4px;
+  letter-spacing:.3px;
+}
+.controls .subtitle{
+  font-size:12.5px;
+  color:#9a98ac;
+  margin:0 0 22px;
+  line-height:1.4;
+}
+.field{ margin-bottom:18px; }
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.6px;
+  color:#a6a4ba;
+  margin-bottom:6px;
+}
+.field textarea, .field input[type=text], .field select{
+  width:100%;
+  background:#221f2e;
+  border:1px solid #34324a;
+  color:#f2f2f6;
+  border-radius:8px;
+  padding:9px 10px;
+  font-size:13.5px;
+  font-family:inherit;
+  resize:vertical;
+  min-height:38px;
+}
+.field textarea:focus, .field input:focus, .field select:focus{
+  outline:none;
+  border-color:var(--c2);
+}
+.field select{ min-height:auto; }
+.field select option{ background:#221f2e; }
+
+.colors-row{ display:flex; gap:14px; }
+.color-field{ flex:1; }
+.color-field .swatch-input{
+  display:flex; align-items:center; gap:10px;
+  background:#221f2e; border:1px solid #34324a; border-radius:8px; padding:6px 10px;
+}
+.color-field input[type=color]{
+  width:34px; height:34px; border:none; padding:0; background:none; cursor:pointer; border-radius:6px; overflow:hidden;
+}
+.color-field .hexval{ font-size:12px; color:#c8c6d8; font-family:monospace; }
+
+.shapes-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+.shape-btn{
+  aspect-ratio:1;
+  background:#221f2e;
+  border:2px solid #34324a;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  padding:8px;
+}
+.shape-btn svg{ width:60%; height:60%; }
+.shape-btn.selected{
+  border-color:var(--c2);
+  background:#2a2438;
+}
+.shapes-hint{ font-size:11px; color:#7f7d92; margin-top:6px; }
+
+.actions{ margin-top:26px; display:flex; flex-direction:column; gap:10px; }
+.btn{
+  border:none; border-radius:9px; padding:12px 14px; font-size:14px; font-weight:600;
+  cursor:pointer; text-align:center;
+}
+.btn-primary{ background:var(--c2); color:#111; }
+.btn-secondary{ background:#2a2938; color:#f0eff5; border:1px solid #3c3a52; }
+.print-hint{
+  font-size:11.5px; color:#8b899c; line-height:1.5; margin-top:4px;
+  background:#1f1e2b; border:1px solid #2e2c3f; border-radius:8px; padding:10px 12px;
+}
+
+/* ---------- Stage / preview ---------- */
+.stage-wrap{ flex:1; display:flex; flex-direction:column; min-width:0; }
+.stage{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  min-height:0;
+}
+.poster-wrap{ position:relative; }
+.poster{
+  width:1056px;
+  height:816px;
+  transform-origin:top left;
+  background:var(--c1);
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+  font-family:var(--poster-font), sans-serif;
+}
+
+.shapes-layer{ position:absolute; inset:0; z-index:1; }
+.shape-item{ position:absolute; }
+.shape-item svg{ width:100%; height:100%; display:block; }
+
+.content{
+  position:relative; z-index:2;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  padding:64px 72px 50px;
+  gap:14px;
+}
+
+.eyebrow{
+  font-size:15px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:2.2px;
+  color:var(--c2);
+  margin-bottom:6px;
+}
+.body-text{
+  color:var(--on-c1);
+  font-weight:400;
+  line-height:1.18;
+  max-width:760px;
+  max-height:112px;
+  overflow:hidden;
+  font-size:34px;
+}
+.block-solves{ margin-top:auto; }
+
+.hero-row{
+  flex:1 1 auto;
+  min-height:0;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.hero-shape{
+  position:absolute;
+  top:8%; left:11%; right:11%; bottom:8%;
+  z-index:0;
+}
+.hero-shape svg{ width:100%; height:100%; display:block; }
+.hero-inner{
+  position:absolute;
+  top:8%; left:11%; right:11%; bottom:8%;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:center;
+  padding:6% 17%;
+  text-align:center;
+}
+.hero-eyebrow{
+  text-align:center;
+  color:var(--on-c2);
+  opacity:.85;
+  flex:0 0 auto;
+}
+.hero-name{
+  color:var(--on-c2);
+  font-weight:700;
+  line-height:1.3;
+  font-size:120px;
+  width:100%;
+  max-height:70%;
+  overflow:hidden;
+  word-break:break-word;
+  flex:0 1 auto;
+  text-decoration:underline;
+  text-decoration-color:currentColor;
+  text-decoration-thickness:0.06em;
+  text-underline-offset:0.16em;
+}
+
+.brandmark{
+  position:absolute; z-index:2; right:20px; bottom:14px;
+  font-size:11px; letter-spacing:1px; text-transform:uppercase;
+  color:var(--on-c1); opacity:.35;
+}
+
+/* ---------- Print ---------- */
+@page{ size:11in 8.5in; margin:0; }
+@media print{
+  html, body{ margin:0; padding:0; background:#fff; overflow:visible; height:auto; }
+  .controls, .toolbar{ display:none !important; }
+  .stage-wrap, .stage{ display:block; padding:0; height:auto; }
+  .poster-wrap{ width:11in; height:8.5in; }
+  .poster{
+    transform:none !important;
+    width:11in !important; height:8.5in !important;
+    box-shadow:none;
+  }
+}
+
+.toolbar{
+  display:flex; align-items:center; gap:12px; justify-content:center;
+  padding:14px; border-top:1px solid #232230; background:#141319;
+}
+.toolbar .btn{ padding:10px 20px; }
+.zoom-note{ font-size:12px; color:#7f7d92; }
+</style>
+</head>
+<body>
+
+<aside class="controls">
+  <h1>Poster Populator</h1>
+  <p class="subtitle">Fill in your elevator pitch, pick a look, then print straight to a letter-size landscape poster.</p>
+
+  <div class="field">
+    <label for="loveInput">I love&hellip;</label>
+    <textarea id="loveInput" rows="2" placeholder="the smell of fresh coffee in the morning"></textarea>
+  </div>
+  <div class="field">
+    <label for="problemInput">But the problem is&hellip;</label>
+    <textarea id="problemInput" rows="2" placeholder="most people don't have time to learn complex tools"></textarea>
+  </div>
+  <div class="field">
+    <label for="nameInput">That's why I created&hellip;</label>
+    <input type="text" id="nameInput" placeholder="QuickFix">
+  </div>
+  <div class="field">
+    <label for="solvesInput">It solves this problem by&hellip;</label>
+    <textarea id="solvesInput" rows="2" placeholder="turning your whole workflow into one click"></textarea>
+  </div>
+
+  <div class="field">
+    <label for="fontSelect">Font</label>
+    <select id="fontSelect"></select>
+  </div>
+
+  <div class="field">
+    <label>Main colours</label>
+    <div class="colors-row">
+      <div class="color-field">
+        <div class="swatch-input">
+          <input type="color" id="color1Input">
+          <span class="hexval" id="color1Hex"></span>
+        </div>
+      </div>
+      <div class="color-field">
+        <div class="swatch-input">
+          <input type="color" id="color2Input">
+          <span class="hexval" id="color2Hex"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Background shapes (pick 2)</label>
+    <div class="shapes-grid" id="shapesGrid"></div>
+    <div class="shapes-hint" id="shapesHint">2 of 2 selected</div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-secondary" id="shuffleBtn">Shuffle layout</button>
+  </div>
+</aside>
+
+<div class="stage-wrap">
+  <div class="stage">
+    <div class="poster-wrap" id="posterWrap">
+      <div class="poster" id="poster">
+        <div class="shapes-layer" id="shapesLayer"></div>
+        <div class="content">
+          <div class="block block-love">
+            <div class="eyebrow">I love</div>
+            <div class="body-text" id="loveText" data-max-font="34" data-min-font="15"></div>
+          </div>
+          <div class="block block-problem">
+            <div class="eyebrow">But the problem is</div>
+            <div class="body-text" id="problemText" data-max-font="34" data-min-font="15"></div>
+          </div>
+          <div class="hero-row" id="heroRow">
+            <div class="hero-shape" id="heroShape"></div>
+            <div class="hero-inner">
+              <div class="eyebrow hero-eyebrow">That's why I created</div>
+              <div class="hero-name" id="nameText" data-max-font="128" data-min-font="34"></div>
+            </div>
+          </div>
+          <div class="block block-solves">
+            <div class="eyebrow">It solves this problem by</div>
+            <div class="body-text" id="solvesText" data-max-font="34" data-min-font="15"></div>
+          </div>
+        </div>
+        <div class="brandmark">Poster Populator</div>
+      </div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <button class="btn btn-primary" id="printBtn">Print / Save as PDF</button>
+    <span class="zoom-note">Tip: in the print dialog, set Paper = Letter, Layout = Landscape, and turn on "Background graphics".</span>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  var FONTS = [
+    { id:'poppins', label:'Poppins', family:'Poppins', bold:700 },
+    { id:'montserrat', label:'Montserrat', family:'Montserrat', bold:700 },
+    { id:'raleway', label:'Raleway', family:'Raleway', bold:700 },
+    { id:'space-grotesk', label:'Space Grotesk', family:'Space Grotesk', bold:700 },
+    { id:'oswald', label:'Oswald', family:'Oswald', bold:700 },
+    { id:'playfair-display', label:'Playfair Display', family:'Playfair Display', bold:700 },
+    { id:'dm-serif-display', label:'DM Serif Display', family:'DM Serif Display', bold:400 },
+    { id:'anton', label:'Anton', family:'Anton', bold:400 },
+    { id:'bebas-neue', label:'Bebas Neue', family:'Bebas Neue', bold:400 },
+    { id:'archivo-black', label:'Archivo Black', family:'Archivo Black', bold:400 }
+  ];
+
+  var SHAPES = {
+    circle: function(c){ return '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="'+c+'"/></svg>'; },
+    ring: function(c){ return '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="36" fill="none" stroke="'+c+'" stroke-width="13"/></svg>'; },
+    triangle: function(c){ return '<svg viewBox="0 0 100 100"><polygon points="50,4 96,92 4,92" fill="'+c+'"/></svg>'; },
+    hexagon: function(c){ return '<svg viewBox="0 0 100 100"><polygon points="50,2 93,26 93,74 50,98 7,74 7,26" fill="'+c+'"/></svg>'; },
+    star: function(c){ return '<svg viewBox="0 0 100 100"><polygon points="50,4 61,37 96,37 68,58 79,92 50,71 21,92 32,58 4,37 39,37" fill="'+c+'"/></svg>'; },
+    blob: function(c){ return '<svg viewBox="0 0 200 200" preserveAspectRatio="none"><path fill="'+c+'" d="M45.3,-52.3C57.6,-42.5,64.8,-26.8,66.7,-10.5C68.6,5.8,65.2,22.7,56.1,35.8C47,48.9,32.2,58.2,15.7,63.5C-0.8,68.8,-19,70.1,-33.9,63.5C-48.8,56.9,-60.4,42.4,-65.8,26C-71.2,9.6,-70.4,-8.7,-63.2,-23.6C-56,-38.5,-42.4,-50,-27.7,-58.8C-13,-67.6,2.8,-73.7,18.5,-71.5C34.2,-69.3,49.8,-58.8,45.3,-52.3Z" transform="translate(100 100)"/></svg>'; },
+    wave: function(c){ return '<svg viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M2,50 C20,15 30,15 50,50 C70,85 80,85 98,50" fill="none" stroke="'+c+'" stroke-width="10" stroke-linecap="round"/></svg>'; }
+  };
+  var SHAPE_IDS = ['blob','circle','ring','triangle','hexagon','star','wave'];
+
+  var POSTER_W = 1056, POSTER_H = 816;
+
+  var state = {
+    love:'', problem:'', name:'', solves:'',
+    font:'poppins',
+    color1:'#1c1b29', color2:'#ff6b35',
+    shapes:['blob','triangle'],
+    scatter:null
+  };
+
+  function load(){
+    try{
+      var saved = JSON.parse(localStorage.getItem('posterPopulatorState')||'null');
+      if(saved) Object.assign(state, saved);
+    }catch(e){}
+  }
+  var saveTimer;
+  function save(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      var toSave = Object.assign({}, state);
+      delete toSave.scatter;
+      localStorage.setItem('posterPopulatorState', JSON.stringify(toSave));
+    }, 250);
+  }
+
+  function hexToRgb(hex){
+    var h = hex.replace('#','');
+    return { r:parseInt(h.substr(0,2),16), g:parseInt(h.substr(2,2),16), b:parseInt(h.substr(4,2),16) };
+  }
+  function luminance(hex){
+    var rgb = hexToRgb(hex);
+    var chans = [rgb.r, rgb.g, rgb.b].map(function(v){
+      v = v/255;
+      return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+    });
+    return 0.2126*chans[0] + 0.7152*chans[1] + 0.0722*chans[2];
+  }
+  function contrastText(hex){
+    return luminance(hex) > 0.45 ? '#141414' : '#ffffff';
+  }
+
+  function endWithPunct(s){
+    s = s.trim();
+    if(!s) return s;
+    return /[.!?]$/.test(s) ? s : s + '.';
+  }
+
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  function isNearCenter(xPct, yPct, sizePx){
+    var cx = xPct + (sizePx/POSTER_W*100)/2;
+    var cy = yPct + (sizePx/POSTER_H*100)/2;
+    return cx > 14 && cx < 86 && cy > 9 && cy < 91;
+  }
+
+  function generateScatter(){
+    var items = [];
+    var n = 9;
+    for(var i=0;i<n;i++){
+      var type = pick(state.shapes);
+      var size = rand(55, 175);
+      var x, y, tries = 0;
+      do{
+        x = rand(-6, 94);
+        y = rand(-6, 88);
+        tries++;
+      } while(isNearCenter(x,y,size) && tries < 30);
+      items.push({
+        type: type,
+        size: size,
+        x: x, y: y,
+        rotation: rand(0,360),
+        opacity: rand(0.10, 0.30),
+        colorKey: Math.random() < 0.5 ? 'c1shape' : 'c2shape'
+      });
+    }
+    state.scatter = items;
+  }
+
+  function renderScatter(){
+    var layer = document.getElementById('shapesLayer');
+    layer.innerHTML = '';
+    if(!state.scatter) generateScatter();
+    state.scatter.forEach(function(item){
+      var el = document.createElement('div');
+      el.className = 'shape-item';
+      el.style.left = item.x + '%';
+      el.style.top = item.y + '%';
+      el.style.width = item.size + 'px';
+      el.style.height = item.size + 'px';
+      el.style.opacity = item.opacity;
+      el.style.transform = 'rotate(' + item.rotation + 'deg)';
+      var color = item.colorKey === 'c1shape' ? shapeTint(state.color1) : shapeTint(state.color2);
+      el.innerHTML = SHAPES[item.type](color);
+      layer.appendChild(el);
+    });
+  }
+
+  function shapeTint(hex){ return hex; }
+
+  function renderHeroShape(){
+    var el = document.getElementById('heroShape');
+    el.innerHTML = SHAPES.blob(state.color2);
+    el.style.transform = 'rotate(-1deg) scale(1.04)';
+  }
+
+  function fontDef(){
+    for(var i=0;i<FONTS.length;i++) if(FONTS[i].id === state.font) return FONTS[i];
+    return FONTS[0];
+  }
+
+  function fitText(el){
+    var maxFont = parseFloat(el.dataset.maxFont);
+    var minFont = parseFloat(el.dataset.minFont);
+    var size = maxFont;
+    el.style.fontSize = size + 'px';
+    var guard = 0;
+    while(size > minFont && (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1) && guard < 200){
+      size -= 1;
+      el.style.fontSize = size + 'px';
+      guard++;
+    }
+  }
+
+  function fitAll(){
+    requestAnimationFrame(function(){
+      ['loveText','problemText','solvesText','nameText'].forEach(function(id){
+        fitText(document.getElementById(id));
+      });
+    });
+  }
+
+  function renderText(){
+    document.getElementById('loveText').textContent = endWithPunct(state.love || document.getElementById('loveInput').placeholder);
+    document.getElementById('problemText').textContent = endWithPunct(state.problem || document.getElementById('problemInput').placeholder);
+    document.getElementById('solvesText').textContent = endWithPunct(state.solves || document.getElementById('solvesInput').placeholder);
+    document.getElementById('nameText').textContent = state.name || document.getElementById('nameInput').placeholder;
+  }
+
+  function applyColors(){
+    var root = document.documentElement.style;
+    root.setProperty('--c1', state.color1);
+    root.setProperty('--c2', state.color2);
+    root.setProperty('--on-c1', contrastText(state.color1));
+    root.setProperty('--on-c2', contrastText(state.color2));
+    document.getElementById('color1Input').value = state.color1;
+    document.getElementById('color2Input').value = state.color2;
+    document.getElementById('color1Hex').textContent = state.color1;
+    document.getElementById('color2Hex').textContent = state.color2;
+  }
+
+  function applyFont(){
+    var f = fontDef();
+    document.documentElement.style.setProperty('--poster-font', "'" + f.family + "'");
+    document.getElementById('nameText').style.fontWeight = f.bold;
+    var weightPromise = document.fonts.load(f.bold + ' 100px "' + f.family + '"');
+    var regularPromise = document.fonts.load('400 40px "' + f.family + '"');
+    Promise.all([weightPromise, regularPromise]).then(fitAll).catch(fitAll);
+  }
+
+  function renderAll(){
+    renderText();
+    applyColors();
+    renderHeroShape();
+    renderScatter();
+    fitAll();
+    save();
+  }
+
+  function buildFontOptions(){
+    var sel = document.getElementById('fontSelect');
+    sel.innerHTML = '';
+    FONTS.forEach(function(f){
+      var opt = document.createElement('option');
+      opt.value = f.id;
+      opt.textContent = f.label;
+      opt.style.fontFamily = "'" + f.family + "'";
+      sel.appendChild(opt);
+    });
+    sel.value = state.font;
+  }
+
+  function buildShapeGrid(){
+    var grid = document.getElementById('shapesGrid');
+    grid.innerHTML = '';
+    SHAPE_IDS.forEach(function(id){
+      var btn = document.createElement('div');
+      btn.className = 'shape-btn' + (state.shapes.indexOf(id) > -1 ? ' selected' : '');
+      btn.dataset.shape = id;
+      btn.innerHTML = SHAPES[id]('#c9c7da');
+      btn.addEventListener('click', function(){
+        var idx = state.shapes.indexOf(id);
+        if(idx > -1){
+          if(state.shapes.length > 1) state.shapes.splice(idx,1);
+        } else {
+          if(state.shapes.length >= 2) state.shapes.shift();
+          state.shapes.push(id);
+        }
+        buildShapeGrid();
+        generateScatter();
+        renderAll();
+      });
+      grid.appendChild(btn);
+    });
+    document.getElementById('shapesHint').textContent = state.shapes.length + ' of 2 selected';
+  }
+
+  function updateScale(){
+    var stage = document.querySelector('.stage');
+    var poster = document.getElementById('poster');
+    var wrap = document.getElementById('posterWrap');
+    var availW = stage.clientWidth - 20;
+    var availH = stage.clientHeight - 20;
+    var scale = Math.min(availW / POSTER_W, availH / POSTER_H, 2);
+    poster.style.transform = 'scale(' + scale + ')';
+    wrap.style.width = (POSTER_W * scale) + 'px';
+    wrap.style.height = (POSTER_H * scale) + 'px';
+  }
+
+  function bindInputs(){
+    var debounceTimer;
+    function onTextChange(key, elId){
+      document.getElementById(elId).addEventListener('input', function(e){
+        state[key] = e.target.value;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function(){
+          renderText();
+          fitAll();
+          save();
+        }, 120);
+      });
+    }
+    onTextChange('love','loveInput');
+    onTextChange('problem','problemInput');
+    onTextChange('name','nameInput');
+    onTextChange('solves','solvesInput');
+
+    document.getElementById('fontSelect').addEventListener('change', function(e){
+      state.font = e.target.value;
+      applyFont();
+      save();
+    });
+
+    document.getElementById('color1Input').addEventListener('input', function(e){
+      state.color1 = e.target.value;
+      applyColors();
+      renderScatter();
+      renderHeroShape();
+      save();
+    });
+    document.getElementById('color2Input').addEventListener('input', function(e){
+      state.color2 = e.target.value;
+      applyColors();
+      renderScatter();
+      renderHeroShape();
+      save();
+    });
+
+    document.getElementById('shuffleBtn').addEventListener('click', function(){
+      generateScatter();
+      renderScatter();
+      save();
+    });
+
+    document.getElementById('printBtn').addEventListener('click', function(){
+      window.print();
+    });
+
+    window.addEventListener('resize', updateScale);
+  }
+
+  function restoreFormFromState(){
+    document.getElementById('loveInput').value = state.love || '';
+    document.getElementById('problemInput').value = state.problem || '';
+    document.getElementById('nameInput').value = state.name || '';
+    document.getElementById('solvesInput').value = state.solves || '';
+  }
+
+  function init(){
+    load();
+    restoreFormFromState();
+    buildFontOptions();
+    buildShapeGrid();
+    bindInputs();
+    applyColors();
+    updateScale();
+    document.fonts.ready.then(function(){
+      applyFont();
+      renderAll();
+      updateScale();
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
