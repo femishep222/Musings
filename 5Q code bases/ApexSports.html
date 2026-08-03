@@ -1,0 +1,812 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>ApexSport</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+
+  <style>
+    body{
+      font-family:Arial,sans-serif;
+      background:#1f2c47;
+      color:white;
+      margin:0;
+    }
+
+    .container{
+      max-width:700px;
+      margin:30px auto;
+      background:#2e3e58;
+      padding:25px;
+      border-radius:15px;
+      position: relative;
+      z-index:1;
+    }
+
+    /* ---------- Drifting flag background ---------- */
+    .flagsBg{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      overflow:hidden;
+      pointer-events:none;
+    }
+    .flag{
+      position:absolute;
+      width:60px;
+      height:40px;
+      border-radius:6px;
+      background-repeat:no-repeat;
+      background-size:100% 100%;
+      opacity:0.16;
+      filter:blur(0.3px) saturate(0.85);
+      box-shadow:0 12px 26px rgba(0,0,0,0.4);
+      animation-timing-function:ease-in-out;
+      animation-iteration-count:infinite;
+    }
+    @keyframes driftA{
+      0%{ transform:translate(0,0) rotate(0deg); }
+      25%{ transform:translate(26px,-34px) rotate(6deg); }
+      50%{ transform:translate(-18px,18px) rotate(-4deg); }
+      75%{ transform:translate(22px,30px) rotate(5deg); }
+      100%{ transform:translate(0,0) rotate(0deg); }
+    }
+    @keyframes driftB{
+      0%{ transform:translate(0,0) rotate(0deg); }
+      30%{ transform:translate(-32px,22px) rotate(-8deg); }
+      60%{ transform:translate(20px,-26px) rotate(5deg); }
+      100%{ transform:translate(0,0) rotate(0deg); }
+    }
+    @keyframes driftC{
+      0%{ transform:translate(0,0) rotate(0deg); }
+      40%{ transform:translate(24px,26px) rotate(7deg); }
+      70%{ transform:translate(-26px,-16px) rotate(-6deg); }
+      100%{ transform:translate(0,0) rotate(0deg); }
+    }
+
+    .flag-fr{ background-image:linear-gradient(90deg,#0055A4 33%,#fff 33% 66%,#EF4135 66%); }
+    .flag-br{ background-image:linear-gradient(135deg,#009739 45%,#FEDD00 45% 55%,#009739 55%); }
+    .flag-ar{ background-image:linear-gradient(180deg,#74ACDF 33%,#fff 33% 66%,#74ACDF 66%); }
+    .flag-de{ background-image:linear-gradient(180deg,#000 33%,#DD0000 33% 66%,#FFCE00 66%); }
+    .flag-it{ background-image:linear-gradient(90deg,#009246 33%,#fff 33% 66%,#CE2B37 66%); }
+    .flag-es{ background-image:linear-gradient(180deg,#AA151B 25%,#F1BF00 25% 75%,#AA151B 75%); }
+    .flag-pt{ background-image:linear-gradient(90deg,#046A38 40%,#DA291C 40%); }
+    .flag-nl{ background-image:linear-gradient(180deg,#AE1C28 33%,#fff 33% 66%,#21468B 66%); }
+    .flag-ng{ background-image:linear-gradient(90deg,#008751 33%,#fff 33% 66%,#008751 66%); }
+    .flag-cm{ background-image:linear-gradient(90deg,#007A5E 33%,#CE1126 33% 66%,#FCD116 66%); }
+    .flag-jp{
+      background-image:radial-gradient(circle at 50% 50%, #BC002D 26%, transparent 27%),
+                        linear-gradient(#fff,#fff);
+    }
+    .flag-gb{
+      background-image:
+        linear-gradient(#CE1124,#CE1124),
+        linear-gradient(#CE1124,#CE1124),
+        linear-gradient(#fff,#fff);
+      background-size:100% 28%, 28% 100%, 100% 100%;
+      background-position:center, center, center;
+      background-repeat:no-repeat;
+    }
+
+    .ballWrap{
+      position:absolute;
+      top:18px;
+      right:18px;
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      user-select:none;
+    }
+
+    .ballHint{
+      text-align:right;
+      font-size:12.5px;
+      color:#cbd5e1;
+      line-height:1.25;
+      padding-top:3px;
+      width:140px;
+    }
+    .ballHint .clickMe{
+      color:#7dd3fc;
+      font-weight:700;
+      font-size:13px;
+      margin-bottom:2px;
+    }
+
+    .arrow{
+      display:inline-block;
+      font-size:14px;
+      transform: translateY(-1px) rotate(0deg);
+      color:#8aff8c;
+      margin-right:6px;
+    }
+
+    .ballBtn{
+      width:54px;
+      height:54px;
+      border-radius:14px;
+      border:1px solid rgba(125,211,252,0.25);
+      background:rgba(71,85,105,0.45);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition: transform 0.08s ease, background 0.15s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+    }
+    .ballBtn:hover{
+      background:rgba(125,211,252,0.12);
+      transform: scale(1.03);
+    }
+    .ballBtn:active{ transform: scale(0.98); }
+
+    .ballPulse{
+      animation: pulseGlow 1.8s ease-in-out infinite;
+    }
+    @keyframes pulseGlow{
+      0%,100%{ box-shadow: 0 0 0 rgba(138,255,140,0.0); }
+      50%{ box-shadow: 0 0 18px rgba(138,255,140,0.35); }
+    }
+
+    h1{
+      text-align:center;
+      color:#8aff8c;
+      margin:0;
+      padding-top:10px;
+    }
+
+    h2{ color:#8aff8c; }
+
+    /* ---------- Brand banner: soccer-pitch header for the app name ---------- */
+    .brandBanner{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:16px;
+      padding:20px 10px 26px;
+      margin:-25px -25px 8px;
+      background:repeating-linear-gradient(
+        90deg,
+        #16a34a 0px, #16a34a 26px,
+        #15803d 26px, #15803d 52px
+      );
+      border-radius:15px 15px 0 0;
+      overflow:hidden;
+    }
+    /* halfway line */
+    .brandBanner::after{
+      content:"";
+      position:absolute;
+      left:0; right:0; bottom:10px;
+      height:2px;
+      background:rgba(255,255,255,0.55);
+    }
+    /* center-circle mark sitting on the halfway line */
+    .brandBanner::before{
+      content:"";
+      position:absolute;
+      bottom:9px; left:50%;
+      width:16px; height:16px;
+      border:2px solid rgba(255,255,255,0.55);
+      border-radius:50%;
+      transform:translate(-50%,50%);
+    }
+
+    .brandTitle{
+      margin:0;
+      padding:0;
+      font-family:'Anton','Arial Black',Impact,sans-serif;
+      font-size:44px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      line-height:1;
+      background:linear-gradient(90deg,#ffffff 0%,#c9ffca 32%,#8aff8c 65%,#1f2c47 100%);
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      filter:drop-shadow(0 3px 2px rgba(0,0,0,0.5));
+      animation:titlePop 2.6s ease-in-out infinite;
+    }
+    @keyframes titlePop{
+      0%,100%{ filter:drop-shadow(0 3px 2px rgba(0,0,0,0.5)) drop-shadow(0 0 0px rgba(138,255,140,0)); }
+      50%{ filter:drop-shadow(0 3px 2px rgba(0,0,0,0.5)) drop-shadow(0 0 14px rgba(138,255,140,0.6)); }
+    }
+
+    /* small CSS-built soccer ball (no emoji) flanking the title */
+    .miniBall{
+      position:relative;
+      flex:0 0 auto;
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      background:radial-gradient(circle at 32% 28%, #ffffff 0%, #f1f5f9 35%, #cbd5e1 68%, #94a3b8 100%);
+      box-shadow:inset -4px -4px 7px rgba(0,0,0,0.28), 0 3px 6px rgba(0,0,0,0.35);
+      animation:ballRoll 2.6s ease-in-out infinite;
+    }
+    .miniBall::before, .miniBall::after{
+      content:"";
+      position:absolute;
+      background:#111827;
+      clip-path:polygon(50% 0%, 95% 35%, 79% 90%, 21% 90%, 5% 35%);
+    }
+    .miniBall::before{
+      top:30%; left:50%;
+      width:32%; height:32%;
+      transform:translate(-50%,-50%);
+    }
+    .miniBall::after{
+      top:4%; left:6%;
+      width:20%; height:20%;
+      opacity:0.9;
+    }
+    @keyframes ballRoll{
+      0%,100%{ transform:translateY(0) rotate(0deg); }
+      50%{ transform:translateY(-6px) rotate(180deg); }
+    }
+
+    button{
+      width:100%;
+      padding:14px;
+      margin-top:15px;
+      border:none;
+      border-radius:10px;
+      background:#8aff8c;
+      color:#1f2c47;
+      font-weight:bold;
+      font-size:17px;
+      cursor:pointer;
+    }
+    /* hover swaps the two brand colours rather than introducing a third shade */
+    button:hover{ background:#1f2c47; color:#8aff8c; }
+
+    .rainbowBtn{
+      background:linear-gradient(90deg,#ef4444,#3b82f6,#22c55e,#3b82f6,#ef4444);
+      background-size:300% 300%;
+      animation:rainbowShift 5s ease infinite;
+      color:white;
+      font-weight:bold;
+    }
+    /* .rainbowBtn:hover needs class+pseudo specificity to beat the plain
+       button:hover rule above, otherwise the gradient gets clobbered by a
+       flat background the moment you hover it */
+    .rainbowBtn:hover{
+      background:linear-gradient(90deg,#ef4444,#3b82f6,#22c55e,#3b82f6,#ef4444);
+      background-size:300% 300%;
+      color:white;
+      animation-duration:1.8s;
+    }
+    @keyframes rainbowShift{
+      0%{background-position:0% 50%;}
+      50%{background-position:100% 50%;}
+      100%{background-position:0% 50%;}
+    }
+
+    .dropdown-content{
+      display:none;
+      background:#334155;
+      padding:15px;
+      border-radius:10px;
+    }
+    .dropdown-content label{ display:block; padding:8px; }
+    .show{ display:block; }
+
+    #tipsPage{ display:none; }
+
+    #output{
+      background:#475569;
+      padding:20px;
+      border-radius:10px;
+      margin-top:20px;
+    }
+
+    a{ color:#7dd3fc; }
+
+    /* Mini popup */
+    #ballModal{
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,0.72);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:18px;
+    }
+    #ballModal .modalCard{
+      width:min(720px, 100%);
+      background:#0b1224;
+      border:1px solid rgba(125,211,252,0.18);
+      border-radius:16px;
+      padding:18px 18px 16px;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.6);
+    }
+    #ballModal .modalTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:10px;
+    }
+    #ballModal h2{
+      margin:0;
+      font-size:18px;
+      color:#8aff8c;
+      line-height:1.25;
+    }
+    #ballModal .closeBtn{
+      border:none;
+      background:transparent;
+      color:#cbd5e1;
+      font-size:18px;
+      cursor:pointer;
+      padding:6px 10px;
+      border-radius:10px;
+    }
+    #ballModal .closeBtn:hover{ background:rgba(148,163,184,0.12); }
+
+    #ballModal .content{
+      background:#111a33;
+      border-radius:14px;
+      padding:14px;
+      border:1px solid rgba(125,211,252,0.14);
+    }
+
+    #ballModal .pillRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:10px;
+    }
+    #ballModal .pill{
+      font-size:12.5px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(125,211,252,0.18);
+      color:#bae6fd;
+      background:rgba(125,211,252,0.06);
+    }
+
+    #ballModal .bigText{
+      margin:0 0 10px;
+      font-size:15.5px;
+      color:#e5e7eb;
+      line-height:1.35;
+    }
+
+    #ballModal .section{
+      margin-top:12px;
+      padding-top:10px;
+      border-top:1px solid rgba(125,211,252,0.12);
+    }
+
+    #ballModal .label{
+      color:#bae6fd;
+      font-weight:800;
+      font-size:13px;
+      margin-bottom:6px;
+    }
+    #ballModal .text{
+      color:#e5e7eb;
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    #ballModal .smallRow{
+      display:flex;
+      gap:10px;
+      margin-top:14px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    #ballModal .smallBtn{
+      width:auto;
+      padding:10px 12px;
+      font-size:14px;
+      background:#1d4ed8;
+      border-radius:12px;
+      color:white;
+      border:none;
+      cursor:pointer;
+    }
+    #ballModal .smallBtn:hover{ background:#1e40af; }
+
+    #ballModal .ghostBtn{
+      width:auto;
+      padding:10px 12px;
+      font-size:14px;
+      background:rgba(148,163,184,0.12);
+      border:1px solid rgba(148,163,184,0.25);
+      border-radius:12px;
+      color:#cbd5e1;
+      cursor:pointer;
+    }
+    #ballModal .ghostBtn:hover{ background:rgba(148,163,184,0.18); }
+  </style>
+
+</head>
+
+<body>
+
+<div class="flagsBg" aria-hidden="true">
+  <div class="flag flag-fr" style="top:6%;left:6%;animation-name:driftA;animation-duration:26s;"></div>
+  <div class="flag flag-br" style="top:16%;left:86%;animation-name:driftB;animation-duration:22s;animation-delay:-4s;"></div>
+  <div class="flag flag-ar" style="top:32%;left:3%;animation-name:driftC;animation-duration:30s;animation-delay:-9s;"></div>
+  <div class="flag flag-de" style="top:46%;left:90%;animation-name:driftA;animation-duration:24s;animation-delay:-14s;"></div>
+  <div class="flag flag-it" style="top:62%;left:4%;animation-name:driftB;animation-duration:28s;animation-delay:-2s;"></div>
+  <div class="flag flag-es" style="top:74%;left:88%;animation-name:driftC;animation-duration:20s;animation-delay:-11s;"></div>
+  <div class="flag flag-pt" style="top:86%;left:8%;animation-name:driftA;animation-duration:27s;animation-delay:-6s;"></div>
+  <div class="flag flag-gb" style="top:4%;left:78%;animation-name:driftC;animation-duration:23s;animation-delay:-16s;"></div>
+  <div class="flag flag-nl" style="top:54%;left:47%;animation-name:driftB;animation-duration:25s;animation-delay:-8s;"></div>
+  <div class="flag flag-ng" style="top:24%;left:60%;animation-name:driftA;animation-duration:29s;animation-delay:-19s;"></div>
+  <div class="flag flag-cm" style="top:92%;left:55%;animation-name:driftB;animation-duration:21s;animation-delay:-13s;"></div>
+  <div class="flag flag-jp" style="top:40%;left:20%;animation-name:driftC;animation-duration:31s;animation-delay:-5s;"></div>
+</div>
+
+<div class="container">
+
+  <!-- Right-corner soccer ball + click arrow/label -->
+
+  <div class="ballWrap">
+    <div class="ballHint">
+      <div class="clickMe"><span class="arrow">➜</span>Click me</div>
+      <div>Daily Pro Secret /</div>
+      <div>"Did You Know?"</div>
+    </div>
+
+<div
+  class="ballBtn ballPulse"
+  role="button"
+  tabindex="0"
+  aria-label="Tap for soccer daily fun fact, pro tip, puzzle, and mindset booster"
+  onclick="revealBall()"
+  onkeydown="if(event.key==='Enter' || event.key===' ') revealBall();"
+  id="soccerBallBtn"
+>
+  <span style="font-size:28px;">⚽</span>
+</div>
+
+  </div>
+
+  <!-- HOME PAGE -->
+
+  <div id="homePage">
+    <div class="brandBanner">
+      <div class="miniBall" aria-hidden="true"></div>
+      <h1 class="brandTitle">Apex Sports</h1>
+      <div class="miniBall" aria-hidden="true" style="animation-delay:-1.3s;"></div>
+    </div>
+    <p>Create your soccer improvement plan</p>
+
+<button type="button" onclick="toggle('levelBox')">Skill Level ▼</button>
+<div id="levelBox" class="dropdown-content">
+  <label><input type="radio" name="level" value="Beginner">Beginner</label>
+  <label><input type="radio" name="level" value="Intermediate">Intermediate</label>
+  <label><input type="radio" name="level" value="Advanced">Advanced</label>
+</div>
+
+<button type="button" onclick="toggle('positionBox')">Position ▼</button>
+<div id="positionBox" class="dropdown-content">
+  <label><input type="checkbox" name="position" value="Forward">Forward</label>
+  <label><input type="checkbox" name="position" value="Midfielder">Midfielder</label>
+  <label><input type="checkbox" name="position" value="Defender">Defender</label>
+  <label><input type="checkbox" name="position" value="Goalkeeper">Goalkeeper</label>
+</div>
+
+<button type="button" onclick="toggle('improveBox')">Improvement Areas ▼</button>
+<div id="improveBox" class="dropdown-content">
+  <label><input type="checkbox" name="improve" value="Shooting">Shooting</label>
+  <label><input type="checkbox" name="improve" value="Passing">Passing</label>
+  <label><input type="checkbox" name="improve" value="Dribbling">Dribbling</label>
+  <label><input type="checkbox" name="improve" value="Speed">Speed</label>
+  <label><input type="checkbox" name="improve" value="Defense">Defense</label>
+  <label><input type="checkbox" name="improve" value="First Touch">First Touch</label>
+  <label><input type="checkbox" name="improve" value="Fitness">Fitness</label>
+</div>
+
+<button type="button" onclick="toggle('strengthBox')">Strengths ▼</button>
+<div id="strengthBox" class="dropdown-content">
+  <label><input type="checkbox" name="strength" value="Speed">Speed</label>
+  <label><input type="checkbox" name="strength" value="Passing">Passing</label>
+  <label><input type="checkbox" name="strength" value="Leadership">Leadership</label>
+  <label><input type="checkbox" name="strength" value="Defense">Defense</label>
+  <label><input type="checkbox" name="strength" value="Shooting">Shooting</label>
+  <label><input type="checkbox" name="strength" value="Dribbling">Dribbling</label>
+  <label><input type="checkbox" name="strength" value="Fitness">Fitness</label>
+</div>
+
+<button type="button" class="rainbowBtn" onclick="showTips()">Get My Soccer Tips</button>
+
+  </div>
+
+  <!-- TIPS PAGE -->
+
+  <div id="tipsPage">
+    <h1 style="margin-top:10px;">ApexSport Tips</h1>
+    <div id="output"></div>
+    <button type="button" onclick="back()">⬅ Back</button>
+  </div>
+
+</div>
+
+<!-- Daily content modal -->
+
+<div id="ballModal" aria-hidden="true">
+  <div class="modalCard">
+    <div class="modalTop">
+      <h2 id="ballTitle">Daily Pro Secret</h2>
+      <button class="closeBtn" type="button" onclick="closeBall()">✕</button>
+    </div>
+
+<div class="content">
+  <div class="pillRow">
+    <div class="pill">Daily</div>
+    <div class="pill">Pro Tip + Puzzle</div>
+  </div>
+
+  <p class="bigText" id="didYouKnowText"></p>
+
+  <div class="section">
+    <div class="label">Pro Tip</div>
+    <div class="text" id="proTipText"></div>
+  </div>
+
+  <div class="section">
+    <div class="label">Soccer Puzzle (Tap to reveal answer)</div>
+    <div class="text" id="puzzleQuestion"></div>
+    <div class="smallRow">
+      <button class="smallBtn" type="button" onclick="revealPuzzleAnswer()">Reveal Answer</button>
+      <button class="ghostBtn" type="button" onclick="resetPuzzle()">Try Again</button>
+    </div>
+    <div class="text" style="margin-top:10px; display:none;" id="puzzleAnswerBox"></div>
+  </div>
+
+  <div class="section">
+    <div class="label">Mind Booster</div>
+    <div class="text" id="mindBoosterText"></div>
+  </div>
+
+  <div class="smallRow">
+    <button class="ghostBtn" type="button" onclick="closeBall()">Close</button>
+  </div>
+</div>
+
+  </div>
+</div>
+
+<script>
+  const tips = {
+    Shooting: "Practice finishing with both feet. Focus on accuracy and shooting quickly.",
+    Passing: "Practice wall passes, one-touch passes, and long passes.",
+    Dribbling: "Use cones to improve close control and quick changes of direction.",
+    Speed: "Practice explosive sprints and quick starts.",
+    Defense: "Improve positioning, tackling timing, and reading the attacker.",
+    "First Touch": "Practice controlling difficult passes and moving after receiving.",
+    Fitness: "Improve endurance with running and strength training."
+  };
+
+  function toggle(id){
+    document.getElementById(id).classList.toggle("show");
+  }
+
+  function getRadioValue(name){
+    const el = document.querySelector('input[name="'+name+'"]:checked');
+    return el ? el.value : null;
+  }
+
+  function getChecked(name){
+    return [...document.querySelectorAll('input[name="'+name+'"]:checked')].map(x => x.value);
+  }
+
+  function save(){
+    const data = {
+      level: getRadioValue("level"),
+      position: getChecked("position"),
+      improve: getChecked("improve"),
+      strength: getChecked("strength")
+    };
+    localStorage.setItem("ApexSport", JSON.stringify(data));
+    return data;
+  }
+
+  function load(){
+    const saved = localStorage.getItem("ApexSport");
+    if(!saved) return;
+
+    const data = JSON.parse(saved);
+
+    if (data.level) {
+      const levelRadio = document.querySelector(
+        'input[name="level"][value="' + CSS.escape(data.level) + '"]'
+      );
+      if(levelRadio) levelRadio.checked = true;
+    }
+
+    for(let type of ["position","improve","strength"]){
+      if(!Array.isArray(data[type])) continue;
+      data[type].forEach(value => {
+        const checkbox = document.querySelector(
+          'input[name="'+type+'"][value="'+CSS.escape(value)+'"]'
+        );
+        if(checkbox) checkbox.checked = true;
+      });
+    }
+  }
+
+  function showTips(){
+    const data = save();
+
+    document.getElementById("homePage").style.display = "none";
+    document.getElementById("tipsPage").style.display = "block";
+
+    const improveList = (data.improve && data.improve.length)
+      ? data.improve.map(skill => {
+          const tip = tips[skill] || "Focus on drills that target this skill consistently (accuracy, repetition, and quality touches).";
+          return `<li><b>${skill}</b>: ${tip}</li>`;
+        }).join("")
+      : `<li><b>No improvement areas selected.</b> Choose at least one area on the home page.</li>`;
+
+    const videoList = (data.improve && data.improve.length)
+      ? data.improve.map(skill => {
+          const q = encodeURIComponent(skill + " soccer drills");
+          return `
+            <li>
+              <a target="_blank" rel="noopener noreferrer"
+                 href="https://www.youtube.com/results?search_query=${q}">
+                ${skill} Training Videos
+              </a>
+            </li>`;
+        }).join("")
+      : `<li>Select improvement areas to get matching training video links.</li>`;
+
+    document.getElementById("output").innerHTML = `
+      <p><b>Skill Level:</b> ${data.level || "—"}</p>
+      <p><b>Position:</b> ${data.position && data.position.length ? data.position.join(", ") : "—"}</p>
+      <p><b>Strengths:</b> ${data.strength && data.strength.length ? data.strength.join(", ") : "—"}</p>
+
+      <h2>Training Tips</h2>
+      <ul>${improveList}</ul>
+
+      <h2>Video Help</h2>
+      <ul>${videoList}</ul>
+    `;
+
+    window.scrollTo({top:0, left:0, behavior:"smooth"});
+  }
+
+  function back(){
+    document.getElementById("tipsPage").style.display = "none";
+    document.getElementById("homePage").style.display = "block";
+  }
+
+  // -------- Daily rotating content (preloaded) --------
+  // This makes the content change every day, without needing live Google scraping.
+  const DAILY_PACKS = [
+    {
+      didYouKnow: "Did You Know? Great players often spend more time scanning than sprinting—information first, speed second.",
+      proTip: "Before receiving, do a quick head-check: opponents → open lane. Then receive with your body already facing the next move.",
+      puzzleQ: "Soccer Puzzle: Can a goal be scored directly from a throw-in?",
+      puzzleA: "No. A throw-in can’t directly result in a goal; the ball must be touched by another player first.",
+      mindBooster: "Mind Booster: Consistency beats intensity. Show up today—your future self will thank you."
+    },
+    {
+      didYouKnow: "Did You Know? A ‘through ball’ works best when you trigger it half a step before the defender thinks.",
+      proTip: "When you pass forward, aim slightly into the runner’s path—not at their feet—so they can accelerate immediately.",
+      puzzleQ: "Soccer Puzzle: In soccer, how many players are on the field per team (excluding substitutes)?",
+      puzzleA: "11 players per team on the field.",
+      mindBooster: "Mind Booster: Reset after mistakes. One breath, one cue, one action."
+    },
+    {
+      didYouKnow: "Did You Know? Low shots are hard to save because keepers have less time to react.",
+      proTip: "Shoot for the center-lower part of the ball with your laces to keep it skimming and on target.",
+      puzzleQ: "Soccer Puzzle: What usually happens if a team commits offside at the moment the ball is played by the passer?",
+      puzzleA: "Play is stopped and the opposing team gets an indirect free kick.",
+      mindBooster: "Mind Booster: Small improvements compound. Train the basics like a pro today."
+    },
+    {
+      didYouKnow: "Did You Know? First touch is a skill of timing—your touch decides the next option.",
+      proTip: "Try the ‘touch to travel’: after receiving, let the ball move you toward the best passing lane or space.",
+      puzzleQ: "Soccer Puzzle: Does a corner kick belong to the attacking team or the defending team?",
+      puzzleA: "It belongs to the attacking team.",
+      mindBooster: "Mind Booster: Your next touch is your new opportunity."
+    },
+    {
+      didYouKnow: "Did You Know? Defenders don’t just chase—they manage space and angles.",
+      proTip: "When pressuring, block the ‘easy pass’ lane first. You’re winning by forcing a worse choice.",
+      puzzleQ: "Soccer Puzzle: Is the goalkeeper allowed to handle the ball in their own penalty area?",
+      puzzleA: "Yes—inside their own penalty area, the goalkeeper can handle the ball.",
+      mindBooster: "Mind Booster: Focus on what you can control: body shape, steps, and decisions."
+    },
+    {
+      didYouKnow: "Did You Know? Using your non-kicking foot to position is a massive part of accuracy.",
+      proTip: "Plant your non-kicking foot next to (not behind) the ball for better power and control on strikes.",
+      puzzleQ: "Soccer Puzzle: How many steps are typical for a direct free-kick setup (roughly)?",
+      puzzleA: "There isn’t a fixed number—players choose their run-up to time the strike. Many take a short, consistent approach.",
+      mindBooster: "Mind Booster: Technique loves repetition. One rep now can level you up."
+    }
+  ];
+
+  function dayKeyLocal(){
+    const d = new Date();
+    return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); // local date
+  }
+
+  function hashString(str){
+    let h = 0;
+    for(let i=0;i<str.length;i++){
+      h = ((h << 5) - h) + str.charCodeAt(i);
+      h |= 0;
+    }
+    return Math.abs(h);
+  }
+
+  let todayPackIndex = 0;
+  let puzzleRevealed = false;
+
+  function pickTodayPack(){
+    const key = dayKeyLocal();
+    const h = hashString(key);
+    return h % DAILY_PACKS.length;
+  }
+
+  function openBall(){
+    document.getElementById("ballModal").style.display = "flex";
+    document.getElementById("ballModal").setAttribute("aria-hidden","false");
+  }
+
+  function closeBall(){
+    document.getElementById("ballModal").style.display = "none";
+    document.getElementById("ballModal").setAttribute("aria-hidden","true");
+  }
+
+  function revealBall(){
+    todayPackIndex = pickTodayPack();
+    puzzleRevealed = false;
+
+    const pack = DAILY_PACKS[todayPackIndex];
+
+    document.getElementById("ballTitle").textContent = "Daily Pro Secret · " + dayKeyLocal();
+
+    document.getElementById("didYouKnowText").textContent = pack.didYouKnow;
+    document.getElementById("proTipText").textContent = pack.proTip;
+
+    document.getElementById("puzzleQuestion").textContent = pack.puzzleQ;
+
+    const ansBox = document.getElementById("puzzleAnswerBox");
+    ansBox.style.display = "none";
+    ansBox.textContent = "";
+
+    document.getElementById("mindBoosterText").textContent = pack.mindBooster;
+
+    resetPuzzle(); // ensure clean state
+    openBall();
+  }
+
+  function revealPuzzleAnswer(){
+    const pack = DAILY_PACKS[todayPackIndex];
+    const ansBox = document.getElementById("puzzleAnswerBox");
+    ansBox.style.display = "block";
+    ansBox.textContent = "Answer: " + pack.puzzleA;
+    puzzleRevealed = true;
+  }
+
+  function resetPuzzle(){
+    const ansBox = document.getElementById("puzzleAnswerBox");
+    ansBox.style.display = "none";
+    ansBox.textContent = "";
+    puzzleRevealed = false;
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if(e.key === "Escape") closeBall();
+  });
+
+  load();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,589 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Game Maker Studio - Arcade Edition</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        /* Sidebar UI */
+        #sidebar {
+            width: 320px;
+            background: #1e1e1e;
+            border-right: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            z-index: 10;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            color: #4CAF50;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .subtitle {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+            margin-bottom: 10px;
+            margin-top: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #2a2a2a;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        button:hover {
+            background: #3a3a3a;
+            border-color: #4CAF50;
+        }
+
+        button.active {
+            background: #4CAF50;
+            border-color: #45a049;
+            color: #fff;
+        }
+
+        .btn-full {
+            grid-column: span 2;
+        }
+
+        .btn-danger {
+            background: #d32f2f;
+            border-color: #f44336;
+        }
+        .btn-danger:hover {
+            background: #c62828;
+        }
+
+        .btn-play {
+            background: #ff9800;
+            border-color: #f57c00;
+            font-size: 1rem;
+        }
+        .btn-play:hover {
+            background: #fb8c00;
+        }
+        .btn-play.playing {
+            background: #e91e63;
+            border-color: #c2185b;
+        }
+
+        /* AI Tips Box */
+        #ai-assistant {
+            background: #252526;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            margin-top: auto;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        #ai-assistant strong {
+            color: #2196F3;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* Canvas / Viewport Area */
+        #viewport-container {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        #canvas3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Overlay UI over 3D View */
+        .hud-overlay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(30, 30, 30, 0.85);
+            padding: 10px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        .score-hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(30, 30, 30, 0.85);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #FFEB3B;
+            display: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+
+    <!-- Include Three.js for 3D graphics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar Controls & AI Assistant -->
+    <div id="sidebar">
+        <h1>🎮 3D Game Studio</h1>
+        <div class="subtitle">Arcade Edition with Play Mode</div>
+
+        <div class="section-title">Mode Select</div>
+        <div class="tool-grid">
+            <button onclick="togglePlayMode()" id="btn-play-mode" class="btn-full btn-play">🎮 Play Game Mode</button>
+        </div>
+
+        <div class="section-title">Spawn Assets</div>
+        <div class="tool-grid" id="spawn-tools">
+            <button onclick="setTool('box')" id="btn-box" class="active">📦 Cube</button>
+            <button onclick="setTool('sphere')" id="btn-sphere">⚽ Sphere</button>
+            <button onclick="setTool('enemy')" id="btn-enemy">🤖 Enemy Bot</button>
+            <button onclick="setTool('coin')" id="btn-coin">🪙 Collectible</button>
+        </div>
+
+        <div class="section-title">Level Tools</div>
+        <div class="tool-grid">
+            <button onclick="clearScene()" class="btn-full btn-danger">🗑️ Clear Scene</button>
+        </div>
+
+        <div class="section-title">AI Game Dev Mentor</div>
+        <div id="ai-assistant">
+            <strong>💡 Pro-Tip:</strong>
+            <span id="tip-text">Build your course, then click 'Play Game Mode' to run around, jump, and collect coins!</span>
+        </div>
+    </div>
+
+    <!-- 3D Viewport -->
+    <div id="viewport-container">
+        <div class="hud-overlay" id="build-hud">
+            <strong>Build Controls:</strong> Left Click to Place | Right-Click Drag to Rotate View | Scroll to Zoom
+        </div>
+        <div class="hud-overlay" id="play-hud" style="display: none;">
+            <strong>Play Controls:</strong> WASD / Arrows to Move | SPACE to Jump | Collect all coins!
+        </div>
+        <div class="score-hud" id="score-display">🪙 Coins: <span id="score">0</span> / <span id="total-coins">0</span></div>
+        <canvas id="canvas3d"></canvas>
+    </div>
+
+    <script>
+        let scene, camera, renderer;
+        let objectsInScene = [];
+        let coins = [];
+        let enemies = [];
+        let currentTool = 'box';
+        let isPlaying = false;
+        
+        // Player state variables
+        let player;
+        let playerVelocity = new THREE.Vector3();
+        let keysPressed = {};
+        let score = 0;
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let plane;
+
+        const tips = [
+            "Build a challenging obstacle course and test it out using Play Mode!",
+            "Place coins on top of high blocks to reward exploration.",
+            "Watch out for moving enemy bots while hunting for collectibles!",
+            "You can click and drag with the right mouse button to rotate your building perspective."
+        ];
+
+        // Simple Audio Synthesizer for feedback
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'place') {
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'coin') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08); // A5
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.25);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.25);
+            } else if (type === 'jump') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(350, audioCtx.currentTime + 0.15);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.15);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+            }
+        }
+
+        function init() {
+            const container = document.getElementById('viewport-container');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a1a1a);
+            scene.fog = new THREE.FogExp2(0x1a1a1a, 0.015);
+
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 15, 20);
+            camera.lookAt(0, 0, 0);
+
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas3d'), antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.shadowMap.enabled = true;
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(10, 20, 10);
+            dirLight.castShadow = true;
+            scene.add(dirLight);
+
+            const gridHelper = new THREE.GridHelper(30, 30, 0x444444, 0x222222);
+            scene.add(gridHelper);
+
+            const planeGeometry = new THREE.PlaneGeometry(100, 100);
+            planeGeometry.rotateX(-Math.PI / 2);
+            plane = new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({ visible: false }));
+            scene.add(plane);
+
+            // Spawn base platform & sample structures
+            createBlock(0, -0.5, 0, 10, 1, 10, 0x333333);
+            createBlock(3, 0.5, 3, 2, 1, 2, 0x4CAF50);
+            
+            // Spawn initial sample coin
+            spawnCustomObject(3, 1.5, 3, 'coin');
+
+            window.addEventListener('resize', onWindowResize);
+            container.addEventListener('pointerdown', onPointerDown);
+            
+            window.addEventListener('keydown', (e) => keysPressed[e.code] = true);
+            window.addEventListener('keyup', (e) => keysPressed[e.code] = false);
+
+            setupCameraControls(container);
+            animate();
+            rotateTip();
+        }
+
+        function setTool(toolName) {
+            if (isPlaying) return;
+            currentTool = toolName;
+            document.querySelectorAll('#spawn-tools button').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + toolName).classList.add('active');
+
+            const tipEl = document.getElementById('tip-text');
+            if (toolName === 'box') tipEl.innerText = "Cubes build structural platforms and platforms.";
+            if (toolName === 'sphere') tipEl.innerText = "Spheres catch vibrant lighting nicely!";
+            if (toolName === 'enemy') tipEl.innerText = "Robot bots add danger to your game level.";
+            if (toolName === 'coin') tipEl.innerText = "Collectibles create objectives for players.";
+        }
+
+        function createBlock(x, y, z, width, height, depth, color) {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({ color: color, roughness: 0.4 });
+            const cube = new THREE.Mesh(geometry, material);
+            cube.position.set(x, y, z);
+            cube.castShadow = true;
+            cube.receiveShadow = true;
+            scene.add(cube);
+            objectsInScene.push(cube);
+            return cube;
+        }
+
+        function spawnCustomObject(x, y, z, type) {
+            let obj;
+            if (type === 'box') {
+                obj = createBlock(x, 0.5, z, 1, 1, 1, 0x4CAF50);
+            } else if (type === 'sphere') {
+                const geometry = new THREE.SphereGeometry(0.5, 32, 32);
+                const material = new THREE.MeshStandardMaterial({ color: 0xFF9800, roughness: 0.2 });
+                obj = new THREE.Mesh(geometry, material);
+                obj.position.set(x, 0.5, z);
+                obj.castShadow = true;
+                scene.add(obj);
+                objectsInScene.push(obj);
+            } else if (type === 'enemy') {
+                const geometry = new THREE.ConeGeometry(0.4, 1, 6);
+                const material = new THREE.MeshStandardMaterial({ color: 0xF44336, metalness: 0.5 });
+                obj = new THREE.Mesh(geometry, material);
+                obj.position.set(x, 0.5, z);
+                obj.castShadow = true;
+                scene.add(obj);
+                objectsInScene.push(obj);
+                enemies.push(obj);
+            } else if (type === 'coin') {
+                const geometry = new THREE.CylinderGeometry(0.4, 0.4, 0.1, 16);
+                const material = new THREE.MeshStandardMaterial({ color: 0xFFEB3B, emissive: 0x333300 });
+                obj = new THREE.Mesh(geometry, material);
+                obj.rotation.x = Math.PI / 2;
+                obj.position.set(x, y, z);
+                scene.add(obj);
+                coins.push(obj);
+                updateTotalCoins();
+            }
+            playSound('place');
+        }
+
+        function spawnObject(intersectPoint) {
+            let snapX = Math.round(intersectPoint.x);
+            let snapZ = Math.round(intersectPoint.z);
+            spawnCustomObject(snapX, 1.0, snapZ, currentTool);
+        }
+
+        function clearScene() {
+            if (confirm("Clear all custom built assets from your level?")) {
+                objectsInScene.forEach(obj => scene.remove(obj));
+                coins = [];
+                enemies = [];
+                objectsInScene = [];
+                createBlock(0, -0.5, 0, 10, 1, 10, 0x333333);
+                updateTotalCoins();
+            }
+        }
+
+        function updateTotalCoins() {
+            document.getElementById('total-coins').innerText = coins.length;
+        }
+
+        // --- Game Play Mode Logic ---
+        function togglePlayMode() {
+            isPlaying = !isPlaying;
+            const btn = document.getElementById('btn-play-mode');
+            const spawnTools = document.getElementById('spawn-tools');
+            
+            if (isPlaying) {
+                btn.innerText = "🛠️ Return to Editor";
+                btn.classList.add('playing');
+                spawnTools.style.opacity = '0.3';
+                spawnTools.style.pointerEvents = 'none';
+                document.getElementById('build-hud').style.display = 'none';
+                document.getElementById('play-hud').style.display = 'block';
+                document.getElementById('score-display').style.display = 'block';
+
+                // Spawn Player Avatar
+                const playerGeo = new THREE.BoxGeometry(0.6, 1.2, 0.6);
+                const playerMat = new THREE.MeshStandardMaterial({ color: 0x03a9f4 });
+                player = new THREE.Mesh(playerGeo, playerMat);
+                player.position.set(0, 2, 0);
+                scene.add(player);
+                playerVelocity.set(0, 0, 0);
+                score = 0;
+                document.getElementById('score').innerText = score;
+            } else {
+                btn.innerText = "🎮 Play Game Mode";
+                btn.classList.remove('playing');
+                spawnTools.style.opacity = '1';
+                spawnTools.style.pointerEvents = 'auto';
+                document.getElementById('build-hud').style.display = 'block';
+                document.getElementById('play-hud').style.display = 'none';
+                document.getElementById('score-display').style.display = 'none';
+
+                if (player) {
+                    scene.remove(player);
+                    player = null;
+                }
+                camera.position.set(0, 15, 20);
+                camera.lookAt(0, 0, 0);
+            }
+        }
+
+        function onPointerDown(event) {
+            if (isPlaying) return;
+            if (event.button !== 0) return;
+
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects([plane, ...objectsInScene]);
+
+            if (intersects.length > 0) {
+                spawnObject(intersects[0].point);
+            }
+        }
+
+        function onWindowResize() {
+            const container = document.getElementById('viewport-container');
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+        function setupCameraControls(container) {
+            container.addEventListener('pointerdown', (e) => {
+                if(e.button === 2 || e.shiftKey) isDragging = true;
+            });
+            window.addEventListener('pointerup', () => isDragging = false);
+            container.addEventListener('pointermove', (e) => {
+                if (isDragging && !isPlaying) {
+                    const deltaX = e.clientX - previousMousePosition.x;
+                    const angle = deltaX * 0.005;
+                    camera.position.x = camera.position.x * Math.cos(angle) + camera.position.z * Math.sin(angle);
+                    camera.position.z = camera.position.z * Math.cos(angle) - camera.position.x * Math.sin(angle);
+                    camera.lookAt(0, 0, 0);
+                }
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+            container.addEventListener('contextmenu', e => e.preventDefault());
+        }
+
+        function rotateTip() {
+            let index = 0;
+            setInterval(() => {
+                index = (index + 1) % tips.length;
+                document.getElementById('tip-text').innerText = tips[index];
+            }, 10000);
+        }
+
+        // Main animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Animate Collectibles & Enemies in editor/play mode
+            const time = Date.now() * 0.003;
+            coins.forEach((coin, index) => {
+                coin.rotation.z += 0.03;
+                coin.position.y += Math.sin(time + index) * 0.002;
+            });
+
+            enemies.forEach((enemy, index) => {
+                enemy.rotation.y += 0.02;
+            });
+
+            // Handle Play Mode Physics & Movement
+            if (isPlaying && player) {
+                const speed = 0.12;
+                let moveX = 0;
+                let moveZ = 0;
+
+                if (keysPressed['KeyW'] || keysPressed['ArrowUp']) moveZ -= speed;
+                if (keysPressed['KeyS'] || keysPressed['ArrowDown']) moveZ += speed;
+                if (keysPressed['KeyA'] || keysPressed['ArrowLeft']) moveX -= speed;
+                if (keysPressed['KeyD'] || keysPressed['ArrowRight']) moveX += speed;
+
+                player.position.x += moveX;
+                player.position.z += moveZ;
+
+                // Simple gravity & jumping
+                playerVelocity.y -= 0.015;
+                player.position.y += playerVelocity.y;
+
+                // Ground / Platform Collision detection simulation
+                let onGround = false;
+                objectsInScene.forEach(obj => {
+                    // Simple bounding box distance check for platform landing
+                    const distBox = player.position.distanceTo(obj.position);
+                    if (distBox < 2.0 && player.position.y <= obj.position.y + 1.0 && player.position.y >= obj.position.y) {
+                        if (playerVelocity.y < 0) {
+                            player.position.y = obj.position.y + 1.1;
+                            playerVelocity.y = 0;
+                            onGround = true;
+                        }
+                    }
+                });
+
+                if (player.position.y < -0.5) {
+                    player.position.y = 3;
+                    player.position.x = 0;
+                    player.position.z = 0;
+                    playerVelocity.y = 0;
+                }
+
+                if ((keysPressed['Space']) && onGround) {
+                    playerVelocity.y = 0.3;
+                    playSound('jump');
+                }
+
+                // Coin collection logic
+                coins.forEach((coin, index) => {
+                    if (player.position.distanceTo(coin.position) < 1.2) {
+                        scene.remove(coin);
+                        coins.splice(index, 1);
+                        score++;
+                        document.getElementById('score').innerText = score;
+                        playSound('coin');
+                    }
+                });
+
+                // Smooth third-person follow camera
+                camera.position.x = player.position.x;
+                camera.position.y = player.position.y + 6;
+                camera.position.z = player.position.z + 8;
+                camera.lookAt(player.position.x, player.position.y, player.position.z);
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
+
