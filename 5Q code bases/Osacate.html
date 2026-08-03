@@ -1,0 +1,591 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>Osacate Adventure</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background:#bde7ff;
+      text-align:center;
+    }
+
+    .card {
+      background:white;
+      width:800px;
+      margin:auto;
+      padding:20px;
+      border-radius:20px;
+      box-shadow:0 0 15px gray;
+    }
+
+    /* CHARACTER CREATOR */
+
+    #creator {
+      background:#fff4d6;
+      padding:15px;
+      border-radius:15px;
+    }
+
+    .avatar {
+      margin:20px auto;
+      width:90px;
+      height:150px;
+      position:relative;
+
+      /* defaults (overridden by JS) */
+      --skin: #d89a63;
+      --eye: #3b82f6;    /* blue-ish */
+      --shirt: #4287f5;  /* blue-ish */
+    }
+
+    /* hair */
+    .hairPart{
+      width:85px;
+      height:40px;
+      position:absolute;
+      top:-8px;
+      left:2px;
+      border-radius:45px 45px 14px 14px;
+      background: linear-gradient(180deg, #ffe88a 0%, #ffd966 30%, #caa84a 100%);
+      box-shadow: inset -6px -8px 12px rgba(0,0,0,.18);
+    }
+
+    /* head */
+    .headPart{
+      width:78px;
+      height:78px;
+      position:absolute;
+      top:8px;
+      left:6px;
+      border-radius:50%;
+      background: radial-gradient(circle at 30% 25%, #ffd8b3 0%, var(--skin) 45%, #c8845a 100%);
+      box-shadow:
+        inset -10px -14px 18px rgba(0,0,0,.12),
+        inset 8px 10px 14px rgba(255,255,255,.18),
+        0 6px 14px rgba(0,0,0,.12);
+    }
+
+    /* eyebrows (colour set to match hair via JS, see hair()) */
+    .brow{
+      width:18px;
+      height:6px;
+      position:absolute;
+      top:33px;
+      background: #222;
+      border-radius:8px;
+      transform: rotate(-8deg);
+      filter: blur(.2px);
+    }
+    .brow.left{ left:18px; }
+    .brow.right{ right:18px; transform: rotate(8deg); }
+
+    /* eyes */
+    .eye{
+      width:14px;
+      height:14px;
+      position:absolute;
+      top:38px;
+      border-radius:50%;
+      background: var(--eye);
+      box-shadow: inset 0 -2px 4px rgba(0,0,0,.25);
+    }
+    .eye.left{ left:24px; }
+    .eye.right{ right:24px; }
+
+    .pupil{
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background: #111;
+      position:absolute;
+      top:4px;
+      left:4px;
+    }
+
+    .shine{
+      width:4px;
+      height:4px;
+      border-radius:50%;
+      background: rgba(255,255,255,.9);
+      position:absolute;
+      top:2px;
+      left:2px;
+      filter: blur(.1px);
+    }
+
+    /* blush */
+    .blush{
+      width:18px;
+      height:8px;
+      position:absolute;
+      top:52px;
+      background: rgba(255,120,160,.25);
+      border-radius: 50%;
+      filter: blur(1px);
+    }
+    .blush.left{ left:10px; }
+    .blush.right{ right:10px; }
+
+    /* body */
+    .bodyPart{
+      width:56px;
+      height:58px;
+      position:absolute;
+      top:92px;
+      left:17px;
+      border-radius:14px;
+      background: linear-gradient(180deg, #6ea0ff 0%, var(--shirt) 55%, #2f56b8 100%);
+      box-shadow:
+        inset 0 10px 18px rgba(255,255,255,.18),
+        inset -10px -16px 22px rgba(0,0,0,.18),
+        0 10px 18px rgba(0,0,0,.12);
+    }
+
+    /* GAME */
+
+    #world {
+      display:none;
+      width:700px;
+      height:400px;
+      margin:auto;
+      background:#7bdc65;
+      border:5px solid green;
+      position:relative;
+      overflow:hidden;
+    }
+
+    #player {
+      position:absolute;
+      width:41px;
+      height:68px;
+      left:50px;
+      top:300px;
+      pointer-events:none;
+    }
+
+    /* mini rendering of the same avatar built in the creator, scaled down
+       to fit the game world instead of a static emoji */
+    .avatar.mini{
+      margin:0;
+      transform:scale(0.45);
+      transform-origin: top left;
+    }
+
+    #teacher {
+      position:absolute;
+      font-size:55px;
+      left:600px;
+      top:280px;
+    }
+
+    button {
+      padding:10px;
+      margin:5px;
+      border:none;
+      border-radius:8px;
+      background:#4CAF50;
+      color:white;
+      cursor:pointer;
+    }
+
+    button:hover { background:#388e3c; }
+
+    input[type="color"]{
+      width:38px;
+      height:38px;
+      padding:2px;
+      margin:5px;
+      border:none;
+      border-radius:8px;
+      vertical-align:middle;
+      cursor:pointer;
+    }
+
+    #quiz { display:none; position:relative; }
+
+    /* ---------- Answer VFX ---------- */
+    @keyframes correctPop{
+      0%{ transform:scale(1); }
+      35%{ transform:scale(1.18); }
+      100%{ transform:scale(1); }
+    }
+    @keyframes incorrectShake{
+      0%,100%{ transform:translateX(0); }
+      20%{ transform:translateX(-8px); }
+      40%{ transform:translateX(8px); }
+      60%{ transform:translateX(-6px); }
+      80%{ transform:translateX(6px); }
+    }
+    #result.correctFx{
+      animation: correctPop 0.4s ease;
+      color:#1f8a2e;
+      font-weight:bold;
+    }
+    #result.incorrectFx{
+      animation: incorrectShake 0.4s ease;
+      color:#c62828;
+      font-weight:bold;
+    }
+
+    .confettiPiece{
+      position:absolute;
+      top:36px;
+      width:8px;
+      height:8px;
+      border-radius:2px;
+      pointer-events:none;
+      animation: confettiFall 0.9s ease-out forwards;
+    }
+    @keyframes confettiFall{
+      0%{ transform:translate(0,0) rotate(0deg); opacity:1; }
+      100%{ transform:translate(var(--driftX,0px), 160px) rotate(var(--rot,360deg)); opacity:0; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+
+    <h1>🎮 Osacate Adventure 🎮</h1>
+
+    <div id="creator">
+
+      <h2>Create Your Character</h2>
+
+      <div class="avatar" aria-label="Character avatar preview">
+        <div class="hairPart"></div>
+
+        <div class="headPart">
+          <div class="brow left"></div>
+          <div class="brow right"></div>
+
+          <div class="eye left">
+            <div class="pupil"></div>
+            <div class="shine"></div>
+          </div>
+
+          <div class="eye right">
+            <div class="pupil"></div>
+            <div class="shine"></div>
+          </div>
+
+          <div class="blush left"></div>
+          <div class="blush right"></div>
+        </div>
+
+        <div class="bodyPart"></div>
+      </div>
+
+      <h3>Skin</h3>
+      <button onclick="skin('#ffd6b3')">Light</button>
+      <button onclick="skin('#d89a63')">Medium</button>
+      <button onclick="skin('#704214')">Dark</button>
+      <input type="color" value="#d89a63" title="Custom skin colour" oninput="skin(this.value)">
+
+      <h3>Hair</h3>
+      <button onclick="hair('#ffd966')">Blonde</button>
+      <button onclick="hair('#5b3a29')">Brown</button>
+      <button onclick="hair('#222')">Black</button>
+      <input type="color" value="#ffd966" title="Custom hair colour" oninput="hair(this.value)">
+
+      <h3>Eyes</h3>
+      <button onclick="eyes('#60a5fa')">Blue</button>
+      <button onclick="eyes('#34d399')">Green</button>
+      <button onclick="eyes('#8b5e3c')">Brown</button>
+      <input type="color" value="#60a5fa" title="Custom eye colour" oninput="eyes(this.value)">
+
+      <h3>Shirt</h3>
+      <button onclick="shirt('#ef4444')">Red</button>
+      <button onclick="shirt('#8b5cf6')">Purple</button>
+      <button onclick="shirt('#3b82f6')">Blue</button>
+      <input type="color" value="#3b82f6" title="Custom shirt colour" oninput="shirt(this.value)">
+
+      <br>
+
+      <button onclick="startGame()">Start Adventure</button>
+
+    </div>
+
+    <div id="world">
+
+      <div id="player">
+        <div class="avatar mini" aria-hidden="true">
+          <div class="hairPart"></div>
+
+          <div class="headPart">
+            <div class="brow left"></div>
+            <div class="brow right"></div>
+
+            <div class="eye left">
+              <div class="pupil"></div>
+              <div class="shine"></div>
+            </div>
+
+            <div class="eye right">
+              <div class="pupil"></div>
+              <div class="shine"></div>
+            </div>
+
+            <div class="blush left"></div>
+            <div class="blush right"></div>
+          </div>
+
+          <div class="bodyPart"></div>
+        </div>
+      </div>
+      <div id="teacher">👩🏿‍🏫</div>
+
+    </div>
+
+    <p id="message"></p>
+
+    <div id="quiz">
+
+      <h2>📚 PEMDAS Challenge</h2>
+      <p id="question"></p>
+
+      <input
+        id="answer"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        maxlength="100"
+        style="width:300px; height:36px; font-size:16px; padding:8px;"
+        onkeydown="if(event.key==='Enter'){ event.preventDefault(); checkAnswer(); }"
+      >
+
+      <br>
+
+      <button onclick="checkAnswer()">Answer</button>
+
+      <p id="result"></p>
+
+    </div>
+
+  </div>
+
+  <script>
+    let x = 50;
+    let y = 300;
+
+    let quizLoaded = false;
+    let current = 0;
+
+    // Use CSS variables so styling is smoother for gradients.
+    // Both the creator avatar and the mini in-game avatar share the
+    // ".avatar" class, so updating every match keeps them in sync.
+    function skin(color){
+      document.querySelectorAll('.avatar').forEach(el => el.style.setProperty("--skin", color));
+    }
+
+    function hair(color){
+      // update hair gradient base by tinting ends using the chosen color
+      // simple but looks more "painted" than flat fill
+      const darker = shade(color, -25);
+      const lighter = shade(color, 20);
+      const gradient = `linear-gradient(180deg, ${lighter} 0%, ${color} 35%, ${darker} 100%)`;
+
+      document.querySelectorAll('.hairPart').forEach(el => el.style.background = gradient);
+      document.querySelectorAll('.brow').forEach(el => el.style.background = color);
+    }
+
+    function eyes(color){
+      // Eyes are set via CSS var on avatar container
+      document.querySelectorAll('.avatar').forEach(el => el.style.setProperty("--eye", color));
+    }
+
+    function shirt(color){
+      // Shade the whole gradient from the chosen color (instead of only the
+      // middle stop) so the whole shirt reflects the selection, not just a
+      // band in the middle while the top/bottom stay the old hardcoded blue.
+      const lighter = shade(color, 25);
+      const darker = shade(color, -30);
+      const gradient = `linear-gradient(180deg, ${lighter} 0%, ${color} 55%, ${darker} 100%)`;
+
+      document.querySelectorAll('.avatar').forEach(el => el.style.setProperty("--shirt", color));
+      document.querySelectorAll('.bodyPart').forEach(el => el.style.background = gradient);
+    }
+
+    // quick color shading helper (hex only; falls back to original color)
+    function shade(hex, percent){
+      const c = hex.replace('#','').trim();
+      if (c.length !== 6) return hex;
+      const num = parseInt(c, 16);
+      let r = (num >> 16) & 255;
+      let g = (num >> 8) & 255;
+      let b = num & 255;
+
+      const t = percent < 0 ? 0 : 255;
+      const p = Math.abs(percent) / 100;
+
+      r = Math.round((t - r) * p + r);
+      g = Math.round((t - g) * p + g);
+      b = Math.round((t - b) * p + b);
+
+      return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    function startGame(){
+      document.getElementById("creator").style.display="none";
+      document.getElementById("world").style.display="block";
+      document.getElementById("message").innerHTML="Use arrow keys to visit the teacher!";
+      quizLoaded = false;
+
+      // reset player position
+      x = 50;
+      y = 300;
+      document.getElementById("player").style.left = x + "px";
+      document.getElementById("player").style.top = y + "px";
+
+      // reset input/result/quiz state
+      document.getElementById("quiz").style.display="none";
+      document.getElementById("result").innerHTML="";
+      current = 0;
+    }
+
+    document.addEventListener("keydown", function(e){
+
+      if (document.getElementById("quiz").style.display === "block") return;
+      if(document.getElementById("world").style.display!="block") return;
+
+      if(e.key=="ArrowRight") x+=10;
+      if(e.key=="ArrowLeft") x-=10;
+      if(e.key=="ArrowUp") y-=10;
+      if(e.key=="ArrowDown") y+=10;
+
+      document.getElementById("player").style.left=x+"px";
+      document.getElementById("player").style.top=y+"px";
+
+      // trigger quiz only once per approach
+      if(!quizLoaded && Math.abs(x-600)<60 && Math.abs(y-280)<60){
+        quizLoaded = true;
+        document.getElementById("quiz").style.display="block";
+        loadQuestion();
+      }
+    });
+
+    let questions = [
+      { q:"8 + 2 × 5", a:18, explain:"Multiplication first: 2 × 5 = 10, then 8 + 10 = 18." },
+      { q:"(5+3)×2", a:16, explain:"Parentheses first: (5+3) = 8, then 8 × 2 = 16." },
+      { q:"20-4×3", a:8, explain:"Multiplication first: 4 × 3 = 12, then 20 − 12 = 8." }
+    ];
+
+    function loadQuestion(){
+      document.getElementById("question").innerHTML=" What is "+questions[current].q+"?";
+      document.getElementById("answer").value = "";
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("answer").focus();
+    }
+
+    // ---------- Answer SFX (Web Audio, no external sound files needed) ----------
+    let audioCtx;
+    function getAudioCtx(){
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    }
+
+    function playTone(freq, duration, type, startTime, gainPeak){
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + startTime);
+
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + startTime);
+      gain.gain.linearRampToValueAtTime(gainPeak, ctx.currentTime + startTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + startTime + duration);
+
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(ctx.currentTime + startTime);
+      osc.stop(ctx.currentTime + startTime + duration + 0.05);
+    }
+
+    function playCorrectSound(){
+      // quick rising arpeggio: C5 -> E5 -> G5
+      playTone(523.25, 0.15, 'sine', 0,    0.2);
+      playTone(659.25, 0.15, 'sine', 0.12, 0.2);
+      playTone(783.99, 0.25, 'sine', 0.24, 0.2);
+    }
+
+    function playIncorrectSound(){
+      // short descending buzz
+      playTone(220, 0.22, 'sawtooth', 0,    0.15);
+      playTone(160, 0.3,  'sawtooth', 0.15, 0.15);
+    }
+
+    // ---------- Answer VFX ----------
+    function triggerResultFx(el, isCorrect){
+      el.classList.remove('correctFx', 'incorrectFx');
+      void el.offsetWidth; // force reflow so the animation replays every time
+      el.classList.add(isCorrect ? 'correctFx' : 'incorrectFx');
+    }
+
+    function spawnConfetti(){
+      const container = document.getElementById('quiz');
+      const colors = ['#8aff8c', '#60a5fa', '#fbbf24', '#f472b6', '#f87171'];
+
+      for(let i = 0; i < 18; i++){
+        const piece = document.createElement('div');
+        piece.className = 'confettiPiece';
+        piece.style.left = (40 + Math.random() * 20) + '%';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.setProperty('--driftX', (Math.random() * 160 - 80) + 'px');
+        piece.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+        piece.style.animationDelay = (Math.random() * 0.15) + 's';
+
+        piece.addEventListener('animationend', () => piece.remove());
+        container.appendChild(piece);
+      }
+    }
+
+    function checkAnswer(){
+      const raw = document.getElementById("answer").value.trim();
+      const answer = Number(raw);
+
+      let resultEl = document.getElementById("result");
+
+      if (raw === "" || Number.isNaN(answer)) {
+        resultEl.innerHTML = "❌ Please type a number answer.";
+        return;
+      }
+
+      if(answer==questions[current].a){
+        resultEl.innerHTML="🎉 Correct!";
+        triggerResultFx(resultEl, true);
+        playCorrectSound();
+        spawnConfetti();
+
+        current++;
+
+        // give the correct-answer VFX/SFX a moment to land before the
+        // result text gets replaced (next question, or the finish message)
+        setTimeout(() => {
+          if(current<questions.length){
+            loadQuestion();
+          } else {
+            resultEl.innerHTML="🏆 You finished the quiz!";
+          }
+        }, 750);
+      } else {
+        let right = questions[current].a;
+        let explanation = questions[current].explain;
+
+        resultEl.innerHTML =
+          "❌ Try again!<br><br>✅ Right answer: " + right + "<br>" + explanation;
+        triggerResultFx(resultEl, false);
+        playIncorrectSound();
+      }
+    }
+
+    // optional: set initial defaults so it looks good immediately
+    skin('#d89a63');
+    eyes('#60a5fa');
+    shirt('#3b82f6');
+    hair('#ffd966');
+  </script>
+
+</body>
+</html>
