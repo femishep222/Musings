@@ -1,0 +1,803 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>✨ StarPlayer - Ultimate Chibi Studio & Arcade</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root{
+ --primary:#60a5fa; --primary-hover:#3b82f6; --accent-pink:#f472b6;
+ --accent-cyan:#38bdf8; --accent-green:#34d399; --bg-dark:#fef08a;
+ --card-bg:rgba(255,255,255,.85); --card-border:rgba(56,189,248,.3);
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Nunito',sans-serif;}
+body{background:radial-gradient(circle at top left,#bae6fd,#fef08a 60%),#fef08a;color:#334155;min-height:100vh;overflow-x:hidden;}
+header{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);padding:20px;text-align:center;border-bottom:1px solid var(--card-border);position:relative;z-index:10;}
+header h1{font-family:'Fredoka',cursive;font-size:38px;background:linear-gradient(135deg,#0284c7,#0369a1,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:1px;}
+header p{margin-top:4px;color:#64748b;font-weight:600;font-size:14px;}
+nav{display:flex;justify-content:center;gap:12px;padding:16px;flex-wrap:wrap;position:relative;z-index:20;}
+nav button{font-family:'Fredoka',sans-serif;padding:12px 24px;border:1px solid var(--card-border);border-radius:99px;background:rgba(56,189,248,.12);color:#0369a1;font-size:15px;font-weight:600;cursor:pointer;transition:.2s;backdrop-filter:blur(8px);user-select:none;}
+nav button:hover{background:var(--primary);color:#fff;border-color:var(--primary);transform:translateY(-2px);box-shadow:0 6px 20px rgba(96,165,250,.4);}
+nav button.active-btn{background:linear-gradient(135deg,#38bdf8,#60a5fa);color:#fff;border-color:transparent;box-shadow:0 6px 20px rgba(56,189,248,.4);}
+.page{display:none;padding:20px;max-width:1240px;margin:auto;animation:fadeIn .3s ease;}
+.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.card{background:var(--card-bg);border:1px solid var(--card-border);backdrop-filter:blur(16px);padding:20px;margin-top:16px;border-radius:18px;box-shadow:0 12px 30px rgba(56,189,248,.15);position:relative;z-index:5;}
+.grid2{display:grid;grid-template-columns:340px 1fr;gap:20px;}
+@media (max-width:960px){.grid2{grid-template-columns:1fr;}}
+label{display:block;margin-top:12px;color:#0369a1;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;}
+input,select{width:100%;padding:10px 14px;border:1px solid var(--card-border);border-radius:10px;font-size:14px;margin-top:4px;color:#334155;outline:none;background:rgba(255,255,255,.9);}
+select option{background:#fff;color:#334155;}
+.searchBtn{margin-top:14px;padding:12px;width:100%;background:linear-gradient(135deg,var(--accent-green),#059669);border:none;color:#fff;font-weight:700;font-size:15px;border-radius:10px;cursor:pointer;transition:.2s;}
+.searchBtn:hover{transform:translateY(-2px);}
+.gameButton{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;margin-top:10px;padding:14px;font-family:'Fredoka',sans-serif;font-size:16px;border:none;border-radius:12px;background:linear-gradient(135deg,#38bdf8,#60a5fa);color:#fff;cursor:pointer;transition:.2s;user-select:none;}
+.gameButton:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(56,189,248,.4);}
+.diff-row{display:flex;gap:8px;margin-top:6px;}
+.diff-btn{flex:1;padding:10px 4px;border-radius:10px;border:1px solid var(--card-border);background:rgba(56,189,248,.1);color:#0369a1;font-weight:700;font-size:12px;cursor:pointer;transition:.15s;font-family:'Fredoka',sans-serif;}
+.diff-btn.active{background:linear-gradient(135deg,#38bdf8,#60a5fa);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(56,189,248,.4);}
+.level-teleport{display:flex;gap:10px;margin-top:6px;background:rgba(56,189,248,.1);padding:8px;border-radius:8px;align-items:center;}
+.level-teleport select{margin-top:0;flex:1;}
+.canvas-wrapper{position:relative;display:flex;flex-direction:column;align-items:center;}
+canvas{background:#fefce8;display:block;margin:auto;border:2px solid rgba(56,189,248,.3);border-radius:16px;box-shadow:0 15px 35px rgba(56,189,248,.2);max-width:100%;height:auto;cursor:pointer;}
+.hud-bar{width:100%;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.9);border:1px solid var(--card-border);padding:10px 16px;border-radius:12px;margin-top:12px;flex-wrap:wrap;gap:10px;}
+.hint{font-size:13px;margin-top:8px;color:#64748b;text-align:center;}
+.pill{background:rgba(56,189,248,.2);border:1px solid rgba(56,189,248,.4);padding:4px 14px;border-radius:999px;font-size:13px;font-weight:700;color:#0284c7;}
+.level-pill{background:rgba(52,211,153,.2);border:1px solid rgba(52,211,153,.4);padding:4px 14px;border-radius:999px;font-size:13px;font-weight:700;color:#059669;}
+.lives-box{font-size:18px;letter-spacing:2px;text-shadow:0 2px 4px rgba(0,0,0,.1);}
+.sound-btn{background:rgba(56,189,248,.15);border:1px solid var(--card-border);color:#0369a1;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px;}
+.ctrl-btn{font-family:'Fredoka',sans-serif;background:rgba(56,189,248,.15);border:1px solid var(--card-border);color:#0369a1;padding:12px 14px;border-radius:12px;font-size:14px;cursor:pointer;user-select:none;touch-action:manipulation;transition:background .15s;flex:1;}
+.ctrl-btn:active{background:var(--primary);color:#fff;}
+.friend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-top:16px;}
+.friend-card{background:rgba(255,255,255,.7);border:1px solid var(--card-border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:15px;cursor:pointer;transition:.15s;}
+.friend-card:hover{background:rgba(56,189,248,.18);border-color:var(--primary);transform:translateY(-2px);}
+.friend-avatar{font-size:30px;background:rgba(56,189,248,.15);width:50px;height:50px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+.chat-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:200;padding:16px;}
+.chat-overlay.active{display:flex;}
+.chat-box{background:#fff;border:1px solid var(--card-border);border-radius:20px;padding:16px;width:380px;max-width:100%;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 20px 50px rgba(56,189,248,.3);}
+.chat-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--card-border);}
+.chat-head .friend-avatar{width:40px;height:40px;font-size:22px;}
+.chat-head h4{font-family:'Fredoka',sans-serif;flex:1;color:#334155;}
+.close-chat{background:rgba(56,189,248,.15);border:none;color:#0369a1;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;}
+.chat-messages{flex:1;overflow-y:auto;min-height:180px;max-height:320px;display:flex;flex-direction:column;gap:8px;margin:12px 0;padding-right:4px;}
+.chat-msg{padding:8px 12px;border-radius:14px;max-width:80%;font-size:14px;line-height:1.35;color:#334155;}
+.chat-msg.them{background:rgba(56,189,248,.15);align-self:flex-start;border-bottom-left-radius:4px;}
+.chat-msg.me{background:linear-gradient(135deg,#38bdf8,#60a5fa);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+.chat-input-row{display:flex;gap:8px;}
+.chat-input-row input{flex:1;margin-top:0;}
+.chat-input-row button{background:var(--accent-green);border:none;color:#fff;font-weight:700;padding:0 16px;border-radius:10px;cursor:pointer;}
+</style>
+</head>
+<body>
+<header>
+ <h1>⭐ StarPlayer</h1>
+ <p>Custom Studio • Arcade Games • Friend Spotter</p>
+</header>
+ 
+<nav>
+ <button id="btn-home" class="active-btn" onclick="showPage('home')">🏠 Home</button>
+ <button id="btn-friends" onclick="showPage('friends')">👥 Find Friends</button>
+ <button id="btn-games" onclick="showPage('games')">🎮 Chibi Arcade</button>
+</nav>
+ 
+<div id="home" class="page active">
+ <div style="text-align:center;margin:20px 0;">
+   <h2 style="font-family:'Fredoka',sans-serif;font-size:32px;color:#0284c7;">Welcome to StarPlayer Arcade! ✨</h2>
+   <p style="color:#64748b;max-width:560px;margin:8px auto 0;">Customize your ultra-cute chibi, find friends with similar hobbies, and survive the Guard's Obby Adventure across 3 wildly different levels!</p>
+ </div>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+   <div class="card"><h3 style="color:#0284c7;font-size:18px;">🎨 Avatar Studio</h3><p style="margin-top:6px;color:#64748b;font-size:14px;">Big sparkly eyes, cute blush, hairstyles, and stylish accessories.</p></div>
+   <div class="card"><h3 style="color:#0284c7;font-size:18px;">🌋 Obby Adventure</h3><p style="margin-top:6px;color:#64748b;font-size:14px;">3 levels: leap platforms, outrun a shadow creature, and dodge falling walls. Pick Beginner, Medium, or Troll-mode Hard!</p></div>
+   <div class="card"><h3 style="color:#0284c7;font-size:18px;">🛡️ Guard's Orders</h3><p style="margin-top:6px;color:#64748b;font-size:14px;">A chibi guard barks commands — hit the right button before time runs out or lose a heart!</p></div>
+ </div>
+</div>
+ 
+<div id="friends" class="page">
+ <h2 style="font-family:'Fredoka',sans-serif;color:#0284c7;">Find Players & Friends</h2>
+ <div class="card">
+   <div style="display:flex;gap:12px;flex-wrap:wrap;">
+     <div style="flex:1;min-width:200px;"><input id="interest" placeholder="Try searching: gaming, coding, art, music..." /></div>
+     <div style="flex:0 0 160px;"><button class="searchBtn" onclick="findCommunity()">Search Friends</button></div>
+   </div>
+   <div id="results" class="friend-grid"></div>
+ </div>
+</div>
+ 
+<div id="games" class="page">
+ <div class="grid2">
+   <div>
+     <div class="card" style="margin-top:0;">
+       <h3 style="font-family:'Fredoka',sans-serif;font-size:20px;color:#0284c7;">🎨 Chibi Styling</h3>
+       <label>Skin Tone</label>
+       <select id="skinColor" onchange="updateChibiPreview()">
+         <option value="#ffe0c7">Light Porcelain</option>
+         <option value="#f3c9a3">Warm Peach</option>
+         <option value="#d9a876">Golden Tan</option>
+         <option value="#b17a53">Rich Caramel</option>
+       </select>
+       <label>Hair Style</label>
+       <select id="hairStyle" onchange="updateChibiPreview()">
+         <option value="animeHero">Shounen Hero (Spiky)</option>
+         <option value="ponytail">Action Ponytail</option>
+         <option value="wavy">Elegant Waves</option>
+         <option value="spiky">Super Spikes</option>
+         <option value="buns">Odango (Twin Buns)</option>
+         <option value="twintails">Twintails</option>
+         <option value="neat">Classic Bob</option>
+       </select>
+       <label>Hair Color</label>
+       <select id="hairColor" onchange="updateChibiPreview()">
+         <option value="#2b2222">Jet Black</option>
+         <option value="#92400e">Chestnut Brown</option>
+         <option value="#f59e0b">Golden Blonde</option>
+         <option value="#ef4444">Crimson Red</option>
+         <option value="#7c3aed">Electric Purple</option>
+         <option value="#06b6d4">Pastel Cyan</option>
+         <option value="#ec4899">Bubblegum Pink</option>
+       </select>
+       <label>Expression</label>
+       <select id="expression" onchange="updateChibiPreview()">
+         <option value="smile">Happy Smile 😊</option>
+         <option value="wink">Playful Wink 😉</option>
+         <option value="cat">Cute Cat Face 😸</option>
+         <option value="surprised">Excited 😮</option>
+       </select>
+       <label>Accessory</label>
+       <select id="accessory" onchange="updateChibiPreview()">
+         <option value="none">None</option>
+         <option value="crown">Golden Crown 👑</option>
+         <option value="catEars">Cat Ears 🐱</option>
+         <option value="bow">Cute Bow 🎀</option>
+       </select>
+       <label>Outfit Style</label>
+       <select id="outfitStyle" onchange="updateChibiPreview()">
+         <option value="squidSuit">Player Tracksuit</option>
+         <option value="hoodie">Cozy Hoodie</option>
+         <option value="tshirt">Classic T-Shirt</option>
+         <option value="dress">Cute Dress</option>
+       </select>
+       <label>Top Color</label>
+       <select id="shirtColor" onchange="updateChibiPreview()">
+         <option value="#059669">Player Green</option>
+         <option value="#ef4444">Ruby Red</option>
+         <option value="#3b82f6">Royal Blue</option>
+         <option value="#8b5cf6">Neon Purple</option>
+         <option value="#ec4899">Pastel Pink</option>
+       </select>
+       <label>Bottoms Color</label>
+       <select id="pantsColor" onchange="updateChibiPreview()">
+         <option value="#047857">Tracksuit Green</option>
+         <option value="#1e293b">Dark Slate</option>
+         <option value="#1d4ed8">Denim Blue</option>
+         <option value="#f8fafc">Snow White</option>
+       </select>
+     </div>
+ 
+     <div class="card">
+       <h3 style="font-family:'Fredoka',sans-serif;font-size:20px;color:#0284c7;">🕹️ Games</h3>
+       <label style="margin-top:0;color:#0284c7;">Difficulty</label>
+       <div class="diff-row">
+         <button class="diff-btn active" id="diff-beginner" onclick="setDifficulty('beginner')">🌱 Beginner</button>
+         <button class="diff-btn" id="diff-medium" onclick="setDifficulty('medium')">🔥 Medium</button>
+         <button class="diff-btn" id="diff-hard" onclick="setDifficulty('hard')">💀 Hard</button>
+       </div>
+ 
+       <label style="color:#0284c7;">Start Obby From</label>
+       <div class="level-teleport">
+         <select id="startLevelSelect">
+           <option value="1">Level 1 - Lava Jumps</option>
+           <option value="2">Level 2 - Shadow Chase</option>
+           <option value="3">Level 3 - Falling Walls</option>
+         </select>
+         <button onclick="startAdventure()" style="background:var(--primary);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:bold;">GO!</button>
+       </div>
+ 
+       <button class="gameButton" onclick="startAdventure()">🌋 Start Obby Adventure</button>
+       <button class="gameButton" style="background:linear-gradient(135deg,#38bdf8,#0284c7);margin-top:10px;" onclick="startGuardGame()">🛡️ Guard's Orders</button>
+     </div>
+   </div>
+ 
+   <div class="canvas-wrapper">
+     <canvas id="gameCanvas" width="900" height="560"></canvas>
+     <div class="hud-bar">
+       <div class="pill" id="gameStatus">Styling Preview Mode</div>
+       <div class="level-pill" id="levelDisplay" style="display:none;">Level: 1/3</div>
+       <div class="lives-box" id="livesDisplay">❤️❤️❤️</div>
+       <button class="sound-btn" onclick="toggleSound()"><span id="soundIcon">🔊</span> Audio: <span id="soundText">ON</span></button>
+     </div>
+     <div style="display:flex;gap:10px;margin-top:10px;justify-content:center;width:100%;">
+       <button class="ctrl-btn" id="btn-left">⬅️ Left</button>
+       <button class="ctrl-btn" id="btn-right">➡️ Right</button>
+       <button class="ctrl-btn" id="btn-jump">🚀 Jump</button>
+       <button class="ctrl-btn" id="btn-duck">🛡️ Duck</button>
+     </div>
+     <div class="hint" id="gameHint">Controls: Click buttons above OR use Arrow Keys / WASD!</div>
+   </div>
+ </div>
+</div>
+ 
+<div class="chat-overlay" id="chatOverlay">
+ <div class="chat-box">
+   <div class="chat-head">
+     <div class="friend-avatar" id="chatAvatar">🙂</div>
+     <h4 id="chatName">Friend</h4>
+     <button class="close-chat" onclick="closeChat()">✖ Close</button>
+   </div>
+   <div class="chat-messages" id="chatMessages"></div>
+   <div class="chat-input-row">
+     <input id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendChat();" />
+     <button onclick="sendChat()">Send</button>
+   </div>
+ </div>
+</div>
+ 
+<script>
+if(!CanvasRenderingContext2D.prototype.roundRect){
+ CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r=0){
+   if(typeof r==='number') r=[r,r,r,r];
+   this.beginPath();this.moveTo(x+r[0],y);this.lineTo(x+w-r[1],y);
+   this.quadraticCurveTo(x+w,y,x+w,y+r[1]);this.lineTo(x+w,y+h-r[2]);
+   this.quadraticCurveTo(x+w,y+h,x+w-r[2],y+h);this.lineTo(x+r[3],y+h);
+   this.quadraticCurveTo(x,y+h,x,y+h-r[3]);this.lineTo(x,y+r[0]);
+   this.quadraticCurveTo(x,y,x+r[0],y);this.closePath();
+   return this;
+ };
+}
+ 
+/* ========================= NAVIGATION ========================= */
+function showPage(page){
+ stopGame();
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(page).classList.add('active');
+ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active-btn'));
+ const nb=document.getElementById('btn-'+page); if(nb) nb.classList.add('active-btn');
+ playSynthSound(440,0.08);
+ if(page==='games') setTimeout(updateChibiPreview,50);
+}
+ 
+/* ========================= AUDIO ========================= */
+let soundEnabled=true, audioCtx=null;
+function toggleSound(){
+ soundEnabled=!soundEnabled;
+ document.getElementById('soundText').textContent=soundEnabled?'ON':'OFF';
+ document.getElementById('soundIcon').textContent=soundEnabled?'🔊':'🔇';
+}
+function playSynthSound(freq,duration,type='sine'){
+ if(!soundEnabled) return;
+ try{
+   const AC=window.AudioContext||window.webkitAudioContext;
+   if(!audioCtx && AC) audioCtx=new AC();
+   if(audioCtx && audioCtx.state==='suspended') audioCtx.resume();
+   if(!audioCtx) return;
+   const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+   osc.type=type; osc.frequency.setValueAtTime(freq,audioCtx.currentTime);
+   gain.gain.setValueAtTime(0.12,audioCtx.currentTime);
+   gain.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+duration);
+   osc.connect(gain); gain.connect(audioCtx.destination);
+   osc.start(); osc.stop(audioCtx.currentTime+duration);
+ }catch(e){}
+}
+ 
+/* ========================= DIFFICULTY ========================= */
+let difficulty='beginner';
+const DIFF={
+ beginner:{label:'Beginner',speedMult:1,gapMult:1,chaseSpeed:2.0,fakePlatformChance:0,wallInterval:1650,wallSpeed:4.4,extraWalls:0},
+ medium:{label:'Medium',speedMult:1.18,gapMult:1.2,chaseSpeed:2.9,fakePlatformChance:0.15,wallInterval:1250,wallSpeed:5.8,extraWalls:2},
+ hard:{label:'Hard (Troll Mode)',speedMult:1.4,gapMult:1.4,chaseSpeed:3.8,fakePlatformChance:0.35,wallInterval:920,wallSpeed:7.6,extraWalls:4}
+};
+function setDifficulty(d){
+ difficulty=d;
+ document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+ document.getElementById('diff-'+d).classList.add('active');
+ playSynthSound(500,0.08);
+}
+ 
+/* ========================= LIVES / LEVEL HUD ========================= */
+let playerLives=3, currentObbyLevel=1, isPausedBrief=false;
+function updateLivesHUD(){
+ const hud=document.getElementById('livesDisplay');
+ hud.textContent = playerLives<=0 ? '💀 GAME OVER' : '❤️'.repeat(playerLives);
+}
+function resetGameStats(){ playerLives=3; updateLivesHUD(); updateLevelHUD(); }
+function updateLevelHUD(){
+ const lvl=document.getElementById('levelDisplay');
+ if(mode && mode.startsWith('obby')){
+   lvl.style.display='block';
+   lvl.textContent=`Level: ${currentObbyLevel}/3 (${DIFF[difficulty].label})`;
+ } else if(mode==='guard'){
+   lvl.style.display='block';
+   lvl.textContent=`Guard Score: ${guardScore}`;
+ } else {
+   lvl.style.display='none';
+ }
+}
+function loseLife(){
+ playerLives--; updateLivesHUD();
+ playSynthSound(150,0.4,'sawtooth');
+ return playerLives<=0;
+}
+function loseHeartAndContinue(resetFn){
+ if(loseLife()){
+   gameStatus.textContent='💀 GAME OVER';
+   setTimeout(stopGame,1800);
+ } else {
+   resetFn();
+ }
+}
+ 
+/* ========================= CANVAS / CHIBI DRAWING ========================= */
+const canvas=document.getElementById('gameCanvas');
+const ctx=canvas.getContext('2d');
+const gameStatus=document.getElementById('gameStatus');
+const gameHint=document.getElementById('gameHint');
+ 
+const colorPick={
+ skin:()=>document.getElementById('skinColor').value,
+ hairStyle:()=>document.getElementById('hairStyle').value,
+ hair:()=>document.getElementById('hairColor').value,
+ expression:()=>document.getElementById('expression').value,
+ accessory:()=>document.getElementById('accessory').value,
+ outfitStyle:()=>document.getElementById('outfitStyle').value,
+ shirt:()=>document.getElementById('shirtColor').value,
+ pants:()=>document.getElementById('pantsColor').value
+};
+function clearCanvas(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
+ 
+function drawChibi(x,y,scale=1,dir=1,override){
+ const skin=(override&&override.skin)||colorPick.skin();
+ const hairStyle=(override&&override.hairStyle)||colorPick.hairStyle();
+ const hair=(override&&override.hair)||colorPick.hair();
+ const expr=(override&&override.expr)||colorPick.expression();
+ const acc=(override&&override.acc)||colorPick.accessory();
+ const outfit=(override&&override.outfit)||colorPick.outfitStyle();
+ const shirt=(override&&override.shirt)||colorPick.shirt();
+ const pants=(override&&override.pants)||colorPick.pants();
+ 
+ const s=1.05*scale, headR=25*s, headX=x, headY=y-52*s;
+ 
+ ctx.fillStyle=hair;
+ if(hairStyle==='wavy'){
+   ctx.beginPath();ctx.moveTo(headX-headR,headY);ctx.quadraticCurveTo(headX-32*s,headY+22*s,headX-20*s,headY+40*s);ctx.quadraticCurveTo(headX-7*s,headY+22*s,headX,headY+11*s);ctx.quadraticCurveTo(headX+7*s,headY+22*s,headX+20*s,headY+40*s);ctx.quadraticCurveTo(headX+32*s,headY+22*s,headX+headR,headY);ctx.fill();
+ } else if(hairStyle==='twintails'){
+   ctx.beginPath();ctx.moveTo(headX-20*s,headY);ctx.quadraticCurveTo(headX-42*s,headY+12*s,headX-30*s,headY+52*s);ctx.lineTo(headX-22*s,headY+22*s);ctx.fill();
+   ctx.beginPath();ctx.moveTo(headX+20*s,headY);ctx.quadraticCurveTo(headX+42*s,headY+12*s,headX+30*s,headY+52*s);ctx.lineTo(headX+22*s,headY+22*s);ctx.fill();
+ } else if(hairStyle==='ponytail'){
+   ctx.beginPath();ctx.moveTo(headX+(dir*10*s),headY-14*s);ctx.quadraticCurveTo(headX+(dir*36*s),headY-22*s,headX+(dir*30*s),headY+18*s);ctx.lineTo(headX+(dir*14*s),headY+6*s);ctx.fill();
+ } else if(hairStyle==='neat'){
+   ctx.beginPath();ctx.moveTo(headX-headR-2*s,headY);ctx.lineTo(headX-headR-5*s,headY+18*s);ctx.lineTo(headX+headR+5*s,headY+18*s);ctx.lineTo(headX+headR+2*s,headY);ctx.fill();
+ }
+ 
+ ctx.fillStyle=skin; ctx.beginPath(); ctx.arc(headX,headY,headR,0,Math.PI*2); ctx.fill();
+ ctx.fillStyle='rgba(244,63,94,.35)'; ctx.beginPath(); ctx.arc(headX-13*s,headY+8*s,5.5*s,0,Math.PI*2); ctx.arc(headX+13*s,headY+8*s,5.5*s,0,Math.PI*2); ctx.fill();
+ 
+ ctx.fillStyle='#241b1b';
+ if(expr==='wink'){
+   ctx.beginPath(); ctx.ellipse(headX-9*s+(dir*1.5),headY+3*s,4.6*s,5.6*s,0,0,Math.PI*2); ctx.fill();
+   ctx.strokeStyle='#241b1b'; ctx.lineWidth=2.4*s; ctx.beginPath(); ctx.arc(headX+9*s,headY+3*s,4.6*s,Math.PI,0); ctx.stroke();
+ } else {
+   ctx.beginPath(); ctx.ellipse(headX-9*s+(dir*1.2),headY+3*s,4.8*s,6*s,0,0,Math.PI*2); ctx.ellipse(headX+9*s+(dir*1.2),headY+3*s,4.8*s,6*s,0,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(headX-10.5*s+(dir*1.2),headY+0.5*s,1.8*s,0,Math.PI*2); ctx.arc(headX+7.5*s+(dir*1.2),headY+0.5*s,1.8*s,0,Math.PI*2); ctx.fill();
+   ctx.fillStyle='rgba(255,255,255,.7)'; ctx.beginPath(); ctx.arc(headX-7.5*s+(dir*1.2),headY+5*s,1*s,0,Math.PI*2); ctx.arc(headX+10.5*s+(dir*1.2),headY+5*s,1*s,0,Math.PI*2); ctx.fill();
+ }
+ ctx.strokeStyle='#241b1b'; ctx.lineWidth=2*s;
+ if(expr==='cat'){
+   ctx.beginPath(); ctx.arc(headX-3*s,headY+11*s,2.4*s,0,Math.PI); ctx.arc(headX+3*s,headY+11*s,2.4*s,0,Math.PI); ctx.stroke();
+ } else if(expr==='surprised'){
+   ctx.fillStyle='#241b1b'; ctx.beginPath(); ctx.arc(headX,headY+12*s,3*s,0,Math.PI*2); ctx.fill();
+ } else {
+   ctx.beginPath(); ctx.arc(headX,headY+8*s,4*s,0.1*Math.PI,0.9*Math.PI); ctx.stroke();
+ }
+ 
+ ctx.fillStyle=hair; ctx.beginPath(); ctx.arc(headX,headY-4*s,headR+3*s,Math.PI,0); ctx.fill();
+ if(hairStyle==='animeHero'){
+   ctx.beginPath();ctx.moveTo(headX-headR-3*s,headY-6*s);ctx.lineTo(headX-15*s,headY+12*s);ctx.lineTo(headX-10*s,headY-2*s);ctx.lineTo(headX-3*s,headY+9*s);ctx.lineTo(headX,headY-5*s);ctx.lineTo(headX+7*s,headY+8*s);ctx.lineTo(headX+10*s,headY-2*s);ctx.lineTo(headX+17*s,headY+11*s);ctx.lineTo(headX+headR+3*s,headY-6*s);ctx.lineTo(headX+12*s,headY-26*s);ctx.lineTo(headX+2*s,headY-19*s);ctx.lineTo(headX-5*s,headY-28*s);ctx.lineTo(headX-10*s,headY-18*s);ctx.lineTo(headX-19*s,headY-24*s);ctx.fill();
+ } else if(hairStyle==='spiky'){
+   ctx.beginPath();ctx.moveTo(headX-headR,headY);ctx.lineTo(headX-27*s,headY-18*s);ctx.lineTo(headX-15*s,headY-12*s);ctx.lineTo(headX-22*s,headY-33*s);ctx.lineTo(headX-7*s,headY-21*s);ctx.lineTo(headX-2*s,headY-41*s);ctx.lineTo(headX+5*s,headY-21*s);ctx.lineTo(headX+19*s,headY-31*s);ctx.lineTo(headX+12*s,headY-14*s);ctx.lineTo(headX+27*s,headY-17*s);ctx.lineTo(headX+headR,headY);ctx.lineTo(headX+9*s,headY+7*s);ctx.lineTo(headX+5*s,headY-5*s);ctx.lineTo(headX-3*s,headY+6*s);ctx.lineTo(headX-7*s,headY-4*s);ctx.lineTo(headX-14*s,headY+5*s);ctx.fill();
+ } else {
+   ctx.beginPath();ctx.moveTo(headX-headR-3*s,headY-5*s);ctx.lineTo(headX-16*s,headY+15*s);ctx.lineTo(headX-11*s,headY-2*s);ctx.lineTo(headX-5*s,headY+7*s);ctx.lineTo(headX,headY-4*s);ctx.lineTo(headX+7*s,headY+8*s);ctx.lineTo(headX+12*s,headY-2*s);ctx.lineTo(headX+17*s,headY+14*s);ctx.lineTo(headX+headR+3*s,headY-5*s);ctx.fill();
+   if(hairStyle==='buns'){
+     ctx.beginPath();ctx.arc(headX-17*s,headY-17*s,8.5*s,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(headX+17*s,headY-17*s,8.5*s,0,Math.PI*2);ctx.fill();
+     ctx.beginPath();ctx.moveTo(headX-22*s,headY-17*s);ctx.lineTo(headX-27*s,headY+2*s);ctx.lineTo(headX-15*s,headY-12*s);ctx.fill();ctx.beginPath();ctx.moveTo(headX+22*s,headY-17*s);ctx.lineTo(headX+27*s,headY+2*s);ctx.lineTo(headX+15*s,headY-12*s);ctx.fill();
+   }
+ }
+ ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.lineWidth=2.4*s; ctx.beginPath();
+ if(hairStyle==='spiky'||hairStyle==='animeHero'){ ctx.moveTo(headX-12*s,headY-12*s);ctx.lineTo(headX-5*s,headY-16*s);ctx.lineTo(headX+2*s,headY-11*s);ctx.lineTo(headX+9*s,headY-14*s); }
+ else { ctx.arc(headX,headY-8*s,headR-4*s,1.2*Math.PI,1.8*Math.PI); }
+ ctx.stroke();
+ ctx.fillStyle='rgba(255,255,255,.8)'; ctx.beginPath(); ctx.arc(headX+headR*0.55,headY-headR*0.55,2.2*s,0,Math.PI*2); ctx.fill();
+ 
+ if(acc==='crown'){
+   ctx.fillStyle='#f59e0b'; ctx.beginPath(); ctx.moveTo(headX-12*s,headY-headR);ctx.lineTo(headX-14*s,headY-headR-14*s);ctx.lineTo(headX-5*s,headY-headR-5*s);ctx.lineTo(headX,headY-headR-18*s);ctx.lineTo(headX+5*s,headY-headR-5*s);ctx.lineTo(headX+14*s,headY-headR-14*s);ctx.lineTo(headX+12*s,headY-headR);ctx.fill();
+ } else if(acc==='catEars'){
+   ctx.fillStyle=hair; ctx.beginPath();ctx.moveTo(headX-17*s,headY-12*s);ctx.lineTo(headX-22*s,headY-29*s);ctx.lineTo(headX-5*s,headY-19*s);ctx.fill(); ctx.fillStyle='#ec4899'; ctx.beginPath();ctx.moveTo(headX-16*s,headY-15*s);ctx.lineTo(headX-19*s,headY-25*s);ctx.lineTo(headX-8*s,headY-19*s);ctx.fill();
+   ctx.fillStyle=hair; ctx.beginPath();ctx.moveTo(headX+17*s,headY-12*s);ctx.lineTo(headX+22*s,headY-29*s);ctx.lineTo(headX+5*s,headY-19*s);ctx.fill(); ctx.fillStyle='#ec4899'; ctx.beginPath();ctx.moveTo(headX+16*s,headY-15*s);ctx.lineTo(headX+19*s,headY-25*s);ctx.lineTo(headX+8*s,headY-19*s);ctx.fill();
+ } else if(acc==='bow'){
+   ctx.fillStyle='#ef4444'; ctx.beginPath(); ctx.ellipse(headX-10*s,headY-headR,8.5*s,5*s,-0.2,0,Math.PI*2); ctx.ellipse(headX+10*s,headY-headR,8.5*s,5*s,0.2,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(headX,headY-headR,3.5*s,0,Math.PI*2); ctx.fill();
+ }
+ 
+ const torsoW=26*s, torsoH=17*s, torsoX=headX-torsoW/2, torsoY=y-30*s;
+ const legW=9*s, legH=17*s, legY=y-17*s;
+ const armW=7*s, armH=17*s, leftArmX=torsoX-armW-1*s, rightArmX=torsoX+torsoW+1*s, armY=torsoY+2*s;
+ 
+ ctx.fillStyle=pants; ctx.fillRect(x-10*s,legY,legW,legH); ctx.fillRect(x+1*s,legY,legW,legH);
+ ctx.fillStyle=shirt; ctx.fillRect(leftArmX,armY,armW,armH); ctx.fillRect(rightArmX,armY,armW,armH);
+ ctx.fillStyle=skin; ctx.fillRect(leftArmX,armY+armH-4*s,armW,5*s); ctx.fillRect(rightArmX,armY+armH-4*s,armW,5*s);
+ ctx.fillStyle=shirt; ctx.beginPath(); ctx.roundRect(torsoX,torsoY,torsoW,torsoH,6*s); ctx.fill();
+ if(outfit==='squidSuit'){ ctx.fillStyle='#fff'; ctx.font=`bold ${9*s}px sans-serif`; ctx.textAlign='center'; ctx.fillText('456',torsoX+torsoW/2,torsoY+11*s); }
+ else if(outfit==='dress'){ ctx.fillStyle=shirt; ctx.beginPath(); ctx.moveTo(torsoX,torsoY+torsoH); ctx.lineTo(torsoX-4*s,y-6*s); ctx.lineTo(torsoX+torsoW+4*s,y-6*s); ctx.lineTo(torsoX+torsoW,torsoY+torsoH); ctx.fill(); }
+ ctx.fillStyle='#241b1b'; ctx.beginPath(); ctx.roundRect(x-11*s,y-2*s,9*s,4*s,2*s); ctx.fill(); ctx.beginPath(); ctx.roundRect(x+2*s,y-2*s,9*s,4*s,2*s); ctx.fill();
+}
+ 
+let mode=null, rafId=null, keys={};
+function updateChibiPreview(){
+ if(mode!==null) return;
+ clearCanvas();
+ document.getElementById('levelDisplay').style.display='none';
+ let g=ctx.createLinearGradient(0,0,0,canvas.height); g.addColorStop(0,'#e0f2fe'); g.addColorStop(1,'#fef08a');
+ ctx.fillStyle=g; ctx.fillRect(0,0,canvas.width,canvas.height);
+ ctx.fillStyle='#0369a1'; ctx.textAlign='center'; ctx.font="bold 34px 'Fredoka'";
+ ctx.fillText('Styling Studio ✨',canvas.width/2,74);
+ drawChibi(canvas.width/2,410,1.7,1);
+}
+function stopGame(){
+ mode=null;
+ if(rafId) cancelAnimationFrame(rafId);
+ clearInterval(guardInterval);
+ isPausedBrief=false;
+ updateChibiPreview();
+}
+document.addEventListener('keydown',e=>{ keys[e.key]=true; });
+document.addEventListener('keyup',e=>{ keys[e.key]=false; });
+function setupTouchButton(id,keyName,action){
+ const btn=document.getElementById(id); if(!btn) return;
+ const press=e=>{e.preventDefault();keys[keyName]=true;};
+ const release=e=>{e.preventDefault();keys[keyName]=false;};
+ btn.addEventListener('mousedown',press); btn.addEventListener('mouseup',release); btn.addEventListener('mouseleave',release);
+ btn.addEventListener('touchstart',press,{passive:false}); btn.addEventListener('touchend',release,{passive:false});
+ btn.addEventListener('click',()=>{ if(mode==='guard') handleGuardAnswer(action); });
+}
+setupTouchButton('btn-left','ArrowLeft','left');
+setupTouchButton('btn-right','ArrowRight','right');
+setupTouchButton('btn-jump','ArrowUp','jump');
+setupTouchButton('btn-duck','ArrowDown','duck');
+ 
+/* ========================= OBBY ADVENTURE (3 LEVELS) ========================= */
+function startAdventure(){
+ stopGame(); resetGameStats();
+ currentObbyLevel=parseInt(document.getElementById('startLevelSelect').value);
+ startLevel(currentObbyLevel);
+}
+function startLevel(n){
+ currentObbyLevel=n;
+ mode='obbyL'+n;
+ updateLevelHUD();
+ if(n===1){ gameStatus.textContent='🌋 Lava Jumps'; gameHint.textContent='Jump the gaps! Pink dashed platforms crumble fast.'; initL1(); }
+ if(n===2){ gameStatus.textContent='🌑 Shadow Chase'; gameHint.textContent="Hold Right to run! Jump the pits! Don't let the shadow catch you!"; initL2(); }
+ if(n===3){ gameStatus.textContent='🧱 Falling Walls'; gameHint.textContent='Press Jump right as a wall reaches you!'; initL3(); }
+ cancelAnimationFrame(rafId);
+ rafId=requestAnimationFrame(gameLoop);
+}
+function gameLoop(){
+ if(mode==='obbyL1') loopL1();
+ else if(mode==='obbyL2') loopL2();
+ else if(mode==='obbyL3') loopL3();
+ else return;
+ rafId=requestAnimationFrame(gameLoop);
+}
+let transitioning=false;
+function levelComplete(){
+ transitioning=true;
+ playSynthSound(650,0.2,'sine'); setTimeout(()=>playSynthSound(850,0.35,'sine'),180);
+ if(currentObbyLevel<3){
+   setTimeout(()=>{ transitioning=false; startLevel(currentObbyLevel+1); },1300);
+ } else {
+   setTimeout(()=>{
+     gameStatus.textContent='🏆 OBBY CHAMPION! 🏆';
+     playSynthSound(880,0.6,'sine');
+     setTimeout(stopGame,2600);
+   },200);
+ }
+}
+
+    function drawTransition(msg, sub) {
+      ctx.fillStyle = 'rgba(254, 240, 138, 0.9)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#0369a1';
+      ctx.font = "bold 32px 'Fredoka'";
+      ctx.textAlign = 'center';
+      ctx.fillText(msg, canvas.width / 2, canvas.height / 2 - 20);
+      ctx.font = "16px 'Nunito'";
+      ctx.fillStyle = '#64748b';
+      ctx.fillText(sub, canvas.width / 2, canvas.height / 2 + 20);
+    }
+
+    /* --- Level 1: Lava Jumps --- */
+    let p1 = { x: 100, y: 350, vx: 0, vy: 0, w: 26, h: 42, grounded: false, dir: 1 };
+    let plats1 = [];
+    function initL1() {
+      p1 = { x: 80, y: 350, vx: 0, vy: 0, w: 26, h: 42, grounded: false, dir: 1 };
+      const diffConfig = DIFF[difficulty];
+      plats1 = [
+        { x: 0, y: 440, w: 200, h: 60, type: 'safe' },
+        { x: 260, y: 400, w: 120 * diffConfig.gapMult, h: 20, type: 'safe' },
+        { x: 440, y: 350, w: 110 * diffConfig.gapMult, h: 20, type: Math.random() < diffConfig.fakePlatformChance ? 'fake' : 'safe' },
+        { x: 610, y: 300, w: 100 * diffConfig.gapMult, h: 20, type: 'safe' },
+        { x: 770, y: 260, w: 150, h: 20, type: 'exit' }
+      ];
+    }
+    function loopL1() {
+      clearCanvas();
+      ctx.fillStyle = '#fefce8';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Lava floor
+      ctx.fillStyle = '#f43f5e';
+      ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(0, canvas.height - 40, canvas.width, 8);
+
+      if (keys['ArrowLeft'] || keys['a']) { p1.vx = -4.5; p1.dir = -1; }
+      else if (keys['ArrowRight'] || keys['d']) { p1.vx = 4.5; p1.dir = 1; }
+      else { p1.vx *= 0.8; }
+
+      if ((keys['ArrowUp'] || keys['w'] || keys[' ']) && p1.grounded) {
+        p1.vy = -11.5;
+        p1.grounded = false;
+        playSynthSound(400, 0.1);
+      }
+
+      p1.vy += 0.55;
+      p1.x += p1.vx;
+      p1.y += p1.vy;
+
+      p1.grounded = false;
+      plats1.forEach(pl => {
+        if (p1.x + p1.w > pl.x && p1.x < pl.x + pl.w &&
+            p1.y + p1.h >= pl.y && p1.y + p1.h - p1.vy <= pl.y + 8) {
+          if (pl.type === 'fake') {
+            pl.y += 4;
+          } else {
+            p1.y = pl.y - p1.h;
+            p1.vy = 0;
+            p1.grounded = true;
+            if (pl.type === 'exit') {
+              levelComplete();
+            }
+          }
+        }
+      });
+
+      if (p1.y > canvas.height) {
+        loseHeartAndContinue(initL1);
+      }
+
+      plats1.forEach(pl => {
+        if (pl.type === 'fake') ctx.fillStyle = 'rgba(236,72,153,0.5)';
+        else if (pl.type === 'exit') ctx.fillStyle = '#34d399';
+        else ctx.fillStyle = '#38bdf8';
+        ctx.beginPath(); ctx.roundRect(pl.x, pl.y, pl.w, pl.h, 6); ctx.fill();
+      });
+
+      drawChibi(p1.x + p1.w / 2, p1.y + p1.h, 1, p1.dir);
+    }
+
+    /* --- Level 2: Shadow Chase --- */
+    let p2 = { x: 100, y: 380, vx: 0, vy: 0, w: 26, h: 42, grounded: false, dir: 1 };
+    let shadowX = -50;
+    let trackDist = 0;
+    function initL2() {
+      p2 = { x: 100, y: 380, vx: 0, vy: 0, w: 26, h: 42, grounded: false, dir: 1 };
+      shadowX = -100;
+      trackDist = 0;
+    }
+    function loopL2() {
+      clearCanvas();
+      ctx.fillStyle = '#e0f2fe';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const dConfig = DIFF[difficulty];
+      shadowX += dConfig.chaseSpeed;
+      trackDist += 2;
+
+      if (keys['ArrowLeft'] || keys['a']) { p2.vx = -4; p2.dir = -1; }
+      else if (keys['ArrowRight'] || keys['d']) { p2.vx = 5.5; p2.dir = 1; }
+      else { p2.vx = 2.5; }
+
+      if ((keys['ArrowUp'] || keys['w'] || keys[' ']) && p2.grounded) {
+        p2.vy = -12;
+        p2.grounded = false;
+        playSynthSound(450, 0.1);
+      }
+
+      p2.vy += 0.6;
+      p2.x += p2.vx;
+      p2.y += p2.vy;
+
+      if (p2.y >= 420) {
+        p2.y = 420;
+        p2.vy = 0;
+        p2.grounded = true;
+      }
+
+      ctx.fillStyle = '#bae6fd';
+      ctx.fillRect(0, 462, canvas.width, 100);
+
+      ctx.fillStyle = 'rgba(71,85,105,0.75)';
+      ctx.fillRect(shadowX, 200, 80, 262);
+
+      if (p2.x - shadowX < 35) {
+        loseHeartAndContinue(initL2);
+      }
+
+      if (trackDist > 1200) {
+        levelComplete();
+      }
+
+      drawChibi(p2.x + p2.w / 2, p2.y + p2.h, 1, p2.dir);
+    }
+
+    /* --- Level 3: Falling Walls --- */
+    let p3 = { x: 450, y: 400, vy: 0, w: 26, h: 42, grounded: true, dir: 1 };
+    let walls3 = [];
+    let wallTimer = 0;
+    let wallScore = 0;
+    function initL3() {
+      p3 = { x: 450, y: 400, vy: 0, w: 26, h: 42, grounded: true, dir: 1 };
+      walls3 = [];
+      wallTimer = 0;
+      wallScore = 0;
+    }
+    function loopL3() {
+      clearCanvas();
+      ctx.fillStyle = '#fefce8';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const dConfig = DIFF[difficulty];
+      wallTimer++;
+      if (wallTimer > dConfig.wallInterval / 20) {
+        wallTimer = 0;
+        walls3.push({ x: canvas.width, y: 420, w: 40, h: 42, speed: dConfig.wallSpeed });
+      }
+
+      if ((keys['ArrowUp'] || keys['w'] || keys[' ']) && p3.grounded) {
+        p3.vy = -12;
+        p3.grounded = false;
+        playSynthSound(500, 0.1);
+      }
+
+      p3.vy += 0.6;
+      p3.y += p3.vy;
+      if (p3.y >= 400) {
+        p3.y = 400;
+        p3.vy = 0;
+        p3.grounded = true;
+      }
+
+      walls3.forEach((w, idx) => {
+        w.x -= w.speed;
+        if (w.x + w.w < p3.x && !w.passed) {
+          w.passed = true;
+          wallScore++;
+          if (wallScore >= 10) {
+            levelComplete();
+          }
+        }
+        if (p3.x < w.x + w.w && p3.x + p3.w > w.x && p3.y + p3.h > w.y) {
+          walls3.splice(idx, 1);
+          loseHeartAndContinue(initL3);
+        }
+      });
+
+      ctx.fillStyle = '#bae6fd';
+      ctx.fillRect(0, 442, canvas.width, 120);
+
+      walls3.forEach(w => {
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath(); ctx.roundRect(w.x, w.y, w.w, w.h, 6); ctx.fill();
+      });
+
+      drawChibi(p3.x + p3.w / 2, p3.y + p3.h, 1, 1);
+    }
+
+    /* --- Guard's Orders Game --- */
+    let guardScore = 0;
+    let guardCommand = '';
+    let guardInterval = null;
+    function startGuardGame() {
+      stopGame();
+      resetGameStats();
+      mode = 'guard';
+      guardScore = 0;
+      updateLevelHUD();
+      gameStatus.textContent = "🛡️ Guard's Orders";
+      gameHint.textContent = "Click or press the correct button matching the guard's command fast!";
+      nextGuardCommand();
+    }
+    function nextGuardCommand() {
+      if (mode !== 'guard') return;
+      const cmds = ['left', 'right', 'jump', 'duck'];
+      guardCommand = cmds[Math.floor(Math.random() * cmds.length)];
+      playSynthSound(300, 0.05);
+    }
+    function handleGuardAnswer(action) {
+      if (mode !== 'guard') return;
+      if (action === guardCommand) {
+        guardScore += 10;
+        updateLevelHUD();
+        playSynthSound(600, 0.08);
+        nextGuardCommand();
+      } else {
+        if (loseLife()) {
+          gameStatus.textContent = '💀 GAME OVER';
+          setTimeout(stopGame, 1800);
+        } else {
+          playSynthSound(120, 0.3);
+        }
+      }
+    }
+
+    /* --- Friends & Community --- */
+    const mockFriends = [
+      { name: 'KiraStar', hobby: 'gaming, art', avatar: '🐱', msg: 'Hey! Want to play obby together?' },
+      { name: 'PixelNinja', hobby: 'coding, gaming', avatar: '🤖', msg: 'Building a new canvas game right now.' },
+      { name: 'ChibiMuffin', hobby: 'music, baking', avatar: '🧁', msg: 'Listening to lofi beats!' },
+      { name: 'SkyWalker', hobby: 'gaming, adventure', avatar: '⭐', msg: 'Trying to beat Hard mode!' }
+    ];
+    function findCommunity() {
+      const q = document.getElementById('interest').value.toLowerCase().trim();
+      const res = document.getElementById('results');
+      res.innerHTML = '';
+      const filtered = mockFriends.filter(f => q === '' || f.hobby.includes(q) || f.name.toLowerCase().includes(q));
+      if (filtered.length === 0) {
+        res.innerHTML = '<p style="color:#64748b;grid-column:1/-1;">No friends found matching that interest. Try "gaming" or "art"!</p>';
+        return;
+      }
+      filtered.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'friend-card';
+        div.innerHTML = `<div class="friend-avatar">${f.avatar}</div><div><h4 style="font-family:'Fredoka',sans-serif;color:#0369a1;">${f.name}</h4><p style="color:#64748b;font-size:12px;">Hobs: ${f.hobby}</p></div>`;
+        div.onclick = () => openChat(f);
+        res.appendChild(div);
+      });
+    }
+
+    let activeChatFriend = null;
+    function openChat(friend) {
+      activeChatFriend = friend;
+      document.getElementById('chatAvatar').textContent = friend.avatar;
+      document.getElementById('chatName').textContent = friend.name;
+      const msgs = document.getElementById('chatMessages');
+      msgs.innerHTML = `<div class="chat-msg them">${friend.msg}</div>`;
+      document.getElementById('chatOverlay').classList.add('active');
+    }
+    function closeChat() {
+      document.getElementById('chatOverlay').classList.remove('active');
+    }
+    function sendChat() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      const msgs = document.getElementById('chatMessages');
+      const myMsg = document.createElement('div');
+      myMsg.className = 'chat-msg me';
+      myMsg.textContent = text;
+      msgs.appendChild(myMsg);
+      input.value = '';
+      msgs.scrollTop = msgs.scrollHeight;
+
+      setTimeout(() => {
+        const reply = document.createElement('div');
+        reply.className = 'chat-msg them';
+        reply.textContent = "That's awesome! Let's connect again soon. ✨";
+        msgs.appendChild(reply);
+        msgs.scrollTop = msgs.scrollHeight;
+      }, 1000);
+    }
+
+    // Initialize default view
+    updateChibiPreview();
+</script>
+</body>
+</html>
+

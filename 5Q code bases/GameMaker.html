@@ -16,25 +16,26 @@
             display: flex;
             height: 100vh;
             overflow: hidden;
-            background-color: #121212;
+            background-color: #000000;
             color: #e0e0e0;
         }
 
         /* Sidebar UI */
         #sidebar {
             width: 320px;
-            background: #1e1e1e;
+            background: #000000;
             border-right: 1px solid #333;
             display: flex;
             flex-direction: column;
             padding: 20px;
+            overflow-y: auto;
             z-index: 10;
             box-shadow: 4px 0 15px rgba(0,0,0,0.5);
         }
 
         h1 {
             font-size: 1.2rem;
-            color: #4CAF50;
+            color: #37ff00;
             margin-bottom: 5px;
             display: flex;
             align-items: center;
@@ -45,6 +46,16 @@
             font-size: 0.8rem;
             color: #888;
             margin-bottom: 20px;
+        }
+
+        /* How to Play mini-guide */
+        #how-to-play {
+            list-style: decimal;
+            padding-left: 18px;
+            font-size: 0.8rem;
+            color: #ccc;
+            line-height: 1.7;
+            margin-bottom: 5px;
         }
 
         .section-title {
@@ -61,7 +72,7 @@
         .tool-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 15px;
         }
 
@@ -79,13 +90,13 @@
 
         button:hover {
             background: #3a3a3a;
-            border-color: #4CAF50;
+            border-color: #37ff00;
         }
 
         button.active {
-            background: #4CAF50;
-            border-color: #45a049;
-            color: #fff;
+            background: #37ff00;
+            border-color: #2ccc00;
+            color: #000000;
         }
 
         .btn-full {
@@ -111,6 +122,13 @@
         .btn-play.playing {
             background: #e91e63;
             border-color: #c2185b;
+        }
+
+        /* Delete tool: on-state glow (kept separate from .active, which
+           .btn-danger's later background/border rule would otherwise mask) */
+        .btn-delete-on {
+            outline: 3px solid #fff;
+            box-shadow: 0 0 12px rgba(255,255,255,0.6);
         }
 
         /* AI Tips Box */
@@ -171,6 +189,79 @@
             display: none;
             border: 1px solid rgba(255,255,255,0.1);
         }
+
+        /* Get-ready countdown shown right after entering Play Game Mode */
+        #countdown-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+        #countdown-screen span {
+            font-size: 8rem;
+            font-weight: bold;
+            color: #37ff00;
+            text-shadow: 0 0 30px rgba(55, 255, 0, 0.7);
+        }
+
+        /* Game Over Menu Overlay */
+        #game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            display: none;
+        }
+
+        #game-over-screen h2 {
+            font-size: 3rem;
+            color: #f44336;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);
+        }
+
+        #game-over-screen p {
+            font-size: 1.1rem;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        .menu-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .menu-buttons button {
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            min-width: 150px;
+        }
+
+        .btn-restart {
+            background: #37ff00;
+            border-color: #2ccc00;
+            color: #000000;
+        }
+        .btn-restart:hover {
+            background: #2ccc00;
+        }
     </style>
 
     <!-- Include Three.js for 3D graphics -->
@@ -182,6 +273,13 @@
     <div id="sidebar">
         <h1>🎮 3D Game Studio</h1>
         <div class="subtitle">Arcade Edition with Play Mode</div>
+
+        <div class="section-title">How to Play</div>
+        <ol id="how-to-play">
+            <li>Click grid to build level.</li>
+            <li>Press Play Game Mode.</li>
+            <li>Move: WASD/Arrows. Jump: Space.</li>
+        </ol>
 
         <div class="section-title">Mode Select</div>
         <div class="tool-grid">
@@ -198,13 +296,14 @@
 
         <div class="section-title">Level Tools</div>
         <div class="tool-grid">
+            <button onclick="toggleDeleteMode()" id="btn-delete-object" class="btn-full btn-danger">❌ Delete Object</button>
             <button onclick="clearScene()" class="btn-full btn-danger">🗑️ Clear Scene</button>
         </div>
 
         <div class="section-title">AI Game Dev Mentor</div>
         <div id="ai-assistant">
             <strong>💡 Pro-Tip:</strong>
-            <span id="tip-text">Build your course, then click 'Play Game Mode' to run around, jump, and collect coins!</span>
+            <span id="tip-text">Enemy bots now experience gravity and will drop onto platforms!</span>
         </div>
     </div>
 
@@ -214,9 +313,25 @@
             <strong>Build Controls:</strong> Left Click to Place | Right-Click Drag to Rotate View | Scroll to Zoom
         </div>
         <div class="hud-overlay" id="play-hud" style="display: none;">
-            <strong>Play Controls:</strong> WASD / Arrows to Move | SPACE to Jump | Collect all coins!
+            <strong>Play Controls:</strong> WASD / Arrows to Move | SPACE to Jump | Avoid the Gravity-Enabled Bots!
         </div>
         <div class="score-hud" id="score-display">🪙 Coins: <span id="score">0</span> / <span id="total-coins">0</span></div>
+
+        <!-- Get-ready countdown before Play Mode actually starts -->
+        <div id="countdown-screen">
+            <span id="countdown-number">3</span>
+        </div>
+
+        <!-- Game Over Menu Overlay -->
+        <div id="game-over-screen">
+            <h2>Game Over</h2>
+            <p id="game-over-reason">You fell off the course!</p>
+            <div class="menu-buttons">
+                <button onclick="restartGame()" class="btn-restart">Restart</button>
+                <button onclick="leaveGame()" class="btn-danger">Leave Game</button>
+            </div>
+        </div>
+
         <canvas id="canvas3d"></canvas>
     </div>
 
@@ -225,10 +340,13 @@
         let objectsInScene = [];
         let coins = [];
         let enemies = [];
+        let enemyData = []; // Stores velocity and state for each enemy
         let currentTool = 'box';
         let isPlaying = false;
-        
-        // Player state variables
+        let inPlayMode = false;
+        let deleteMode = false;
+        let countdownTimer = null;
+
         let player;
         let playerVelocity = new THREE.Vector3();
         let keysPressed = {};
@@ -239,16 +357,24 @@
         let plane;
 
         const tips = [
-            "Build a challenging obstacle course and test it out using Play Mode!",
+            "Enemy bots now experience gravity and will drop onto platforms!",
             "Place coins on top of high blocks to reward exploration.",
-            "Watch out for moving enemy bots while hunting for collectibles!",
             "You can click and drag with the right mouse button to rotate your building perspective."
         ];
 
-        // Simple Audio Synthesizer for feedback
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
         function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            initAudio();
+            if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             osc.connect(gainNode);
@@ -263,8 +389,8 @@
                 osc.stop(audioCtx.currentTime + 0.1);
             } else if (type === 'coin') {
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08); // A5
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08);
                 gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
                 gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.25);
                 osc.start();
@@ -277,6 +403,22 @@
                 gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.15);
                 osc.start();
                 osc.stop(audioCtx.currentTime + 0.15);
+            } else if (type === 'die') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                osc.frequency.linearRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'delete') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(500, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(180, audioCtx.currentTime + 0.15);
+                gainNode.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.15);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
             }
         }
 
@@ -284,11 +426,11 @@
             const container = document.getElementById('viewport-container');
 
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x1a1a1a);
-            scene.fog = new THREE.FogExp2(0x1a1a1a, 0.015);
+            scene.background = new THREE.Color(0x000000);
+            scene.fog = new THREE.FogExp2(0x000000, 0.015);
 
             camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.set(0, 15, 20);
+            camera.position.set(0, 20, 30);
             camera.lookAt(0, 0, 0);
 
             renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas3d'), antialias: true });
@@ -299,29 +441,34 @@
             scene.add(ambientLight);
 
             const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            dirLight.position.set(10, 20, 10);
+            dirLight.position.set(15, 30, 15);
             dirLight.castShadow = true;
             scene.add(dirLight);
 
-            const gridHelper = new THREE.GridHelper(30, 30, 0x444444, 0x222222);
+            const gridHelper = new THREE.GridHelper(60, 60, 0x37ff00, 0x0f4a00);
             scene.add(gridHelper);
 
-            const planeGeometry = new THREE.PlaneGeometry(100, 100);
+            const planeGeometry = new THREE.PlaneGeometry(200, 200);
             planeGeometry.rotateX(-Math.PI / 2);
             plane = new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({ visible: false }));
             scene.add(plane);
 
-            // Spawn base platform & sample structures
-            createBlock(0, -0.5, 0, 10, 1, 10, 0x333333);
-            createBlock(3, 0.5, 3, 2, 1, 2, 0x4CAF50);
-            
-            // Spawn initial sample coin
+            createBlock(0, -0.5, 0, 20, 1, 20, 0x333333);
+            createBlock(3, 0.5, 3, 2, 1, 2, 0x37ff00);
             spawnCustomObject(3, 1.5, 3, 'coin');
 
             window.addEventListener('resize', onWindowResize);
             container.addEventListener('pointerdown', onPointerDown);
             
-            window.addEventListener('keydown', (e) => keysPressed[e.code] = true);
+            window.addEventListener('keydown', (e) => {
+                keysPressed[e.code] = true;
+                // Without this, Space/Enter re-activates whatever button still
+                // has focus (e.g. "Play Game Mode" after you click it), which
+                // is what was toggling the game back to the editor mid-play.
+                if (isPlaying && (e.code === 'Space' || e.code.startsWith('Arrow'))) {
+                    e.preventDefault();
+                }
+            });
             window.addEventListener('keyup', (e) => keysPressed[e.code] = false);
 
             setupCameraControls(container);
@@ -331,14 +478,15 @@
 
         function setTool(toolName) {
             if (isPlaying) return;
+            if (deleteMode) setDeleteMode(false); // picking a tool means you're back to building
             currentTool = toolName;
             document.querySelectorAll('#spawn-tools button').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + toolName).classList.add('active');
 
             const tipEl = document.getElementById('tip-text');
-            if (toolName === 'box') tipEl.innerText = "Cubes build structural platforms and platforms.";
+            if (toolName === 'box') tipEl.innerText = "Cubes build structural platforms.";
             if (toolName === 'sphere') tipEl.innerText = "Spheres catch vibrant lighting nicely!";
-            if (toolName === 'enemy') tipEl.innerText = "Robot bots add danger to your game level.";
+            if (toolName === 'enemy') tipEl.innerText = "Robot bots track you down and fall with gravity if placed in mid-air!";
             if (toolName === 'coin') tipEl.innerText = "Collectibles create objectives for players.";
         }
 
@@ -357,24 +505,24 @@
         function spawnCustomObject(x, y, z, type) {
             let obj;
             if (type === 'box') {
-                obj = createBlock(x, 0.5, z, 1, 1, 1, 0x4CAF50);
+                obj = createBlock(x, y, z, 1, 1, 1, 0x37ff00);
             } else if (type === 'sphere') {
                 const geometry = new THREE.SphereGeometry(0.5, 32, 32);
                 const material = new THREE.MeshStandardMaterial({ color: 0xFF9800, roughness: 0.2 });
                 obj = new THREE.Mesh(geometry, material);
-                obj.position.set(x, 0.5, z);
+                obj.position.set(x, y, z);
                 obj.castShadow = true;
                 scene.add(obj);
                 objectsInScene.push(obj);
             } else if (type === 'enemy') {
                 const geometry = new THREE.ConeGeometry(0.4, 1, 6);
-                const material = new THREE.MeshStandardMaterial({ color: 0xF44336, metalness: 0.5 });
+                const material = new THREE.MeshStandardMaterial({ color: 0xff1a1a, metalness: 0.5 });
                 obj = new THREE.Mesh(geometry, material);
-                obj.position.set(x, 0.5, z);
+                obj.position.set(x, y, z);
                 obj.castShadow = true;
                 scene.add(obj);
-                objectsInScene.push(obj);
                 enemies.push(obj);
+                enemyData.push({ velocityY: 0 }); // Track unique vertical velocity per enemy
             } else if (type === 'coin') {
                 const geometry = new THREE.CylinderGeometry(0.4, 0.4, 0.1, 16);
                 const material = new THREE.MeshStandardMaterial({ color: 0xFFEB3B, emissive: 0x333300 });
@@ -388,67 +536,193 @@
             playSound('place');
         }
 
-        function spawnObject(intersectPoint) {
-            let snapX = Math.round(intersectPoint.x);
-            let snapZ = Math.round(intersectPoint.z);
-            spawnCustomObject(snapX, 1.0, snapZ, currentTool);
+        function spawnObject(intersect) {
+            const position = intersect.point.clone();
+            if (intersect.face) {
+                position.add(intersect.face.normal.clone().multiplyScalar(0.5));
+            }
+            let snapX = Math.round(position.x);
+            let snapY = Math.max(0, Math.round(position.y - 0.5) + 0.5);
+            let snapZ = Math.round(position.z);
+            
+            spawnCustomObject(snapX, snapY, snapZ, currentTool);
+        }
+
+        // Shared by the "Clear Scene" button and the automatic post-game-over
+        // reset -- removes every built object (including collectibles, which
+        // used to just get dropped from the `coins` array without ever being
+        // removed from the THREE.js scene, so they kept rendering) and lays
+        // down a fresh ground block.
+        function resetLevelObjects() {
+            objectsInScene.forEach(obj => scene.remove(obj));
+            enemies.forEach(enemy => scene.remove(enemy));
+            coins.forEach(coin => scene.remove(coin));
+            coins = [];
+            enemies = [];
+            enemyData = [];
+            objectsInScene = [];
+            createBlock(0, -0.5, 0, 20, 1, 20, 0x333333);
+            updateTotalCoins();
         }
 
         function clearScene() {
             if (confirm("Clear all custom built assets from your level?")) {
-                objectsInScene.forEach(obj => scene.remove(obj));
-                coins = [];
-                enemies = [];
-                objectsInScene = [];
-                createBlock(0, -0.5, 0, 10, 1, 10, 0x333333);
+                resetLevelObjects();
+            }
+        }
+
+        // ---------- Delete tool: click any placed object to remove just it ----------
+        function toggleDeleteMode() {
+            if (isPlaying) return;
+            setDeleteMode(!deleteMode);
+        }
+
+        function setDeleteMode(on) {
+            deleteMode = on;
+            const btn = document.getElementById('btn-delete-object');
+            if (deleteMode) {
+                btn.innerText = "❌ Click Object to Delete";
+                btn.classList.add('btn-delete-on');
+            } else {
+                btn.innerText = "❌ Delete Object";
+                btn.classList.remove('btn-delete-on');
+            }
+        }
+
+        function deleteObject(obj) {
+            scene.remove(obj);
+
+            let idx = objectsInScene.indexOf(obj);
+            if (idx > -1) objectsInScene.splice(idx, 1);
+
+            idx = enemies.indexOf(obj);
+            if (idx > -1) {
+                enemies.splice(idx, 1);
+                enemyData.splice(idx, 1);
+            }
+
+            idx = coins.indexOf(obj);
+            if (idx > -1) {
+                coins.splice(idx, 1);
                 updateTotalCoins();
             }
+
+            playSound('delete');
         }
 
         function updateTotalCoins() {
             document.getElementById('total-coins').innerText = coins.length;
         }
 
-        // --- Game Play Mode Logic ---
         function togglePlayMode() {
-            isPlaying = !isPlaying;
+            initAudio();
+
+            if (inPlayMode) {
+                exitToEditor();
+                return;
+            }
+
+            inPlayMode = true;
             const btn = document.getElementById('btn-play-mode');
             const spawnTools = document.getElementById('spawn-tools');
-            
-            if (isPlaying) {
-                btn.innerText = "🛠️ Return to Editor";
-                btn.classList.add('playing');
-                spawnTools.style.opacity = '0.3';
-                spawnTools.style.pointerEvents = 'none';
-                document.getElementById('build-hud').style.display = 'none';
-                document.getElementById('play-hud').style.display = 'block';
-                document.getElementById('score-display').style.display = 'block';
 
-                // Spawn Player Avatar
-                const playerGeo = new THREE.BoxGeometry(0.6, 1.2, 0.6);
-                const playerMat = new THREE.MeshStandardMaterial({ color: 0x03a9f4 });
-                player = new THREE.Mesh(playerGeo, playerMat);
-                player.position.set(0, 2, 0);
-                scene.add(player);
-                playerVelocity.set(0, 0, 0);
-                score = 0;
-                document.getElementById('score').innerText = score;
-            } else {
-                btn.innerText = "🎮 Play Game Mode";
-                btn.classList.remove('playing');
-                spawnTools.style.opacity = '1';
-                spawnTools.style.pointerEvents = 'auto';
-                document.getElementById('build-hud').style.display = 'block';
-                document.getElementById('play-hud').style.display = 'none';
-                document.getElementById('score-display').style.display = 'none';
+            btn.innerText = "🛠️ Return to Editor";
+            btn.classList.add('playing');
+            btn.blur(); // stop Space from re-clicking this button mid-game
+            spawnTools.style.opacity = '0.3';
+            spawnTools.style.pointerEvents = 'none';
+            document.getElementById('build-hud').style.display = 'none';
+            document.getElementById('play-hud').style.display = 'block';
+            document.getElementById('score-display').style.display = 'block';
+            document.getElementById('game-over-screen').style.display = 'none';
 
-                if (player) {
-                    scene.remove(player);
-                    player = null;
+            const playerGeo = new THREE.BoxGeometry(0.6, 1.2, 0.6);
+            const playerMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+            player = new THREE.Mesh(playerGeo, playerMat);
+            player.position.set(0, 2, 0);
+            scene.add(player);
+            playerVelocity.set(0, 0, 0);
+            score = 0;
+            document.getElementById('score').innerText = score;
+
+            startCountdown();
+        }
+
+        // Gives the player a moment to get their bearings before Play Mode's
+        // controls/gravity/enemy AI actually switch on (isPlaying stays false
+        // for the count, since every physics/control check in animate() is
+        // gated on it).
+        function startCountdown() {
+            isPlaying = false;
+            const countdownEl = document.getElementById('countdown-screen');
+            const numberEl = document.getElementById('countdown-number');
+            let count = 3;
+
+            numberEl.innerText = count;
+            countdownEl.style.display = 'flex';
+
+            countdownTimer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    numberEl.innerText = count;
+                } else {
+                    clearInterval(countdownTimer);
+                    countdownTimer = null;
+                    countdownEl.style.display = 'none';
+                    isPlaying = true;
                 }
-                camera.position.set(0, 15, 20);
-                camera.lookAt(0, 0, 0);
+            }, 1000);
+        }
+
+        function exitToEditor() {
+            isPlaying = false;
+            inPlayMode = false;
+
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
             }
+            document.getElementById('countdown-screen').style.display = 'none';
+
+            const btn = document.getElementById('btn-play-mode');
+            const spawnTools = document.getElementById('spawn-tools');
+
+            btn.innerText = "🎮 Play Game Mode";
+            btn.classList.remove('playing');
+            spawnTools.style.opacity = '1';
+            spawnTools.style.pointerEvents = 'auto';
+            document.getElementById('build-hud').style.display = 'block';
+            document.getElementById('play-hud').style.display = 'none';
+            document.getElementById('score-display').style.display = 'none';
+            document.getElementById('game-over-screen').style.display = 'none';
+
+            if (player) {
+                scene.remove(player);
+                player = null;
+            }
+            camera.position.set(0, 20, 30);
+            camera.lookAt(0, 0, 0);
+        }
+
+        function triggerGameOver(reasonText) {
+            isPlaying = false;
+            playSound('die');
+            document.getElementById('game-over-reason').innerText = reasonText;
+            document.getElementById('game-over-screen').style.display = 'flex';
+            resetLevelObjects();
+        }
+
+        function restartGame() {
+            document.getElementById('game-over-screen').style.display = 'none';
+            if (player) {
+                player.position.set(0, 2, 0);
+                playerVelocity.set(0, 0, 0);
+            }
+            isPlaying = true;
+        }
+
+        function leaveGame() {
+            exitToEditor();
         }
 
         function onPointerDown(event) {
@@ -460,10 +734,21 @@
             mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects([plane, ...objectsInScene]);
+
+            if (deleteMode) {
+                // coins aren't included in the normal build raycast (clicking
+                // near one would place on top of it instead of the ground),
+                // but the delete tool needs to be able to target them too
+                const deletable = [...objectsInScene, ...enemies, ...coins];
+                const hits = raycaster.intersectObjects(deletable);
+                if (hits.length > 0) deleteObject(hits[0].object);
+                return;
+            }
+
+            const intersects = raycaster.intersectObjects([plane, ...objectsInScene, ...enemies]);
 
             if (intersects.length > 0) {
-                spawnObject(intersects[0].point);
+                spawnObject(intersects[0]);
             }
         }
 
@@ -502,11 +787,9 @@
             }, 10000);
         }
 
-        // Main animation loop
         function animate() {
             requestAnimationFrame(animate);
 
-            // Animate Collectibles & Enemies in editor/play mode
             const time = Date.now() * 0.003;
             coins.forEach((coin, index) => {
                 coin.rotation.z += 0.03;
@@ -514,10 +797,59 @@
             });
 
             enemies.forEach((enemy, index) => {
-                enemy.rotation.y += 0.02;
+                enemy.rotation.y += 0.04;
+                const data = enemyData[index];
+
+                if (isPlaying) {
+                    // Apply Gravity & Vertical Movement
+                    data.velocityY -= 0.015;
+                    enemy.position.y += data.velocityY;
+
+                    // Enemy Platform Collision Check
+                    const eHalfW = 0.4;
+                    const eHalfH = 0.5; // Cone height is 1, so half is 0.5
+                    const eHalfD = 0.4;
+
+                    objectsInScene.forEach(obj => {
+                        const boxGeo = obj.geometry;
+                        boxGeo.computeBoundingBox();
+                        const box = boxGeo.boundingBox.clone();
+                        box.applyMatrix4(obj.matrixWorld);
+
+                        const overlapX = Math.abs(enemy.position.x - obj.position.x) < (eHalfW + (box.max.x - box.min.x) / 2);
+                        const overlapZ = Math.abs(enemy.position.z - obj.position.z) < (eHalfD + (box.max.z - box.min.z) / 2);
+
+                        if (overlapX && overlapZ) {
+                            const topY = box.max.y;
+                            if (data.velocityY <= 0 && enemy.position.y - eHalfH <= topY && enemy.position.y + eHalfH >= topY - 0.4) {
+                                enemy.position.y = topY + eHalfH;
+                                data.velocityY = 0;
+                            }
+                        }
+                    });
+
+                    // Track Player (Horizontal Pathfinding)
+                    if (player) {
+                        const distToPlayer = enemy.position.distanceTo(player.position);
+                        
+                        if (distToPlayer < 12) {
+                            const dir = new THREE.Vector3().subVectors(player.position, enemy.position);
+                            dir.y = 0; // Keep movement flat horizontally
+                            dir.normalize();
+                            enemy.position.x += dir.x * 0.025;
+                            enemy.position.z += dir.z * 0.025;
+                        } else {
+                            enemy.position.x += Math.sin(time + index * 2) * 0.014;
+                            enemy.position.z += Math.cos(time + index * 2) * 0.014;
+                        }
+
+                        if (distToPlayer < 1.0) {
+                            triggerGameOver("Caught by an enemy bot!");
+                        }
+                    }
+                }
             });
 
-            // Handle Play Mode Physics & Movement
             if (isPlaying && player) {
                 const speed = 0.12;
                 let moveX = 0;
@@ -531,29 +863,36 @@
                 player.position.x += moveX;
                 player.position.z += moveZ;
 
-                // Simple gravity & jumping
                 playerVelocity.y -= 0.015;
                 player.position.y += playerVelocity.y;
 
-                // Ground / Platform Collision detection simulation
                 let onGround = false;
+                
                 objectsInScene.forEach(obj => {
-                    // Simple bounding box distance check for platform landing
-                    const distBox = player.position.distanceTo(obj.position);
-                    if (distBox < 2.0 && player.position.y <= obj.position.y + 1.0 && player.position.y >= obj.position.y) {
-                        if (playerVelocity.y < 0) {
-                            player.position.y = obj.position.y + 1.1;
+                    const boxGeo = obj.geometry;
+                    boxGeo.computeBoundingBox();
+                    const box = boxGeo.boundingBox.clone();
+                    box.applyMatrix4(obj.matrixWorld);
+
+                    const pHalfW = 0.3;
+                    const pHalfH = 0.6;
+                    const pHalfD = 0.3;
+
+                    const overlapX = Math.abs(player.position.x - obj.position.x) < (pHalfW + (box.max.x - box.min.x) / 2);
+                    const overlapZ = Math.abs(player.position.z - obj.position.z) < (pHalfD + (box.max.z - box.min.z) / 2);
+
+                    if (overlapX && overlapZ) {
+                        const topY = box.max.y;
+                        if (playerVelocity.y <= 0 && player.position.y - pHalfH <= topY && player.position.y + pHalfH >= topY - 0.4) {
+                            player.position.y = topY + pHalfH;
                             playerVelocity.y = 0;
                             onGround = true;
                         }
                     }
                 });
 
-                if (player.position.y < -0.5) {
-                    player.position.y = 3;
-                    player.position.x = 0;
-                    player.position.z = 0;
-                    playerVelocity.y = 0;
+                if (player.position.y < -10 && playerVelocity.y < 0) {
+                    triggerGameOver("You fell off the course!");
                 }
 
                 if ((keysPressed['Space']) && onGround) {
@@ -561,7 +900,6 @@
                     playSound('jump');
                 }
 
-                // Coin collection logic
                 coins.forEach((coin, index) => {
                     if (player.position.distanceTo(coin.position) < 1.2) {
                         scene.remove(coin);
@@ -572,7 +910,6 @@
                     }
                 });
 
-                // Smooth third-person follow camera
                 camera.position.x = player.position.x;
                 camera.position.y = player.position.y + 6;
                 camera.position.z = player.position.z + 8;
