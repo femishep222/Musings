@@ -189,7 +189,10 @@ body{
 }
 
 .eyebrow{
-  font-size:calc(15px * var(--text-scale, 1));
+  /* capped: an uncapped label at high text-scale eats enough vertical
+     budget across the 3 body blocks to starve the hero row's own height,
+     which is what actually was clipping the name/blob, not their own sizing */
+  font-size:clamp(15px, calc(15px * var(--text-scale, 1)), 22px);
   font-weight:700;
   text-transform:uppercase;
   letter-spacing:2.2px;
@@ -209,7 +212,11 @@ body{
 
 .hero-row{
   flex:1 1 auto;
-  min-height:0;
+  /* a hard floor, not 0: guarantees room for a wrapped 2-line name at its
+     own minimum font size even in the worst case (max text-scale + a
+     font whose optical-scale runs high), so the other blocks give way
+     instead of the hero row getting squeezed toward nothing */
+  min-height:230px;
   position:relative;
   display:flex;
   align-items:center;
@@ -217,7 +224,11 @@ body{
 }
 .hero-shape{
   position:absolute;
-  z-index:0;
+  /* negative so it paints behind ALL of .content's text (the static,
+     non-positioned blocks like "But the problem is" paint before z-index:0+
+     positioned siblings regardless of DOM order) -- not just the hero
+     name/eyebrow it's already behind via hero-inner's z-index:1 */
+  z-index:-1;
 }
 .hero-shape svg{ width:100%; height:100%; display:block; }
 .hero-inner{
@@ -317,6 +328,11 @@ body{
   <div class="field">
     <label for="textSizeInput">Text size <span class="field-val" id="textSizeVal"></span></label>
     <input type="range" id="textSizeInput" min="0.7" max="2" step="0.05">
+  </div>
+
+  <div class="field">
+    <label for="blobScaleInput">Blob scale <span class="field-val" id="blobScaleVal"></span></label>
+    <input type="range" id="blobScaleInput" min="0.5" max="6" step="0.1">
   </div>
 
   <div class="field">
@@ -422,6 +438,7 @@ body{
     love:'', problem:'', name:'', solves:'',
     font:'poppins',
     textScale:1,
+    blobScale:2.2,
     color1:'#1c1b29', color2:'#ff6b35',
     shapes:['blob','triangle'],
     shapeDensity:9,
@@ -582,28 +599,24 @@ body{
     }
   }
 
-  // The blob is rendered at this multiple of the text's own tightly-fit
-  // bounding box -- pure visual presence, independent of text size, so the
-  // text can be left alone while the blob still reads as bigger by default.
-  var BLOB_SCALE = 1.2;
-
   function layoutHeroShape(){
-    var heroRow = document.getElementById('heroRow');
     var heroInner = document.getElementById('heroInner');
     var heroShape = document.getElementById('heroShape');
     // hero-inner's own box can be capped by its max-width/max-height (so it
     // never forces the poster layout to blow up), but the eyebrow + name
     // inside it might still render wider/taller than that cap allows for.
     // Take the larger of the two (offset = capped box, scroll = actual
-    // content) as the true content size, then blow it up by BLOB_SCALE
-    // around its own center, clamped by the hero row so it never spills
-    // past the poster.
+    // content) as the true content size, then blow it up by state.blobScale
+    // (dial-driven) around its own center. No further clamping here --
+    // blobScale is the only knob, deliberately free to overlap neighboring
+    // blocks if pushed high enough; the poster's own overflow:hidden is the
+    // sole hard edge.
     var contentW = Math.max(heroInner.offsetWidth, heroInner.scrollWidth);
     var contentH = Math.max(heroInner.offsetHeight, heroInner.scrollHeight);
     var centerX = heroInner.offsetLeft + heroInner.offsetWidth / 2;
     var centerY = heroInner.offsetTop + heroInner.offsetHeight / 2;
-    var w = Math.min(contentW * BLOB_SCALE, heroRow.clientWidth);
-    var h = Math.min(contentH * BLOB_SCALE, heroRow.clientHeight);
+    var w = contentW * state.blobScale;
+    var h = contentH * state.blobScale;
     heroShape.style.left = (centerX - w / 2) + 'px';
     heroShape.style.top = (centerY - h / 2) + 'px';
     heroShape.style.width = w + 'px';
@@ -697,6 +710,15 @@ body{
     applyTextScale();
   }
 
+  function updateBlobScaleLabel(){
+    document.getElementById('blobScaleVal').textContent = state.blobScale.toFixed(1) + 'x';
+  }
+
+  function syncBlobScaleInput(){
+    document.getElementById('blobScaleInput').value = state.blobScale;
+    updateBlobScaleLabel();
+  }
+
   function updateShapeDensityLabel(){
     document.getElementById('shapeDensityVal').textContent = state.shapeDensity;
   }
@@ -788,6 +810,13 @@ body{
       save();
     });
 
+    document.getElementById('blobScaleInput').addEventListener('input', function(e){
+      state.blobScale = parseFloat(e.target.value);
+      updateBlobScaleLabel();
+      layoutHeroShape();
+      save();
+    });
+
     document.getElementById('shapeDensityInput').addEventListener('input', function(e){
       state.shapeDensity = parseInt(e.target.value, 10);
       updateShapeDensityLabel();
@@ -836,6 +865,7 @@ body{
     restoreFormFromState();
     buildFontOptions();
     syncTextSizeInput();
+    syncBlobScaleInput();
     syncShapeDensityInput();
     buildShapeGrid();
     bindInputs();
