@@ -3,36 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>✨ StarPlayer - Ultimate Chibi Studio & Arcade</title>
+  <title>☀️ SunHaven - Ultimate Chibi Studio & Arcade</title>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap');
 
     :root {
-      --primary: #60a5fa;
-      --primary-hover: #3b82f6;
-      --accent-pink: #f472b6;
-      --accent-cyan: #38bdf8;
-      --accent-green: #34d399;
-      --accent-shadow: #8b7bd8;
-      --bg-main: #fef08a;
-      --card-bg: rgba(255, 255, 255, 0.85);
-      --card-border: rgba(56, 189, 248, 0.3);
-      --text-main: #334155;
-      --text-muted: #64748b;
+      --primary: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --accent-pink: #ec4899;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-sun: #f59e0b;
+      --bg-dark: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.75);
+      --card-border: rgba(255, 255, 255, 0.15);
     }
 
     * { margin:0; padding:0; box-sizing:border-box; font-family: 'Nunito', sans-serif; }
 
     body {
-      background: radial-gradient(circle at top left, #bae6fd, var(--bg-main) 60%), var(--bg-main);
-      color: var(--text-main);
+      background: radial-gradient(circle at top left, #7c2d12, #1e1b4b 50%, #0f172a 80%), #0f172a;
+      color: #f8fafc;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
     header {
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(12px);
       padding: 20px;
       text-align: center;
@@ -44,13 +42,13 @@
     header h1 {
       font-family: 'Fredoka', cursive;
       font-size: 38px;
-      background: linear-gradient(135deg, #0284c7, #0369a1, #ec4899);
+      background: linear-gradient(135deg, #fcd34d, #f97316, #ec4899);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: 1px;
     }
 
-    header p { margin-top: 4px; color: var(--text-muted); font-weight: 600; font-size: 14px; }
+    header p { margin-top: 4px; color: #94a3b8; font-weight: 600; font-size: 14px; }
 
     nav {
       display: flex;
@@ -67,8 +65,8 @@
       padding: 12px 24px;
       border: 1px solid var(--card-border);
       border-radius: 99px;
-      background: rgba(56, 189, 248, 0.12);
-      color: #0369a1;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e2e8f0;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
@@ -80,16 +78,14 @@
     nav button:hover {
       background: var(--primary);
       border-color: var(--primary);
-      color: #fff;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4);
+      box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
     }
 
     nav button.active-btn {
-      background: linear-gradient(135deg, #38bdf8, #60a5fa);
+      background: linear-gradient(135deg, var(--accent-sun), var(--accent-pink));
       border-color: transparent;
-      color: #fff;
-      box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
     }
 
     .page { display:none; padding:20px; max-width:1200px; margin:auto; animation: fadeIn 0.3s ease; }
@@ -107,7 +103,7 @@
       padding: 20px;
       margin-top: 16px;
       border-radius: 18px;
-      box-shadow: 0 12px 30px rgba(56, 189, 248, 0.15);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
       position: relative;
       z-index: 5;
     }
@@ -118,7 +114,7 @@
     label {
       display: block;
       margin-top: 12px;
-      color: #0369a1;
+      color: #cbd5e1;
       font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
@@ -132,12 +128,12 @@
       border-radius: 10px;
       font-size: 14px;
       margin-top: 4px;
-      color: var(--text-main);
+      color: #f8fafc;
       outline: none;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(15, 23, 42, 0.7);
     }
 
-    select option { background: #fff; color: #334155; }
+    select option { background: #0f172a; color: #fff; }
 
     .searchBtn {
       margin-top: 14px;
@@ -167,8 +163,8 @@
       font-size: 16px;
       border: none;
       border-radius: 12px;
-      background: linear-gradient(135deg, #38bdf8, var(--primary));
-      color: #fff;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      color: white;
       cursor: pointer;
       transition: all 0.2s ease;
       user-select: none;
@@ -176,14 +172,14 @@
 
     .gameButton:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(56, 189, 248, 0.4);
+      box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
     }
 
     .level-teleport {
       display: flex;
       gap: 10px;
       margin-top: 6px;
-      background: rgba(56, 189, 248, 0.1);
+      background: rgba(0,0,0,0.2);
       padding: 8px;
       border-radius: 8px;
       align-items: center;
@@ -203,12 +199,12 @@
     .canvas-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; }
 
     canvas {
-      background: #fefce8;
+      background: #020617;
       display: block;
       margin: auto;
-      border: 2px solid rgba(56, 189, 248, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.2);
       border-radius: 16px;
-      box-shadow: 0 15px 35px rgba(56, 189, 248, 0.2);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
       max-width: 100%;
       height: auto;
       cursor: pointer;
@@ -219,7 +215,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(15, 23, 42, 0.85);
       border: 1px solid var(--card-border);
       padding: 10px 16px;
       border-radius: 12px;
@@ -228,44 +224,34 @@
       gap: 10px;
     }
 
-    .hint { font-size: 13px; margin-top: 8px; color: var(--text-muted); text-align: center; }
+    .hint { font-size: 13px; margin-top: 8px; color: #94a3b8; text-align: center; }
 
     .pill {
-      background: rgba(56, 189, 248, 0.2);
-      border: 1px solid rgba(56, 189, 248, 0.4);
+      background: rgba(139, 92, 246, 0.25);
+      border: 1px solid rgba(139, 92, 246, 0.4);
       padding: 4px 14px;
       border-radius: 999px;
       font-size: 13px;
       font-weight: 700;
-      color: #0284c7;
+      color: #c084fc;
     }
-
+    
     .level-pill {
-      background: rgba(52, 211, 153, 0.2);
-      border: 1px solid rgba(52, 211, 153, 0.4);
+      background: rgba(16, 185, 129, 0.25);
+      border: 1px solid rgba(16, 185, 129, 0.4);
       padding: 4px 14px;
       border-radius: 999px;
       font-size: 13px;
       font-weight: 700;
-      color: #059669;
+      color: #34d399;
     }
 
-    .boost-pill {
-      background: rgba(139, 123, 216, 0.2);
-      border: 1px solid rgba(139, 123, 216, 0.45);
-      padding: 4px 14px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #5b4b9e;
-    }
-
-    .lives-box { font-size: 18px; letter-spacing: 2px; text-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+    .lives-box { font-size: 18px; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
     .sound-btn {
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--card-border);
-      color: #0369a1;
+      color: white;
       padding: 6px 12px;
       border-radius: 8px;
       cursor: pointer;
@@ -277,9 +263,9 @@
 
     .ctrl-btn {
       font-family: 'Fredoka', sans-serif;
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(255, 255, 255, 0.1);
       border: 1px solid var(--card-border);
-      color: #0369a1;
+      color: white;
       padding: 12px 20px;
       border-radius: 12px;
       font-size: 15px;
@@ -290,8 +276,7 @@
       flex: 1;
     }
 
-    .ctrl-btn:active { background: var(--primary); color: #fff; }
-    #btn-boost:active { background: var(--accent-shadow); color: #ffffff; }
+    .ctrl-btn:active { background: var(--primary); }
 
     .friend-grid {
       display: grid;
@@ -301,24 +286,18 @@
     }
 
     .friend-card {
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(30, 41, 59, 0.6);
       border: 1px solid var(--card-border);
       border-radius: 14px;
       padding: 14px;
       display: flex;
       align-items: center;
       gap: 15px;
-      transition: all 0.15s ease;
-    }
-    .friend-card:hover {
-      background: rgba(56, 189, 248, 0.18);
-      border-color: var(--primary);
-      transform: translateY(-2px);
     }
 
     .friend-avatar {
       font-size: 30px;
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(255, 255, 255, 0.1);
       width: 50px;
       height: 50px;
       display: flex;
@@ -326,74 +305,39 @@
       justify-content: center;
       border-radius: 50%;
     }
-
-    .add-friend-btn {
-      margin-top: 8px;
-      padding: 4px 10px;
-      border: none;
-      background: var(--primary-hover);
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .add-friend-btn:disabled { opacity: 0.65; cursor: default; }
-
-    .friends-layout {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 20px;
-      align-items: start;
-    }
-    @media (max-width: 900px) {
-      .friends-layout { grid-template-columns: 1fr; }
-    }
-
-    .friend-list-panel { position: sticky; top: 20px; }
-
-    .friend-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--card-border);
-    }
-    .friend-row:last-child { border-bottom: none; }
-    .friend-row .friend-avatar { width: 36px; height: 36px; font-size: 18px; }
   </style>
 </head>
 
 <body>
   <header>
-    <h1>⭐ StarPlayer</h1>
-    <p>Custom Studio • Arcade Games • Friend Spotter</p>
+    <h1>☀️ SunHaven</h1>
+    <p>Custom Studio • Sunset Arcade • Friend Spotter</p>
   </header>
 
   <nav>
     <button id="btn-home" class="active-btn" onclick="showPage('home')">🏠 Home</button>
     <button id="btn-friends" onclick="showPage('friends')">👥 Find Friends</button>
-    <button id="btn-games" onclick="showPage('games')">🎮 Chibi Arcade</button>
+    <button id="btn-games" onclick="showPage('games')">🎮 Sunset Arcade</button>
   </nav>
 
   <div id="home" class="page active">
     <div style="text-align: center; margin: 20px 0;">
-      <h2 style="font-family:'Fredoka', sans-serif; font-size: 32px;">Welcome to StarPlayer Arcade! ✨</h2>
-      <p style="color: var(--text-muted); max-width: 550px; margin: 8px auto 0;">Customize your ultra-cute Chibi avatar, find friends with similar hobbies, and play high-stakes arcade games!</p>
+      <h2 style="font-family:'Fredoka', sans-serif; font-size: 32px;">Welcome to SunHaven! 🌅</h2>
+      <p style="color: #94a3b8; max-width: 550px; margin: 8px auto 0;">Customize your ultra-cute Chibi avatar, hang out with friends, and conquer the glowing Sunset Lava Mountain Obby!</p>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
       <div class="card">
         <h3 style="color: var(--accent-cyan); font-size: 18px;">🎨 Avatar Studio</h3>
-        <p style="margin-top: 6px; color: var(--text-muted); font-size: 14px;">High-quality hairstyle layers, cute face expressions, custom colors, and stylish accessories.</p>
+        <p style="margin-top: 6px; color: #94a3b8; font-size: 14px;">Custom hair layers, expressive chibi faces, vibrant gear, and custom outfit colors.</p>
       </div>
       <div class="card">
-        <h3 style="color: var(--accent-pink); font-size: 18px;">🌋 Lava Mountain Obby</h3>
-        <p style="margin-top: 6px; color: var(--text-muted); font-size: 14px;">10 levels of jump-and-run lava parkour, tuned to always be beatable.</p>
+        <h3 style="color: var(--accent-sun); font-size: 18px;">🌋 Lava Mountain Hardcore</h3>
+        <p style="margin-top: 6px; color: #94a3b8; font-size: 14px;">Realistic molten lava, moving platforms, tight jumps, and scenic sunset mountain vistas!</p>
       </div>
       <div class="card">
-        <h3 style="color: var(--accent-shadow); font-size: 18px;">👻 Shadow Chase</h3>
-        <p style="margin-top: 6px; color: var(--text-muted); font-size: 14px;">Outrun a hungry shadow across a long track. Dodge obstacles and spend your 3 boosts wisely!</p>
+        <h3 style="color: var(--accent-pink); font-size: 18px;">👥 Friend Finder</h3>
+        <p style="margin-top: 6px; color: #94a3b8; font-size: 14px;">Meet players, discover shared hobbies, and build your gaming squad.</p>
       </div>
     </div>
   </div>
@@ -401,25 +345,16 @@
   <div id="friends" class="page">
     <h2 style="font-family:'Fredoka', sans-serif;">Find Players & Friends</h2>
 
-    <div class="friends-layout">
-      <div class="card">
-        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-          <div style="flex: 1; min-width: 200px;">
-            <input id="interest" placeholder="Try searching: gaming, coding, art, music..." />
-          </div>
-          <div style="flex: 0 0 160px;">
-            <button class="searchBtn" onclick="findCommunity()">Search Friends</button>
-          </div>
+    <div class="card">
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+          <input id="interest" placeholder="Try searching: parkour, gaming, art, anime..." />
         </div>
-        <div id="results" class="friend-grid"></div>
-      </div>
-
-      <div class="card friend-list-panel">
-        <h3 style="font-family:'Fredoka', sans-serif; font-size: 18px; color: var(--accent-shadow);">🌟 My Friends</h3>
-        <div id="myFriendsList" style="margin-top: 10px;">
-          <p style="color: var(--text-muted); font-size: 13px;">No friends added yet. Search and add some!</p>
+        <div style="flex: 0 0 160px;">
+          <button class="searchBtn" onclick="findCommunity()">Search Friends</button>
         </div>
       </div>
+      <div id="results" class="friend-grid"></div>
     </div>
   </div>
 
@@ -428,7 +363,7 @@
       <div>
         <div class="card" style="margin-top:0;">
           <h3 style="font-family:'Fredoka', sans-serif; font-size: 20px; color: var(--accent-pink);">🎨 Chibi Styling</h3>
-
+          
           <label>Skin Tone</label>
           <select id="skinColor" onchange="updateChibiPreview()">
             <option value="#f5c7a9">Light Porcelain</option>
@@ -450,10 +385,10 @@
 
           <label>Hair Color</label>
           <select id="hairColor" onchange="updateChibiPreview()">
+            <option value="#f59e0b">Golden Sunset Blonde</option>
+            <option value="#ef4444">Crimson Red</option>
             <option value="#111827">Jet Black</option>
             <option value="#92400e">Chestnut Brown</option>
-            <option value="#f59e0b">Golden Blonde</option>
-            <option value="#ef4444">Crimson Red</option>
             <option value="#7c3aed">Electric Purple</option>
             <option value="#06b6d4">Pastel Cyan</option>
             <option value="#ec4899">Bubblegum Pink</option>
@@ -469,15 +404,15 @@
 
           <label>Accessory</label>
           <select id="accessory" onchange="updateChibiPreview()">
-            <option value="none">None</option>
             <option value="crown">Golden Royal Crown 👑</option>
             <option value="catEars">Necko Cat Ears 🐱</option>
             <option value="bow">Cute Red Bow 🎀</option>
+            <option value="none">None</option>
           </select>
 
           <label>Outfit Style</label>
           <select id="outfitStyle" onchange="updateChibiPreview()">
-            <option value="squidSuit">Green Player Tracksuit 🦑</option>
+            <option value="squidSuit">SunHaven Tracksuit ☀️</option>
             <option value="hoodie">Cozy Hoodie</option>
             <option value="tshirt">Classic T-Shirt</option>
             <option value="dress">Cute Dress</option>
@@ -485,55 +420,51 @@
 
           <label>Top Color</label>
           <select id="shirtColor" onchange="updateChibiPreview()">
-            <option value="#059669">Player Green (#456)</option>
+            <option value="#f97316">Sunset Orange</option>
             <option value="#ef4444">Ruby Red</option>
             <option value="#3b82f6">Royal Blue</option>
             <option value="#8b5cf6">Neon Purple</option>
-            <option value="#ec4899">Pastel Pink</option>
+            <option value="#059669">Emerald Green</option>
           </select>
 
           <label>Bottoms Color</label>
           <select id="pantsColor" onchange="updateChibiPreview()">
-            <option value="#047857">Tracksuit Green</option>
             <option value="#1e293b">Dark Slate</option>
+            <option value="#c2410c">Lava Rust</option>
             <option value="#1d4ed8">Denim Blue</option>
             <option value="#f8fafc">Snow White</option>
           </select>
         </div>
 
         <div class="card">
-          <h3 style="font-family:'Fredoka', sans-serif; font-size: 20px; color: var(--accent-cyan);">🕹️ Games & Cheats</h3>
-          <button class="gameButton" onclick="startObbyGame()">🌋 Lava Obby</button>
-
-          <label style="margin-top: 15px; color: #f472b6;">Teleport to Obby Level</label>
+          <h3 style="font-family:'Fredoka', sans-serif; font-size: 20px; color: var(--accent-sun);">🌋 Sunset Mountain Obby</h3>
+          <button class="gameButton" onclick="startObbyGame()">🔥 Play Sunset Obby</button>
+          
+          <label style="margin-top: 15px; color: #f472b6;">Warp to Stage</label>
           <div class="level-teleport">
             <select id="levelSelectDrop">
-              <option value="1">Level 1</option>
-              <option value="2">Level 2</option>
-              <option value="3">Level 3</option>
-              <option value="4">Level 4</option>
-              <option value="5">Level 5</option>
-              <option value="6">Level 6</option>
-              <option value="7">Level 7</option>
-              <option value="8">Level 8</option>
-              <option value="9">Level 9</option>
-              <option value="10">Level 10</option>
+              <option value="1">Level 1 - Sunset Ascent</option>
+              <option value="2">Level 2 - Lava Gap</option>
+              <option value="3">Level 3 - Moving Platforms</option>
+              <option value="4">Level 4 - Precision Pillars</option>
+              <option value="5">Level 5 - Lava Wave Crags</option>
+              <option value="6">Level 6 - Floating Ember Steps</option>
+              <option value="7">Level 7 - Molten Slalom</option>
+              <option value="8">Level 8 - Tiny Ridge Leap</option>
+              <option value="9">Level 9 - Inferno Summit</option>
+              <option value="10">Level 10 - SunHaven Champion</option>
             </select>
             <button onclick="teleport()">WARP</button>
           </div>
-
-          <button class="gameButton" style="background: linear-gradient(135deg, #8b7bd8, #6a5acd); color: #ffffff; margin-top: 15px;" onclick="startShadowGame()">👻 Shadow Chase</button>
-          <button class="gameButton" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; margin-top: 10px;" onclick="playSimon()">🧠 Memory Simon Says</button>
         </div>
       </div>
 
       <div class="canvas-wrapper">
         <canvas id="gameCanvas" width="850" height="520"></canvas>
-
+        
         <div class="hud-bar">
           <div class="pill" id="gameStatus">Styling Preview Mode</div>
           <div class="level-pill" id="levelDisplay" style="display:none;">Level: 1/10</div>
-          <div class="boost-pill" id="boostDisplay" style="display:none;">⚡ Boosts: 3</div>
           <div class="lives-box" id="livesDisplay">❤️❤️❤️</div>
           <button class="sound-btn" onclick="toggleSound()">
             <span id="soundIcon">🔊</span> Audio: <span id="soundText">ON</span>
@@ -544,10 +475,9 @@
           <button class="ctrl-btn" id="btn-left">⬅️ Left</button>
           <button class="ctrl-btn" id="btn-right">➡️ Right</button>
           <button class="ctrl-btn" id="btn-jump">🚀 Jump</button>
-          <button class="ctrl-btn" id="btn-boost">⚡ Boost</button>
         </div>
 
-        <div class="hint" id="gameHint">Controls: Click buttons above OR use Arrow Keys / WASD! Shift = Boost.</div>
+        <div class="hint" id="gameHint">Controls: Arrow Keys / WASD or Touch Controls!</div>
       </div>
     </div>
   </div>
@@ -566,18 +496,10 @@
     }
 
     // ===== FIND FRIENDS SYSTEM =====
-    let myFriends = [];
-
-    function escapeHtml(str) {
-      const div = document.createElement("div");
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
     function findCommunity() {
       const query = document.getElementById("interest").value.trim().toLowerCase();
       const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = "";
+      resultsDiv.innerHTML = ""; 
 
       if (!query) {
         resultsDiv.innerHTML = "<p style='color:#ef4444; width:100%;'>Please enter an interest!</p>";
@@ -585,60 +507,29 @@
       }
 
       const mockFriends = [
-        { name: "PixelNinja", emoji: "🥷" },
-        { name: "StarGazer99", emoji: "🌟" },
-        { name: "ChibiMaster", emoji: "😸" },
-        { name: "CodeWizard", emoji: "🧙‍♂️" },
-        { name: "ArcadeKing", emoji: "👑" },
-        { name: "MelodyMaker", emoji: "🎵" }
+        { name: "SunsetRider", emoji: "🌅" },
+        { name: "LavaJumper", emoji: "🌋" },
+        { name: "ChibiStar", emoji: "✨" },
+        { name: "SunHavenPro", emoji: "👑" },
+        { name: "ParkourBunny", emoji: "🐰" },
+        { name: "EmberKnight", emoji: "🔥" }
       ];
 
       const shuffled = mockFriends.sort(() => 0.5 - Math.random()).slice(0, 3);
-
+      
       shuffled.forEach(f => {
-        const card = document.createElement("div");
-        card.className = "friend-card";
-        card.innerHTML = `
-          <div class="friend-avatar">${f.emoji}</div>
-          <div style="flex:1; min-width:0;">
-            <div style="font-weight: 700; color: var(--text-main);">${escapeHtml(f.name)}</div>
-            <div style="font-size: 13px; color: var(--text-muted);">Loves ${escapeHtml(query)}!</div>
-            <button class="add-friend-btn" data-name="${escapeHtml(f.name)}" data-emoji="${f.emoji}">➕ Add Friend</button>
+        resultsDiv.innerHTML += `
+          <div class="friend-card">
+            <div class="friend-avatar">${f.emoji}</div>
+            <div>
+              <div style="font-weight: 700; color: #f8fafc;">${f.name}</div>
+              <div style="font-size: 13px; color: #94a3b8;">Enjoys ${query}!</div>
+              <button style="margin-top: 8px; padding: 4px 10px; border:none; background: var(--primary); color:white; border-radius: 6px; cursor:pointer; font-size:12px;">Add Friend</button>
+            </div>
           </div>
         `;
-        resultsDiv.appendChild(card);
       });
     }
-
-    function addFriend(name, emoji) {
-      if (myFriends.some(f => f.name === name)) return;
-      myFriends.push({ name, emoji });
-      renderMyFriends();
-      playSynthSound(500, 0.12);
-    }
-
-    function renderMyFriends() {
-      const panel = document.getElementById("myFriendsList");
-      if (myFriends.length === 0) {
-        panel.innerHTML = "<p style='color:var(--text-muted); font-size:13px;'>No friends added yet. Search and add some!</p>";
-        return;
-      }
-      panel.innerHTML = "";
-      myFriends.forEach(f => {
-        const row = document.createElement("div");
-        row.className = "friend-row";
-        row.innerHTML = `<div class="friend-avatar">${f.emoji}</div><div style="font-weight:700; font-size:14px;">${escapeHtml(f.name)}</div>`;
-        panel.appendChild(row);
-      });
-    }
-
-    document.getElementById("results").addEventListener("click", (e) => {
-      const addBtn = e.target.closest(".add-friend-btn");
-      if (!addBtn) return;
-      addFriend(addBtn.dataset.name, addBtn.dataset.emoji);
-      addBtn.textContent = "✓ Added";
-      addBtn.disabled = true;
-    });
 
     // ===== AUDIO SYSTEM =====
     let soundEnabled = true;
@@ -673,13 +564,7 @@
     function teleport() {
       const selected = parseInt(document.getElementById("levelSelectDrop").value);
       currentLevel = selected;
-      if (mode === "obby") {
-        initObbyLevel();
-      } else if (mode === "shadow") {
-        initShadowLevel();
-      } else {
-        startObbyGame();
-      }
+      startObbyGame(); 
     }
 
     function updateLivesHUD() {
@@ -701,15 +586,7 @@
         lvlDisp.style.display = "none";
       }
     }
-    function updateBoostHUD() {
-      const b = document.getElementById("boostDisplay");
-      if (mode === "shadow") {
-        b.style.display = "block";
-        b.textContent = `⚡ Boosts: ${scBoosts}`;
-      } else {
-        b.style.display = "none";
-      }
-    }
+
     function loseLife() {
       playerLives--;
       updateLivesHUD();
@@ -717,7 +594,7 @@
       return playerLives <= 0;
     }
 
-    // ===== NAVIGATION & ENGINE =====
+    // ===== NAVIGATION & CANVAS =====
     function showPage(page) {
       stopGame();
       document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
@@ -732,7 +609,6 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const gameStatus = document.getElementById("gameStatus");
-    const gameHint = document.getElementById("gameHint");
 
     const colorPick = {
       skin: () => document.getElementById("skinColor").value,
@@ -747,204 +623,98 @@
 
     function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-    function shadeColor(hex, percent) {
-      const num = parseInt(hex.slice(1), 16);
-      let r = (num >> 16) + percent, g = ((num >> 8) & 0x00ff) + percent, b = (num & 0x0000ff) + percent;
-      r = Math.min(255, Math.max(0, r)); g = Math.min(255, Math.max(0, g)); b = Math.min(255, Math.max(0, b));
-      return "#" + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
-    }
-
-    // ===== CHIBI RENDERER (redrawn to match the round-head / thin-limb reference sketch) =====
     function drawChibi(x, y, scale = 1, dir = 1) {
       const skin = colorPick.skin(), hairStyle = colorPick.hairStyle(), hair = colorPick.hair();
       const expr = colorPick.expression(), acc = colorPick.accessory();
       const outfit = colorPick.outfitStyle(), shirt = colorPick.shirt(), pants = colorPick.pants();
-
-      const s = 0.95 * scale;
-      const headR = 21 * s;               // bigger, rounder head like the reference
-      const headX = x, headY = y - 62 * s;
+      const s = 0.95 * scale, headR = 18 * s, headX = x, headY = y - 56 * s;
 
       // Back Hair
       ctx.fillStyle = hair;
       if (hairStyle === 'wavy') {
-        ctx.beginPath(); ctx.moveTo(headX - headR, headY); ctx.quadraticCurveTo(headX - 27*s, headY + 22*s, headX - 16*s, headY + 38*s); ctx.quadraticCurveTo(headX - 5*s, headY + 22*s, headX, headY + 11*s); ctx.quadraticCurveTo(headX + 5*s, headY + 22*s, headX + 16*s, headY + 38*s); ctx.quadraticCurveTo(headX + 27*s, headY + 22*s, headX + headR, headY); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(headX - headR, headY); ctx.quadraticCurveTo(headX - 25*s, headY + 20*s, headX - 15*s, headY + 35*s); ctx.quadraticCurveTo(headX - 5*s, headY + 20*s, headX, headY + 10*s); ctx.quadraticCurveTo(headX + 5*s, headY + 20*s, headX + 15*s, headY + 35*s); ctx.quadraticCurveTo(headX + 25*s, headY + 20*s, headX + headR, headY); ctx.fill();
       } else if (hairStyle === 'twintails') {
-        ctx.beginPath(); ctx.moveTo(headX - 17*s, headY); ctx.quadraticCurveTo(headX - 37*s, headY + 11*s, headX - 27*s, headY + 48*s); ctx.lineTo(headX - 19*s, headY + 22*s); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(headX + 17*s, headY); ctx.quadraticCurveTo(headX + 37*s, headY + 11*s, headX + 27*s, headY + 48*s); ctx.lineTo(headX + 19*s, headY + 22*s); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(headX - 16*s, headY); ctx.quadraticCurveTo(headX - 35*s, headY + 10*s, headX - 25*s, headY + 45*s); ctx.lineTo(headX - 18*s, headY + 20*s); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(headX + 16*s, headY); ctx.quadraticCurveTo(headX + 35*s, headY + 10*s, headX + 25*s, headY + 45*s); ctx.lineTo(headX + 18*s, headY + 20*s); ctx.fill();
       } else if (hairStyle === 'ponytail') {
-        ctx.beginPath(); ctx.moveTo(headX + (dir * 8*s), headY - 13*s); ctx.quadraticCurveTo(headX + (dir * 32*s), headY - 21*s, headX + (dir * 27*s), headY + 16*s); ctx.lineTo(headX + (dir * 13*s), headY + 5*s); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(headX + (dir * 8*s), headY - 12*s); ctx.quadraticCurveTo(headX + (dir * 30*s), headY - 20*s, headX + (dir * 25*s), headY + 15*s); ctx.lineTo(headX + (dir * 12*s), headY + 5*s); ctx.fill();
       } else if (hairStyle === 'neat') {
-        ctx.beginPath(); ctx.moveTo(headX - headR - 2*s, headY); ctx.lineTo(headX - headR - 4*s, headY + 16*s); ctx.lineTo(headX + headR + 4*s, headY + 16*s); ctx.lineTo(headX + headR + 2*s, headY); ctx.fill();
+         ctx.beginPath(); ctx.moveTo(headX - headR - 2*s, headY); ctx.lineTo(headX - headR - 4*s, headY + 15*s); ctx.lineTo(headX + headR + 4*s, headY + 15*s); ctx.lineTo(headX + headR + 2*s, headY); ctx.fill();
       }
 
-      // Neck (visible, like the reference sketch)
-      ctx.fillStyle = skin;
-      ctx.fillRect(headX - 6*s, headY + headR - 3*s, 12*s, 14*s);
-
-      // Head
+      // Head & Face
       ctx.fillStyle = skin; ctx.beginPath(); ctx.arc(headX, headY, headR, 0, Math.PI * 2); ctx.fill();
-
-      // Cheeks
-      ctx.fillStyle = "rgba(244, 63, 94, 0.28)"; ctx.beginPath(); ctx.arc(headX - 10 * s, headY + 6 * s, 4.2 * s, 0, Math.PI * 2); ctx.arc(headX + 10 * s, headY + 6 * s, 4.2 * s, 0, Math.PI * 2); ctx.fill();
-
-      // Eyebrows (soft arches like the reference)
-      ctx.strokeStyle = "rgba(70,40,45,0.55)"; ctx.lineWidth = 1.6 * s; ctx.lineCap = "round";
-      ctx.beginPath(); ctx.arc(headX - 7*s, headY - 4*s, 5*s, Math.PI*1.15, Math.PI*1.75); ctx.stroke();
-      ctx.beginPath(); ctx.arc(headX + 7*s, headY - 4*s, 5*s, Math.PI*1.25, Math.PI*1.85); ctx.stroke();
-
-      // Eyes
+      ctx.fillStyle = "rgba(244, 63, 94, 0.3)"; ctx.beginPath(); ctx.arc(headX - 9 * s, headY + 5 * s, 4 * s, 0, Math.PI * 2); ctx.arc(headX + 9 * s, headY + 5 * s, 4 * s, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = "#0f172a";
       if (expr === 'wink') {
-        ctx.beginPath(); ctx.arc(headX - 7 * s + (dir * 1.5), headY + 3 * s, 3.6 * s, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 2 * s; ctx.beginPath(); ctx.arc(headX + 7 * s, headY + 3 * s, 3.6 * s, Math.PI, 0); ctx.stroke();
+        ctx.beginPath(); ctx.arc(headX - 6 * s + (dir * 1.5), headY + 2 * s, 3.2 * s, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 2 * s; ctx.beginPath(); ctx.arc(headX + 6 * s, headY + 2 * s, 3.2 * s, Math.PI, 0); ctx.stroke();
       } else {
-        ctx.beginPath(); ctx.arc(headX - 7 * s + (dir * 1.2), headY + 3 * s, 3.8 * s, 0, Math.PI * 2); ctx.arc(headX + 7 * s + (dir * 1.2), headY + 3 * s, 3.8 * s, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(headX - 8 * s + (dir * 1.2), headY + 1.6 * s, 1.5 * s, 0, Math.PI * 2); ctx.arc(headX + 6 * s + (dir * 1.2), headY + 1.6 * s, 1.5 * s, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(headX - 6 * s + (dir * 1.2), headY + 2 * s, 3.4 * s, 0, Math.PI * 2); ctx.arc(headX + 6 * s + (dir * 1.2), headY + 2 * s, 3.4 * s, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(headX - 7 * s + (dir * 1.2), headY + 0.8 * s, 1.4 * s, 0, Math.PI * 2); ctx.arc(headX + 5 * s + (dir * 1.2), headY + 0.8 * s, 1.4 * s, 0, Math.PI * 2); ctx.fill();
       }
       ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 1.8 * s;
       if (expr === 'cat') {
-        ctx.beginPath(); ctx.arc(headX - 2 * s, headY + 9 * s, 2 * s, 0, Math.PI); ctx.arc(headX + 2 * s, headY + 9 * s, 2 * s, 0, Math.PI); ctx.stroke();
+        ctx.beginPath(); ctx.arc(headX - 2 * s, headY + 8 * s, 2 * s, 0, Math.PI); ctx.arc(headX + 2 * s, headY + 8 * s, 2 * s, 0, Math.PI); ctx.stroke();
       } else if (expr === 'surprised') {
-        ctx.fillStyle = "#0f172a"; ctx.beginPath(); ctx.arc(headX, headY + 10 * s, 2.6 * s, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#0f172a"; ctx.beginPath(); ctx.arc(headX, headY + 9 * s, 2.5 * s, 0, Math.PI * 2); ctx.fill();
       } else {
-        ctx.beginPath(); ctx.arc(headX, headY + 7 * s, 3.6 * s, 0.1 * Math.PI, 0.9 * Math.PI); ctx.stroke();
+        ctx.beginPath(); ctx.arc(headX, headY + 6 * s, 3.5 * s, 0.1 * Math.PI, 0.9 * Math.PI); ctx.stroke();
       }
 
       // Front Hair
       ctx.fillStyle = hair; ctx.beginPath(); ctx.arc(headX, headY - 3*s, headR + 2*s, Math.PI, 0); ctx.fill();
       if (hairStyle === 'animeHero') {
-        ctx.beginPath(); ctx.moveTo(headX - headR - 2*s, headY - 5*s); ctx.lineTo(headX - 13*s, headY + 11*s); ctx.lineTo(headX - 9*s, headY - 2*s); ctx.lineTo(headX - 2*s, headY + 9*s); ctx.lineTo(headX, headY - 4*s); ctx.lineTo(headX + 7*s, headY + 8*s); ctx.lineTo(headX + 9*s, headY - 2*s); ctx.lineTo(headX + 15*s, headY + 10*s); ctx.lineTo(headX + headR + 2*s, headY - 5*s); ctx.lineTo(headX + 11*s, headY - 23*s); ctx.lineTo(headX + 2*s, headY - 17*s); ctx.lineTo(headX - 4*s, headY - 25*s); ctx.lineTo(headX - 9*s, headY - 16*s); ctx.lineTo(headX - 17*s, headY - 21*s); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(headX - headR - 2*s, headY - 5*s); ctx.lineTo(headX - 12*s, headY + 10*s); ctx.lineTo(headX - 8*s, headY - 2*s); ctx.lineTo(headX - 2*s, headY + 8*s); ctx.lineTo(headX, headY - 4*s); ctx.lineTo(headX + 6*s, headY + 7*s); ctx.lineTo(headX + 8*s, headY - 2*s); ctx.lineTo(headX + 14*s, headY + 9*s); ctx.lineTo(headX + headR + 2*s, headY - 5*s); ctx.lineTo(headX + 10*s, headY - 22*s); ctx.lineTo(headX + 2*s, headY - 16*s); ctx.lineTo(headX - 4*s, headY - 24*s); ctx.lineTo(headX - 8*s, headY - 15*s); ctx.lineTo(headX - 16*s, headY - 20*s); ctx.fill();
       } else if (hairStyle === 'spiky') {
-        ctx.beginPath(); ctx.moveTo(headX - headR, headY); ctx.lineTo(headX - 23*s, headY - 16*s); ctx.lineTo(headX - 13*s, headY - 11*s); ctx.lineTo(headX - 19*s, headY - 29*s); ctx.lineTo(headX - 6*s, headY - 19*s); ctx.lineTo(headX - 2*s, headY - 36*s); ctx.lineTo(headX + 4*s, headY - 19*s); ctx.lineTo(headX + 17*s, headY - 27*s); ctx.lineTo(headX + 11*s, headY - 13*s); ctx.lineTo(headX + 23*s, headY - 15*s); ctx.lineTo(headX + headR, headY); ctx.lineTo(headX + 8*s, headY + 7*s); ctx.lineTo(headX + 4*s, headY - 4*s); ctx.lineTo(headX - 2*s, headY + 6*s); ctx.lineTo(headX - 6*s, headY - 3*s); ctx.lineTo(headX - 13*s, headY + 5*s); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(headX - headR, headY); ctx.lineTo(headX - 22*s, headY - 15*s); ctx.lineTo(headX - 12*s, headY - 10*s); ctx.lineTo(headX - 18*s, headY - 28*s); ctx.lineTo(headX - 6*s, headY - 18*s); ctx.lineTo(headX - 2*s, headY - 35*s); ctx.lineTo(headX + 4*s, headY - 18*s); ctx.lineTo(headX + 16*s, headY - 26*s); ctx.lineTo(headX + 10*s, headY - 12*s); ctx.lineTo(headX + 22*s, headY - 14*s); ctx.lineTo(headX + headR, headY); ctx.lineTo(headX + 8*s, headY + 6*s); ctx.lineTo(headX + 4*s, headY - 4*s); ctx.lineTo(headX - 2*s, headY + 5*s); ctx.lineTo(headX - 6*s, headY - 3*s); ctx.lineTo(headX - 12*s, headY + 4*s); ctx.fill();
       } else {
-        ctx.beginPath(); ctx.moveTo(headX - headR - 2*s, headY - 4*s); ctx.lineTo(headX - 14*s, headY + 13*s); ctx.lineTo(headX - 9*s, headY - 2*s); ctx.lineTo(headX - 4*s, headY + 7*s); ctx.lineTo(headX, headY - 3*s); ctx.lineTo(headX + 6*s, headY + 8*s); ctx.lineTo(headX + 10*s, headY - 2*s); ctx.lineTo(headX + 15*s, headY + 12*s); ctx.lineTo(headX + headR + 2*s, headY - 4*s); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(headX - headR - 2*s, headY - 4*s); ctx.lineTo(headX - 13*s, headY + 12*s); ctx.lineTo(headX - 9*s, headY - 2*s); ctx.lineTo(headX - 4*s, headY + 6*s); ctx.lineTo(headX, headY - 3*s); ctx.lineTo(headX + 6*s, headY + 7*s); ctx.lineTo(headX + 10*s, headY - 2*s); ctx.lineTo(headX + 14*s, headY + 11*s); ctx.lineTo(headX + headR + 2*s, headY - 4*s); ctx.fill();
         if (hairStyle === 'buns') {
-          ctx.beginPath(); ctx.arc(headX - 15 * s, headY - 15 * s, 7.4 * s, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(headX + 15 * s, headY - 15 * s, 7.4 * s, 0, Math.PI * 2); ctx.fill();
-          ctx.beginPath(); ctx.moveTo(headX - 19*s, headY - 15*s); ctx.lineTo(headX - 23*s, headY + 2*s); ctx.lineTo(headX - 13*s, headY - 10*s); ctx.fill(); ctx.beginPath(); ctx.moveTo(headX + 19*s, headY - 15*s); ctx.lineTo(headX + 23*s, headY + 2*s); ctx.lineTo(headX + 13*s, headY - 10*s); ctx.fill();
+          ctx.beginPath(); ctx.arc(headX - 14 * s, headY - 14 * s, 7 * s, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(headX + 14 * s, headY - 14 * s, 7 * s, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.moveTo(headX - 18*s, headY - 14*s); ctx.lineTo(headX - 22*s, headY + 2*s); ctx.lineTo(headX - 12*s, headY - 10*s); ctx.fill(); ctx.beginPath(); ctx.moveTo(headX + 18*s, headY - 14*s); ctx.lineTo(headX + 22*s, headY + 2*s); ctx.lineTo(headX + 12*s, headY - 10*s); ctx.fill();
         }
       }
 
-      // Hair highlight
+      // Highlights
       ctx.strokeStyle = "rgba(255, 255, 255, 0.4)"; ctx.lineWidth = 2 * s; ctx.beginPath();
-      if (hairStyle === 'spiky' || hairStyle === 'animeHero') { ctx.moveTo(headX - 11*s, headY - 11*s); ctx.lineTo(headX - 4*s, headY - 14*s); ctx.lineTo(headX + 2*s, headY - 10*s); ctx.lineTo(headX + 9*s, headY - 13*s); }
-      else { ctx.arc(headX, headY - 7 * s, headR - 3 * s, 1.2 * Math.PI, 1.8 * Math.PI); }
+      if (hairStyle === 'spiky' || hairStyle === 'animeHero') { ctx.moveTo(headX - 10*s, headY - 10*s); ctx.lineTo(headX - 4*s, headY - 13*s); ctx.lineTo(headX + 2*s, headY - 9*s); ctx.lineTo(headX + 8*s, headY - 12*s); } 
+      else { ctx.arc(headX, headY - 6 * s, headR - 3 * s, 1.2 * Math.PI, 1.8 * Math.PI); }
       ctx.stroke();
 
       // Accessories
       if (acc === 'crown') {
-        ctx.fillStyle = "#f59e0b"; ctx.beginPath(); ctx.moveTo(headX - 11 * s, headY - headR); ctx.lineTo(headX - 13 * s, headY - headR - 13 * s); ctx.lineTo(headX - 4 * s, headY - headR - 5 * s); ctx.lineTo(headX, headY - headR - 16 * s); ctx.lineTo(headX + 4 * s, headY - headR - 5 * s); ctx.lineTo(headX + 13 * s, headY - headR - 13 * s); ctx.lineTo(headX + 11 * s, headY - headR); ctx.fill();
+        ctx.fillStyle = "#f59e0b"; ctx.beginPath(); ctx.moveTo(headX - 10 * s, headY - headR); ctx.lineTo(headX - 12 * s, headY - headR - 12 * s); ctx.lineTo(headX - 4 * s, headY - headR - 4 * s); ctx.lineTo(headX, headY - headR - 15 * s); ctx.lineTo(headX + 4 * s, headY - headR - 4 * s); ctx.lineTo(headX + 12 * s, headY - headR - 12 * s); ctx.lineTo(headX + 10 * s, headY - headR); ctx.fill();
       } else if (acc === 'catEars') {
-        ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(headX - 15 * s, headY - 11 * s); ctx.lineTo(headX - 19 * s, headY - 25 * s); ctx.lineTo(headX - 4 * s, headY - 17 * s); ctx.fill(); ctx.fillStyle = "#ec4899"; ctx.beginPath(); ctx.moveTo(headX - 14 * s, headY - 14 * s); ctx.lineTo(headX - 17 * s, headY - 22 * s); ctx.lineTo(headX - 6 * s, headY - 17 * s); ctx.fill();
-        ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(headX + 15 * s, headY - 11 * s); ctx.lineTo(headX + 19 * s, headY - 25 * s); ctx.lineTo(headX + 4 * s, headY - 17 * s); ctx.fill(); ctx.fillStyle = "#ec4899"; ctx.beginPath(); ctx.moveTo(headX + 14 * s, headY - 14 * s); ctx.lineTo(headX + 17 * s, headY - 22 * s); ctx.lineTo(headX + 6 * s, headY - 17 * s); ctx.fill();
+        ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(headX - 14 * s, headY - 10 * s); ctx.lineTo(headX - 18 * s, headY - 24 * s); ctx.lineTo(headX - 4 * s, headY - 16 * s); ctx.fill(); ctx.fillStyle = "#ec4899"; ctx.beginPath(); ctx.moveTo(headX - 13 * s, headY - 13 * s); ctx.lineTo(headX - 16 * s, headY - 21 * s); ctx.lineTo(headX - 6 * s, headY - 16 * s); ctx.fill();
+        ctx.fillStyle = hair; ctx.beginPath(); ctx.moveTo(headX + 14 * s, headY - 10 * s); ctx.lineTo(headX + 18 * s, headY - 24 * s); ctx.lineTo(headX + 4 * s, headY - 16 * s); ctx.fill(); ctx.fillStyle = "#ec4899"; ctx.beginPath(); ctx.moveTo(headX + 13 * s, headY - 13 * s); ctx.lineTo(headX + 16 * s, headY - 21 * s); ctx.lineTo(headX + 6 * s, headY - 16 * s); ctx.fill();
       } else if (acc === 'bow') {
         ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.ellipse(headX - 8 * s, headY - headR, 7 * s, 4 * s, -0.2, 0, Math.PI * 2); ctx.ellipse(headX + 8 * s, headY - headR, 7 * s, 4 * s, 0.2, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(headX, headY - headR, 3 * s, 0, Math.PI * 2); ctx.fill();
       }
 
-      // Body base — shoulders wider than waist, tapered limbs
-      const shoulderW = 27 * s, waistW = 20 * s;
-      const torsoTop = y - 43 * s, torsoWaist = y - 20 * s;
-      const legW = 9 * s, legH = 26 * s, legY = y - 26 * s;
-      const armLen = 24 * s, armW = 7 * s;
-      const shoulderY = torsoTop + 3 * s;
-      const leftShoulderX = headX - shoulderW / 2, rightShoulderX = headX + shoulderW / 2;
-      const leftArmX = leftShoulderX - armW, rightArmX = rightShoulderX;
+      // Body
+      const torsoW = 30 * s, torsoH = 22 * s, torsoX = headX - torsoW / 2, torsoY = y - 38 * s;
+      const legW = 11 * s, legH = 22 * s, legY = y - 22 * s;
+      const armW = 8 * s, armH = 22 * s, leftArmX = torsoX - armW - 1 * s, rightArmX = torsoX + torsoW + 1 * s, armY = torsoY + 2 * s;
 
-      const shirtDark = shadeColor(shirt, -35);
-      const pantsDark = shadeColor(pants, -30);
+      ctx.fillStyle = pants; ctx.fillRect(x - 12 * s, legY, legW, legH); ctx.fillRect(x + 1 * s, legY, legW, legH);
+      ctx.fillStyle = shirt; ctx.fillRect(leftArmX, armY, armW, armH); ctx.fillRect(rightArmX, armY, armW, armH);
+      ctx.fillStyle = skin; ctx.fillRect(leftArmX, armY + armH - 4 * s, armW, 6 * s); ctx.fillRect(rightArmX, armY + armH - 4 * s, armW, 6 * s);
+      ctx.fillStyle = shirt; ctx.fillRect(torsoX, torsoY, torsoW, torsoH);
 
-      // Arms — skin first, sleeve fabric layered on top per outfit
-      ctx.fillStyle = skin;
-      ctx.beginPath(); ctx.roundRect(leftArmX, shoulderY, armW, armLen, 3 * s); ctx.fill();
-      ctx.beginPath(); ctx.roundRect(rightArmX, shoulderY, armW, armLen, 3 * s); ctx.fill();
-
-      // Legs — bare for the dress (skirt covers the thighs), pants otherwise
-      if (outfit === 'dress') {
-        ctx.fillStyle = skin;
-        ctx.beginPath(); ctx.roundRect(x - 12 * s, legY, legW, legH, 4 * s); ctx.fill();
-        ctx.beginPath(); ctx.roundRect(x + 2 * s, legY, legW, legH, 4 * s); ctx.fill();
-      } else {
-        ctx.fillStyle = pants;
-        ctx.beginPath(); ctx.roundRect(x - 12 * s, legY, legW, legH, 4 * s); ctx.fill();
-        ctx.beginPath(); ctx.roundRect(x + 2 * s, legY, legW, legH, 4 * s); ctx.fill();
-        ctx.fillStyle = pantsDark;
-        ctx.fillRect(x - 12 * s, legY + legH - 5 * s, legW, 3 * s);
-        ctx.fillRect(x + 2 * s, legY + legH - 5 * s, legW, 3 * s);
-        if (outfit === 'squidSuit') {
-          ctx.fillStyle = "#f8fafc";
-          ctx.fillRect(x - 12 * s + legW / 2 - 1 * s, legY, 2 * s, legH);
-          ctx.fillRect(x + 2 * s + legW / 2 - 1 * s, legY, 2 * s, legH);
-        }
+      if (outfit === "squidSuit") {
+        ctx.fillStyle = "#ffffff"; ctx.font = `bold ${10 * s}px sans-serif`; ctx.textAlign = "center"; ctx.fillText("777", torsoX + torsoW / 2, torsoY + 14 * s);
       }
-
-      // Sleeve length varies by outfit (short vs. full)
-      let sleeveFrac = 1;
-      if (outfit === 'tshirt') sleeveFrac = 0.42;
-      else if (outfit === 'dress') sleeveFrac = 0.35;
-      const sleeveLen = armLen * sleeveFrac;
-
-      ctx.fillStyle = shirt;
-      ctx.beginPath(); ctx.roundRect(leftArmX, shoulderY, armW, sleeveLen, 3 * s); ctx.fill();
-      ctx.beginPath(); ctx.roundRect(rightArmX, shoulderY, armW, sleeveLen, 3 * s); ctx.fill();
-      if (outfit === 'hoodie' || outfit === 'squidSuit') {
-        ctx.fillStyle = shirtDark;
-        ctx.fillRect(leftArmX, shoulderY + sleeveLen - 4 * s, armW, 4 * s);
-        ctx.fillRect(rightArmX, shoulderY + sleeveLen - 4 * s, armW, 4 * s);
-        ctx.fillStyle = "#f8fafc";
-        ctx.fillRect(leftArmX + armW / 2 - 1 * s, shoulderY, 2 * s, sleeveLen - 4 * s);
-        ctx.fillRect(rightArmX + armW / 2 - 1 * s, shoulderY, 2 * s, sleeveLen - 4 * s);
-      }
-
-      // Torso silhouette — hem shape/length is what actually distinguishes each outfit
-      let hemY, hemW;
-      if (outfit === 'hoodie') { hemY = y - 14 * s; hemW = waistW + 6 * s; }
-      else if (outfit === 'squidSuit') { hemY = y - 22 * s; hemW = waistW - 1 * s; }
-      else if (outfit === 'dress') { hemY = y - 6 * s; hemW = waistW + 18 * s; }
-      else { hemY = torsoWaist; hemW = waistW + 2 * s; } // tshirt
-
-      ctx.fillStyle = shirt;
-      ctx.beginPath();
-      ctx.moveTo(leftShoulderX, torsoTop);
-      ctx.lineTo(rightShoulderX, torsoTop);
-      ctx.lineTo(headX + hemW / 2, hemY);
-      ctx.lineTo(headX - hemW / 2, hemY);
-      ctx.closePath();
-      ctx.fill();
-
-      // Outfit-specific details
-      if (outfit === 'tshirt') {
-        ctx.fillStyle = skin;
-        ctx.beginPath(); ctx.moveTo(headX - 5 * s, torsoTop); ctx.lineTo(headX + 5 * s, torsoTop); ctx.lineTo(headX, torsoTop + 5 * s); ctx.closePath(); ctx.fill();
-      } else if (outfit === 'hoodie') {
-        ctx.fillStyle = shirtDark;
-        ctx.beginPath(); ctx.arc(headX - 9 * s, torsoTop - 1 * s, 7 * s, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(headX + 9 * s, torsoTop - 1 * s, 7 * s, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = "#f8fafc"; ctx.lineWidth = 1.4 * s;
-        ctx.beginPath(); ctx.moveTo(headX - 3 * s, torsoTop + 2 * s); ctx.lineTo(headX - 3 * s, torsoTop + 10 * s); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(headX + 3 * s, torsoTop + 2 * s); ctx.lineTo(headX + 3 * s, torsoTop + 10 * s); ctx.stroke();
-        ctx.fillStyle = shirtDark;
-        ctx.beginPath(); ctx.roundRect(headX - 8 * s, hemY - 10 * s, 16 * s, 8 * s, 2 * s); ctx.fill();
-      } else if (outfit === 'squidSuit') {
-        ctx.fillStyle = shirtDark;
-        ctx.beginPath(); ctx.roundRect(headX - 7 * s, torsoTop - 3 * s, 14 * s, 6 * s, 2 * s); ctx.fill();
-        ctx.fillStyle = "#f8fafc"; ctx.font = `bold ${10 * s}px sans-serif`; ctx.textAlign = "center";
-        ctx.fillText("456", headX, hemY - 6 * s);
-      } else if (outfit === 'dress') {
-        ctx.fillStyle = shirtDark;
-        ctx.fillRect(headX - waistW / 2 - 1 * s, torsoWaist - 2 * s, waistW + 2 * s, 3 * s);
-      }
-
-      ctx.fillStyle = "#0f172a";
-      ctx.fillRect(x - 13 * s, y - 2 * s, 11 * s, 4 * s);
-      ctx.fillRect(x + 2 * s, y - 2 * s, 11 * s, 4 * s);
+      ctx.fillStyle = "#0f172a"; ctx.fillRect(x - 13 * s, y - 2 * s, 11 * s, 4 * s); ctx.fillRect(x + 2 * s, y - 2 * s, 11 * s, 4 * s);
     }
 
     let mode = null, rafId = null, simonInterval = null, keys = {};
+
     function updateChibiPreview() {
       if (mode !== null) return;
       clearCanvas();
       document.getElementById("levelDisplay").style.display = "none";
-      document.getElementById("boostDisplay").style.display = "none";
-      ctx.fillStyle = "#1e1b4b"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#f97316"; ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#f8fafc"; ctx.textAlign = "center"; ctx.font = "bold 32px 'Fredoka'";
       ctx.fillText("Styling Studio", canvas.width / 2, 70);
       drawChibi(canvas.width / 2, 380, 1.25, 1);
@@ -955,459 +725,358 @@
       if (rafId) cancelAnimationFrame(rafId);
       if (simonInterval) clearInterval(simonInterval);
       rafId = null; simonInterval = null;
-      updateBoostHUD();
     }
 
-    const gameKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "];
-    document.addEventListener("keydown", (e) => {
-      keys[e.key] = true;
-      if (mode && gameKeys.includes(e.key)) e.preventDefault();
-    });
-    document.addEventListener("keyup", (e) => { keys[e.key] = false; });
-    function setupTouchButton(id, keyName) {
-      const btn = document.getElementById(id);
-      if (!btn) return;
-      const press = (e) => { e.preventDefault(); keys[keyName] = true; };
-      const release = (e) => { e.preventDefault(); keys[keyName] = false; };
-      btn.addEventListener("mousedown", press); btn.addEventListener("mouseup", release); btn.addEventListener("mouseleave", release);
-      btn.addEventListener("touchstart", press, { passive: false }); btn.addEventListener("touchend", release, { passive: false });
+    // ===== SUNSET & REALISTIC LAVA OBBY ENGINE =====
+    let obbyPlayer = { x: 50, y: 350, vx: 0, vy: 0, size: 28, isGrounded: false, dir: 1 };
+    let obbyPlatforms = [];
+    let obbyHazards = [];
+    let obbyEmbers = [];
+    let obbyLavaTime = 0;
+
+    // Generate Ember Particles
+    for (let i = 0; i < 40; i++) {
+      obbyEmbers.push({
+        x: Math.random() * 850,
+        y: Math.random() * 520,
+        r: Math.random() * 2 + 1,
+        speedY: Math.random() * 0.8 + 0.2,
+        speedX: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.8 + 0.2
+      });
     }
-    setupTouchButton("btn-left", "ArrowLeft"); setupTouchButton("btn-right", "ArrowRight"); setupTouchButton("btn-jump", "ArrowUp"); setupTouchButton("btn-boost", "Boost");
 
-    // ===== GAME 1: LAVA OBBY (eased difficulty: slower player, smaller/reachability-clamped gaps) =====
-    let pX, pY, pVX, pVY, pJump, isLevelTransitioning = false;
-    let platforms = [], embers = [];
-    const gravity = 0.8;
-    const maxSpeed = 4.5;      // was 6.5 -- slower, easier to control
-    const jumpVel = 14.5;
-    let obbyCameraOffset = 0;
+    function generateObbyLevel(lvl) {
+      obbyPlatforms = [];
+      obbyHazards = [];
 
-    // Every level's gap/height generation is clamped to what a jump can
-    // actually reach at this speed, so a level can never generate a gap
-    // that's physically impossible to cross.
-    function getJumpBounds() {
-      const airTime = (2 * jumpVel) / gravity;
-      return {
-        maxHorizontal: maxSpeed * airTime * 0.75,
-        maxVerticalUp: (jumpVel * jumpVel) / (2 * gravity) * 0.8
-      };
+      // Spawn platform
+      obbyPlatforms.push({ x: 30, y: 400, w: 90, h: 20, type: 'start' });
+
+      // Goal platform at the right top/mid
+      obbyPlatforms.push({ x: 740, y: 180, w: 90, h: 20, type: 'goal' });
+
+      // Increasing difficulty based on level
+      const count = 5 + Math.min(lvl, 5);
+      let lastX = 120;
+      let lastY = 390;
+
+      for (let i = 0; i < count; i++) {
+        // Platform width decreases with levels (Harder!)
+        const pWidth = Math.max(35, 75 - lvl * 4);
+        const gap = 60 + Math.random() * (45 + lvl * 5);
+        const nextX = Math.min(700, lastX + gap);
+        const nextY = Math.max(160, Math.min(420, lastY + (Math.random() * 120 - 60)));
+
+        const isMoving = (lvl >= 3) && (i % 2 === 1);
+        const isLavaBlock = (lvl >= 5) && (i % 3 === 0);
+
+        if (isLavaBlock) {
+          obbyHazards.push({
+            x: nextX,
+            y: nextY,
+            w: pWidth,
+            h: 18
+          });
+        } else {
+          obbyPlatforms.push({
+            x: nextX,
+            y: nextY,
+            w: pWidth,
+            h: 18,
+            moving: isMoving,
+            minX: nextX - 30,
+            maxX: nextX + 30,
+            speed: (1.2 + lvl * 0.2) * (i % 2 === 0 ? 1 : -1)
+          });
+        }
+
+        lastX = nextX;
+        lastY = nextY;
+      }
+
+      obbyPlayer.x = 60;
+      obbyPlayer.y = 350;
+      obbyPlayer.vx = 0;
+      obbyPlayer.vy = 0;
     }
 
     function startObbyGame() {
       stopGame();
-      resetGameStats();
       mode = "obby";
-      gameStatus.textContent = "Lava Obby Active";
-      gameHint.textContent = "Jump platform to platform — watch the lava below!";
-      document.getElementById("levelSelectDrop").value = currentLevel;
-      initObbyLevel();
-      rafId = requestAnimationFrame(loopObby);
-    }
-
-    function initObbyLevel() {
+      gameStatus.textContent = "Sunset Lava Mountain Obby";
       updateLevelHUD();
-      isLevelTransitioning = false;
-      pX = 50; pY = 200; pVX = 0; pVY = 0; pJump = false;
-      platforms = []; embers = [];
-      obbyCameraOffset = 0;
-
-      const bounds = getJumpBounds();
-
-      platforms.push({ x: 0, y: 350, w: 100, h: 60, type: "normal" });
-
-      let pCount = 5 + currentLevel * 2;
-      let curX = 100;
-      let prevY = 350;
-
-      for (let i = 0; i < pCount; i++) {
-        let rawGap = 80 + currentLevel * 6 + Math.random() * 30;
-        let gap = Math.min(rawGap, bounds.maxHorizontal);
-        let w = Math.max(45, 85 - currentLevel * 3);
-
-        let rawVariation = (Math.random() * 2 - 1) * (50 + currentLevel * 5);
-        let variation = rawVariation < 0
-          ? Math.max(rawVariation, -bounds.maxVerticalUp)
-          : Math.min(rawVariation, 120);
-
-        let y = prevY + variation;
-        if (y > 400) y = 400;
-        if (y < 150) y = 150;
-
-        curX += gap;
-        platforms.push({ x: curX, y: y, w: w, h: 60, type: "normal" });
-        prevY = y;
-      }
-
-      const finalGap = Math.min(140, bounds.maxHorizontal);
-      platforms.push({ x: curX + finalGap, y: 300, w: 140, h: 40, type: "goal" });
-
-      for(let i=0; i<40; i++) {
-        embers.push({ x: Math.random() * canvas.width, y: canvas.height + Math.random() * 50, size: Math.random() * 3 + 1, speed: Math.random() * 2 + 1 });
-      }
+      generateObbyLevel(currentLevel);
+      obbyLoop();
     }
 
-    function drawMountainBackground() {
-      let bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      bgGrad.addColorStop(0, "#020617"); bgGrad.addColorStop(0.5, "#1e1b4b"); bgGrad.addColorStop(1, "#f59e0b");
-      ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function drawSunsetSky() {
+      // Warm Sunset Gradient
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      skyGrad.addColorStop(0, "#2e1065");   // Deep Twilight Purple
+      skyGrad.addColorStop(0.35, "#7c2d12"); // Warm Terracotta
+      skyGrad.addColorStop(0.65, "#ea580c"); // Sunset Orange
+      skyGrad.addColorStop(1, "#f59e0b");    // Sun Glow Yellow
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Sun
+      const sunGrad = ctx.createRadialGradient(425, 260, 10, 425, 260, 120);
+      sunGrad.addColorStop(0, "rgba(254, 240, 138, 1)");
+      sunGrad.addColorStop(0.3, "rgba(251, 146, 60, 0.8)");
+      sunGrad.addColorStop(1, "rgba(249, 115, 22, 0)");
+      ctx.fillStyle = sunGrad;
+      ctx.beginPath();
+      ctx.arc(425, 260, 120, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Mountain Silhouettes
+      ctx.fillStyle = "#1e1b4b";
+      ctx.beginPath();
+      ctx.moveTo(0, 450);
+      ctx.lineTo(120, 280);
+      ctx.lineTo(260, 450);
+      ctx.lineTo(400, 220);
+      ctx.lineTo(580, 450);
+      ctx.lineTo(720, 250);
+      ctx.lineTo(850, 450);
+      ctx.lineTo(850, 520);
+      ctx.lineTo(0, 520);
+      ctx.fill();
+
+      // Front Mountain Ridge
+      ctx.fillStyle = "#0f172a";
+      ctx.beginPath();
+      ctx.moveTo(0, 480);
+      ctx.lineTo(180, 340);
+      ctx.lineTo(340, 480);
+      ctx.lineTo(520, 320);
+      ctx.lineTo(680, 480);
+      ctx.lineTo(850, 360);
+      ctx.lineTo(850, 520);
+      ctx.lineTo(0, 520);
+      ctx.fill();
+
+      // Floating Embers
+      obbyEmbers.forEach(p => {
+        p.y -= p.speedY;
+        p.x += p.speedX;
+        if (p.y < 0) { p.y = canvas.height; p.x = Math.random() * canvas.width; }
+        ctx.fillStyle = `rgba(254, 215, 170, ${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
     }
 
     function drawRealisticLava() {
-      let lavaTime = Date.now() / 250;
-      let lavaHeight = canvas.height - 40;
-      ctx.fillStyle = "#ea580c";
-      ctx.beginPath(); ctx.moveTo(0, canvas.height);
-      for(let i=0; i<=canvas.width; i+=20) ctx.lineTo(i, lavaHeight + Math.sin(lavaTime + i*0.06) * 12);
-      ctx.lineTo(canvas.width, canvas.height); ctx.fill();
+      obbyLavaTime += 0.05;
+      const lavaY = 460;
+      const lavaH = 60;
 
-      ctx.fillStyle = "rgba(251, 191, 36, 0.8)";
-      for (let ember of embers) {
-        ctx.beginPath(); ctx.arc(ember.x, ember.y, ember.size, 0, Math.PI * 2); ctx.fill();
-        ember.y -= ember.speed;
-        ember.x += Math.sin(lavaTime + ember.y * 0.05) * 1.5;
-        if (ember.y < canvas.height - 200) { ember.y = canvas.height + 10; ember.x = Math.random() * canvas.width; }
-      }
-    }
+      // Molten Deep Base
+      const lavaGrad = ctx.createLinearGradient(0, lavaY, 0, canvas.height);
+      lavaGrad.addColorStop(0, "#f97316");
+      lavaGrad.addColorStop(0.3, "#dc2626");
+      lavaGrad.addColorStop(0.7, "#7f1d1d");
+      lavaGrad.addColorStop(1, "#450a0a");
 
-    function triggerLevelComplete() {
-      isLevelTransitioning = true;
-      if (currentLevel < maxLevels) {
-        currentLevel++;
-        document.getElementById("levelSelectDrop").value = currentLevel;
-        playSynthSound(600, 0.2, "sine");
-        setTimeout(() => playSynthSound(800, 0.4, "sine"), 200);
-        setTimeout(() => { initObbyLevel(); }, 1000);
-      } else {
-        gameStatus.textContent = "🏆 OBBY MASTER! 🏆";
-        playSynthSound(800, 0.6, "sine");
-        setTimeout(stopGame, 3000);
-      }
-    }
+      // Lava Heat Glow Layer
+      ctx.save();
+      ctx.shadowBlur = 25;
+      ctx.shadowColor = "#ef4444";
 
-    function loopObby() {
-      if (mode !== "obby") return;
-      clearCanvas();
-      drawMountainBackground();
-
-      if (!isLevelTransitioning) {
-        if (keys["ArrowLeft"] || keys["a"] || keys["A"]) pVX = -maxSpeed;
-        else if (keys["ArrowRight"] || keys["d"] || keys["D"]) pVX = maxSpeed;
-        else pVX = 0;
-
-        if ((keys["ArrowUp"] || keys["w"] || keys["W"] || keys[" "]) && !pJump) {
-          pVY = -jumpVel;
-          pJump = true;
-          playSynthSound(350, 0.1, "triangle");
-        }
-
-        pVY += gravity;
-        pX += pVX;
-        pY += pVY;
-
-        if (pX < 20) pX = 20;
-
-        for (let p of platforms) {
-          if (pX > p.x - 15 && pX < p.x + p.w + 15 && pY > p.y && pY - pVY <= p.y + p.h) {
-            pY = p.y; pVY = 0; pJump = false;
-
-            if (p.type === "goal") {
-              triggerLevelComplete();
-              return;
-            }
-          }
-        }
-
-        if (pY > canvas.height - 30) {
-          if (loseLife()) {
-            gameStatus.textContent = "💀 BURNT TO A CRISP 💀";
-            playSynthSound(80, 0.8, "sawtooth");
-            setTimeout(stopGame, 2000);
-            return;
-          } else {
-            initObbyLevel();
-            return;
-          }
-        }
-
-        if (pX > 400) {
-          let shift = pX - 400;
-          pX = 400; obbyCameraOffset += shift;
-          platforms.forEach(p => { p.x -= shift; });
-        }
-      }
-
-      for (let p of platforms) {
-        ctx.fillStyle = "#475569"; ctx.fillRect(p.x, p.y + 10, p.w, p.h);
-        ctx.fillStyle = p.type === "goal" ? "#fcd34d" : "#22c55e";
-        ctx.fillRect(p.x, p.y, p.w, 10);
-      }
-
-      drawChibi(pX - 100, pY, 0.7, pVX < 0 ? -1 : 1);
-      drawRealisticLava();
-
-      if (isLevelTransitioning) {
-        ctx.fillStyle = "rgba(15, 23, 42, 0.9)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#10b981";
-        ctx.textAlign = "center";
-        ctx.font = "bold 48px 'Fredoka', sans-serif";
-        ctx.fillText(`LEVEL PASSED!`, canvas.width / 2, canvas.height / 2 - 20);
-        ctx.fillStyle = "#f8fafc";
-        ctx.font = "bold 24px 'Nunito', sans-serif";
-        ctx.fillText("Teleporting to next peak...", canvas.width / 2, canvas.height / 2 + 30);
-      }
-
-      rafId = requestAnimationFrame(loopObby);
-    }
-
-    // ===== GAME 2: SHADOW CHASE =====
-    // Outrun a shadow across a long track. Dodge obstacles by jumping, and
-    // spend 3 boosts per level to burst ahead and buy breathing room.
-    let scPlayerX = 0, scShadowX = 0, scWorldLength = 7500;
-    let scPlayerSpeed = 2.6, scShadowBaseSpeed = 3.4;
-    let scBoosts = 3, scBoostActive = false, scBoostTimer = 0;
-    let scJumpY = 0, scJumpVel = 0, scJumping = false;
-    let scObstacles = [];
-
-    function startShadowGame() {
-      stopGame(); resetGameStats(); mode = "shadow";
-      gameStatus.textContent = "Shadow Chase Active";
-      gameHint.textContent = "Hold Right to run, Jump over obstacles, Shift/⚡ to boost away from the shadow!";
-      initShadowLevel();
-      rafId = requestAnimationFrame(loopShadow);
-    }
-
-    function initShadowLevel() {
-      updateLevelHUD();
-      scPlayerX = 0;
-      scShadowX = -260;
-      scBoosts = 3;
-      scBoostActive = false;
-      scBoostTimer = 0;
-      scJumpY = 0; scJumpVel = 0; scJumping = false;
-      scObstacles = [];
-      updateBoostHUD();
-
-      let count = 10 + currentLevel * 3;
-      let cx = 400;
-      for (let i = 0; i < count; i++) {
-        cx += Math.max(180, 340 - currentLevel * 8) + Math.random() * 260;
-        scObstacles.push({ x: cx, cleared: false });
-      }
-    }
-
-    function loopShadow() {
-      if (mode !== "shadow") return;
-      clearCanvas();
-
-      // Jump physics (must be airborne to clear an obstacle)
-      if ((keys["ArrowUp"] || keys["w"] || keys["W"] || keys[" "]) && !scJumping) {
-        scJumpVel = -13; scJumping = true;
-        playSynthSound(380, 0.1, "triangle");
-      }
-      if (scJumping) {
-        scJumpVel += 0.9; scJumpY += scJumpVel;
-        if (scJumpY >= 0) { scJumpY = 0; scJumpVel = 0; scJumping = false; }
-      }
-
-      // Boost
-      if ((keys["Shift"] || keys["b"] || keys["B"] || keys["Boost"]) && scBoosts > 0 && !scBoostActive) {
-        scBoostActive = true; scBoosts--; scBoostTimer = 55;
-        playSynthSound(720, 0.2, "sine");
-        updateBoostHUD();
-      }
-      if (scBoostActive) {
-        scBoostTimer--;
-        if (scBoostTimer <= 0) scBoostActive = false;
-      }
-
-      const running = keys["ArrowRight"] || keys["d"] || keys["D"];
-      const curSpeed = scPlayerSpeed + (scBoostActive ? 4.2 : 0);
-      if (running) {
-        scPlayerX += curSpeed;
-      } else if (scBoostActive) {
-        scPlayerX += curSpeed; // a boost still carries you even if you let go of Right
-      }
-      if (scPlayerX < 0) scPlayerX = 0;
-      // easing off Right doesn't stop the shadow — that's the whole tension of a chase
-
-      const shadowSpeed = scShadowBaseSpeed + currentLevel * 0.12;
-      scShadowX += shadowSpeed;
-
-      // Obstacles — stay dangerous every time you approach until you actually jump over them
-      for (let o of scObstacles) {
-        const inRange = scPlayerX > o.x - 22 && scPlayerX < o.x + 22;
-        if (!o.cleared && inRange) {
-          if (scJumpY < -16) {
-            o.cleared = true;
-          } else if (!o.hit) {
-            o.hit = true;
-            scPlayerX -= 55;
-            playSynthSound(160, 0.25, "sawtooth");
-          }
-        }
-        if (!inRange) o.hit = false;
-      }
-
-      // Caught by the shadow
-      if (scShadowX >= scPlayerX - 55) {
-        if (loseLife()) {
-          gameStatus.textContent = "👻 CAUGHT! GAME OVER 👻";
-          setTimeout(stopGame, 2000);
-          return;
-        } else {
-          scShadowX = scPlayerX - 260;
-        }
-      }
-
-      // Reached the end of this level's chase
-      if (scPlayerX >= scWorldLength) {
-        if (currentLevel < maxLevels) {
-          currentLevel++;
-          playSynthSound(600, 0.3);
-          initShadowLevel();
-        } else {
-          gameStatus.textContent = "🏆 YOU ESCAPED THE SHADOW! 🏆";
-          playSynthSound(800, 0.6);
-          setTimeout(stopGame, 3000);
-        }
-        return;
-      }
-
-      const camX = scPlayerX - 150;
-
-      // Background
-      ctx.fillStyle = "#0b0f24"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "rgba(139,92,246,0.08)";
-      for (let i = 0; i < 6; i++) {
-        let gx = ((i * 250) - (camX % 250));
-        ctx.fillRect(gx, 0, 2, canvas.height);
-      }
-      ctx.fillStyle = "#1e293b"; ctx.fillRect(0, canvas.height - 60, canvas.width, 60);
-
-      // Progress bar
-      const progress = Math.min(1, scPlayerX / scWorldLength);
-      ctx.fillStyle = "rgba(255,255,255,0.15)"; ctx.fillRect(40, 20, canvas.width - 80, 10);
-      ctx.fillStyle = "#a78bfa"; ctx.fillRect(40, 20, (canvas.width - 80) * progress, 10);
-
-      // Obstacles
-      for (let o of scObstacles) {
-        let sx = o.x - camX;
-        if (sx > -40 && sx < canvas.width + 40) {
-          ctx.fillStyle = o.cleared ? "#475569" : "#ef4444";
-          ctx.beginPath();
-          ctx.moveTo(sx, canvas.height - 60);
-          ctx.lineTo(sx + 16, canvas.height - 60);
-          ctx.lineTo(sx + 8, canvas.height - 100);
-          ctx.fill();
-        }
-      }
-
-      // Shadow (chasing entity)
-      let shadowSx = scShadowX - camX;
-      ctx.fillStyle = "rgba(30, 10, 50, 0.85)";
+      ctx.fillStyle = lavaGrad;
       ctx.beginPath();
-      ctx.ellipse(shadowSx, canvas.height - 90, 34, 60, 0, 0, Math.PI * 2);
+      ctx.moveTo(0, canvas.height);
+      ctx.lineTo(0, lavaY);
+
+      // Wave motion for dynamic realistic surface
+      for (let x = 0; x <= canvas.width; x += 20) {
+        const yWave = Math.sin(obbyLavaTime + x * 0.03) * 6 + Math.cos(obbyLavaTime * 0.8 + x * 0.02) * 4;
+        ctx.lineTo(x, lavaY + yWave);
+      }
+
+      ctx.lineTo(canvas.width, canvas.height);
+      ctx.closePath();
       ctx.fill();
-      ctx.fillStyle = "#c4b5fd";
-      ctx.beginPath(); ctx.arc(shadowSx - 10, canvas.height - 110, 4, 0, Math.PI * 2); ctx.arc(shadowSx + 10, canvas.height - 110, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
 
-      // Player
-      drawChibi(150, canvas.height - 60 + scJumpY, 1.1, 1);
-      if (scBoostActive) {
-        ctx.strokeStyle = "rgba(196,181,253,0.6)"; ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(110, canvas.height - 60 + scJumpY - 40); ctx.lineTo(60, canvas.height - 60 + scJumpY - 40); ctx.stroke();
+      // Bright Molten Crust Swirls
+      ctx.strokeStyle = "#fef08a";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let x = 10; x < canvas.width; x += 40) {
+        const waveY = lavaY + Math.sin(obbyLavaTime + x * 0.04) * 6;
+        ctx.moveTo(x, waveY + 2);
+        ctx.lineTo(x + 20, waveY + Math.cos(obbyLavaTime + x) * 3 + 2);
+      }
+      ctx.stroke();
+
+      // Rising Lava Bubbles
+      for (let i = 0; i < 6; i++) {
+        const bx = (Math.sin(obbyLavaTime + i * 99) * 0.5 + 0.5) * canvas.width;
+        const by = lavaY + 15 + Math.cos(obbyLavaTime * 1.5 + i) * 10;
+        ctx.fillStyle = "#facc15";
+        ctx.beginPath();
+        ctx.arc(bx, by, 3 + (i % 3), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function obbyLoop() {
+      if (mode !== "obby") return;
+
+      // Controls Input
+      const speed = 4.5;
+      if (keys["ArrowLeft"] || keys["a"] || keys["A"] || touchControls.left) {
+        obbyPlayer.vx = -speed;
+        obbyPlayer.dir = -1;
+      } else if (keys["ArrowRight"] || keys["d"] || keys["D"] || touchControls.right) {
+        obbyPlayer.vx = speed;
+        obbyPlayer.dir = 1;
+      } else {
+        obbyPlayer.vx *= 0.7;
       }
 
-      ctx.fillStyle = "#ffffff"; ctx.font = "bold 18px 'Fredoka', sans-serif"; ctx.textAlign = "center";
-      ctx.fillText(`Distance: ${Math.floor(progress * 100)}%`, canvas.width / 2, 55);
-
-      rafId = requestAnimationFrame(loopShadow);
-    }
-
-    // ===== GAME 3: SIMON SAYS MEMORY =====
-    let simonSeq = [], playerSeq = [], simonState = "idle";
-    const simonColors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b"], simonFreqs = [261.63, 329.63, 392.00, 523.25];
-
-    function playSimon() {
-      stopGame(); resetGameStats(); mode = "simon";
-      gameStatus.textContent = "Memory Simon Says";
-      gameHint.textContent = "Watch the sequence closely, then click the panels in the exact same order!";
-      simonSeq = []; initSimonLevel();
-    }
-
-    function initSimonLevel() {
-      updateLevelHUD(); playerSeq = []; simonSeq.push(Math.floor(Math.random() * 4)); simonState = "showing"; let step = 0;
-      function showNext() {
-        if (mode !== "simon") return;
-        if (step < simonSeq.length) {
-          drawSimon(simonSeq[step]); playSynthSound(simonFreqs[simonSeq[step]], 0.3); step++;
-          setTimeout(() => { if (mode !== "simon") return; drawSimon(-1); setTimeout(showNext, 300); }, Math.max(250, 700 - (currentLevel * 30)));
-        } else { simonState = "waiting"; drawSimon(-1); gameStatus.textContent = "Your Turn! Click the colors!"; }
+      if ((keys["ArrowUp"] || keys["w"] || keys["W"] || keys[" "] || touchControls.jump) && obbyPlayer.isGrounded) {
+        obbyPlayer.vy = -11.5;
+        obbyPlayer.isGrounded = false;
+        playSynthSound(587.33, 0.12, "triangle");
       }
-      gameStatus.textContent = "Watch the sequence..."; setTimeout(showNext, 1200);
-    }
 
-    function drawSimon(activeIdx) {
-      if (mode !== "simon") return;
-      clearCanvas();
-      ctx.fillStyle = "#0f172a"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-      const size = 130, spacing = 10, startX = (canvas.width / 2) - size - (spacing / 2) - 80, startY = (canvas.height / 2) - size - (spacing / 2);
-      const positions = [{ x: startX, y: startY }, { x: startX + size + spacing, y: startY }, { x: startX, y: startY + size + spacing }, { x: startX + size + spacing, y: startY + size + spacing }];
-      for (let i = 0; i < 4; i++) {
-        ctx.fillStyle = (i === activeIdx) ? "#ffffff" : simonColors[i]; ctx.beginPath(); ctx.roundRect(positions[i].x, positions[i].y, size, size, 16); ctx.fill();
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)"; ctx.lineWidth = 4; ctx.strokeRect(positions[i].x, positions[i].y, size, size);
-      }
-      drawChibi(canvas.width - 150, canvas.height - 80, 1.1, -1);
-    }
+      // Gravity Physics
+      obbyPlayer.vy += 0.55;
+      obbyPlayer.x += obbyPlayer.vx;
+      obbyPlayer.y += obbyPlayer.vy;
 
-    function handleSimonTap(clientX, clientY) {
-      if (mode !== "simon" || simonState !== "waiting") return;
-      const rect = canvas.getBoundingClientRect(), scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
-      const x = (clientX - rect.left) * scaleX, y = (clientY - rect.top) * scaleY;
-      const size = 130, spacing = 10, startX = (canvas.width / 2) - size - (spacing / 2) - 80, startY = (canvas.height / 2) - size - (spacing / 2);
-      const positions = [{ x: startX, y: startY }, { x: startX + size + spacing, y: startY }, { x: startX, y: startY + size + spacing }, { x: startX + size + spacing, y: startY + size + spacing }];
+      // Canvas boundary limits
+      if (obbyPlayer.x < 15) obbyPlayer.x = 15;
+      if (obbyPlayer.x > canvas.width - 15) obbyPlayer.x = canvas.width - 15;
 
-      for (let i = 0; i < 4; i++) {
-        if (x >= positions[i].x && x <= positions[i].x + size && y >= positions[i].y && y <= positions[i].y + size) {
-          playerSeq.push(i); drawSimon(i); playSynthSound(simonFreqs[i], 0.2); setTimeout(() => drawSimon(-1), 200);
+      // Platform Collision Detection
+      obbyPlayer.isGrounded = false;
+      obbyPlatforms.forEach(p => {
+        if (p.moving) {
+          p.x += p.speed;
+          if (p.x < p.minX || p.x > p.maxX) p.speed *= -1;
+        }
 
-          if (playerSeq[playerSeq.length - 1] !== simonSeq[playerSeq.length - 1]) {
-            if (loseLife()) {
-              gameStatus.textContent = "💀 GAME OVER 💀";
-              playSynthSound(100, 0.5, "sawtooth");
-              setTimeout(stopGame, 2000);
-            } else {
-              simonState = "idle";
-              gameStatus.textContent = "Wrong! Watch again...";
-              setTimeout(() => { simonSeq.pop(); initSimonLevel(); }, 1000);
-            }
-          } else if (playerSeq.length === simonSeq.length) {
-            simonState = "idle";
+        // Top-side landing check
+        if (
+          obbyPlayer.x + 12 > p.x &&
+          obbyPlayer.x - 12 < p.x + p.w &&
+          obbyPlayer.y >= p.y - 4 &&
+          obbyPlayer.y <= p.y + 12 &&
+          obbyPlayer.vy >= 0
+        ) {
+          obbyPlayer.isGrounded = true;
+          obbyPlayer.vy = 0;
+          obbyPlayer.y = p.y;
+          if (p.moving) obbyPlayer.x += p.speed; // Move player with platform
+
+          // Level completion flag
+          if (p.type === 'goal') {
+            playSynthSound(880, 0.3, "sine");
             if (currentLevel < maxLevels) {
               currentLevel++;
-              gameStatus.textContent = "Correct! Next round...";
-              setTimeout(initSimonLevel, 1200);
+              updateLevelHUD();
+              generateObbyLevel(currentLevel);
             } else {
-              gameStatus.textContent = "🧠 MEMORY MASTER! 🧠";
-              playSynthSound(800, 0.6);
-              setTimeout(stopGame, 3000);
+              alert("🎉 AMAZING! You completed all 10 stages of the SunHaven Sunset Obby!");
+              currentLevel = 1;
+              generateObbyLevel(currentLevel);
             }
           }
-          break;
         }
+      });
+
+      // Hazard Collision
+      obbyHazards.forEach(h => {
+        if (
+          obbyPlayer.x + 10 > h.x &&
+          obbyPlayer.x - 10 < h.x + h.w &&
+          obbyPlayer.y - 25 < h.y + h.h &&
+          obbyPlayer.y > h.y
+        ) {
+          handleDeath();
+        }
+      });
+
+      // Lava Death Check
+      if (obbyPlayer.y >= 460) {
+        handleDeath();
       }
+
+      // Drawing Phase
+      drawSunsetSky();
+
+      // Draw Platforms
+      obbyPlatforms.forEach(p => {
+        if (p.type === 'start') ctx.fillStyle = "#10b981";
+        else if (p.type === 'goal') ctx.fillStyle = "#f59e0b";
+        else ctx.fillStyle = "#334155";
+
+        ctx.beginPath();
+        ctx.roundRect(p.x, p.y, p.w, p.h, 6);
+        ctx.fill();
+
+        // Highlighting
+        ctx.fillStyle = "rgba(255,255,255,0.2)";
+        ctx.fillRect(p.x, p.y, p.w, 3);
+      });
+
+      // Draw Hazard Blocks
+      obbyHazards.forEach(h => {
+        ctx.fillStyle = "#ef4444";
+        ctx.beginPath();
+        ctx.roundRect(h.x, h.y, h.w, h.h, 4);
+        ctx.fill();
+        ctx.fillStyle = "#fde047";
+        ctx.fillText("🔥", h.x + h.w / 2 - 6, h.y + 13);
+      });
+
+      // Draw Realistic Lava at Bottom
+      drawRealisticLava();
+
+      // Draw Chibi Player
+      drawChibi(obbyPlayer.x, obbyPlayer.y, 0.9, obbyPlayer.dir);
+
+      rafId = requestAnimationFrame(obbyLoop);
     }
 
-    canvas.addEventListener("mousedown", (e) => handleSimonTap(e.clientX, e.clientY));
-    canvas.addEventListener("touchstart", (e) => {
-      if (mode !== "simon") return;
-      e.preventDefault();
-      const t = e.touches[0];
-      if (t) handleSimonTap(t.clientX, t.clientY);
-    }, { passive: false });
+    function handleDeath() {
+      const gameOver = loseLife();
+      if (gameOver) {
+        alert("💀 Game Over! Restarting SunHaven Obby!");
+        resetGameStats();
+        currentLevel = 1;
+      }
+      obbyPlayer.x = 60;
+      obbyPlayer.y = 350;
+      obbyPlayer.vx = 0;
+      obbyPlayer.vy = 0;
+    }
 
-    window.onload = () => { showPage('home'); updateChibiPreview(); };
+    // Touch Controls Support
+    let touchControls = { left: false, right: false, jump: false };
+    const setupCtrl = (id, key) => {
+      const btn = document.getElementById(id);
+      btn.addEventListener("touchstart", (e) => { e.preventDefault(); touchControls[key] = true; });
+      btn.addEventListener("touchend", (e) => { e.preventDefault(); touchControls[key] = false; });
+      btn.addEventListener("mousedown", () => { touchControls[key] = true; });
+      btn.addEventListener("mouseup", () => { touchControls[key] = false; });
+    };
+    setupCtrl("btn-left", "left");
+    setupCtrl("btn-right", "right");
+    setupCtrl("btn-jump", "jump");
+
+    document.addEventListener("keydown", (e) => { keys[e.key] = true; });
+    document.addEventListener("keyup", (e) => { keys[e.key] = false; });
+
+    // Initialize initial preview
+    updateChibiPreview();
   </script>
 </body>
 </html>
+

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>5Q Code Bases - App Index</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:#141414;
+    color:#e5e5e5;
+    margin:0;
+    padding:30px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+}
+
+.header{
+    text-align:center;
+    margin-bottom:35px;
+}
+
+.header h1{
+    margin:0;
+    font-size:38px;
+    font-weight:900;
+    letter-spacing:-1px;
+
+    background:linear-gradient(
+        90deg,
+        #0F172A,
+        #8B5CF6,
+        #E63946,
+        #00C853
+    );
+
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+.header p{
+    color:#7ca4f3;
+    font-size:15px;
+    margin-top:5px;
+    font-weight:500;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:18px;
+}
+
+a.card{
+    display:block;
+    position:relative;
+    background:#1e1e1e;
+    padding:22px;
+    border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,.5);
+    text-decoration:none;
+    color:#e5e5e5;
+    border:1px solid #2a2a2a;
+    transition:transform .15s ease, border-color .15s ease;
+}
+
+a.card::after{
+    content:"↗";
+    position:absolute;
+    top:16px;
+    right:18px;
+    color:#7ca4f3;
+    font-size:16px;
+}
+
+a.card:hover{
+    transform:translateY(-3px);
+    border-color:#7ca4f3;
+}
+
+a.card h2{
+    margin:0 0 8px;
+    font-size:20px;
+    color:#7ca4f3;
+}
+
+a.card p{
+    margin:0;
+    font-size:14px;
+    color:#a0a0a0;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+<div class="header">
+<h1>5Q Code Bases</h1>
+<p>Pick an app to open</p>
+</div>
+
+<div class="grid">
+
+<a class="card" href="ApexSports.html" target="_blank" rel="noopener">
+<h2>Apex Sports</h2>
+<p>Sports tips app</p>
+</a>
+
+<a class="card" href="BakersLife.html" target="_blank" rel="noopener">
+<h2>Baker's Life</h2>
+<p>Baking helper</p>
+</a>
+
+<a class="card" href="FirstGame.html" target="_blank" rel="noopener">
+<h2>First Game</h2>
+<p>Arcade Edition with Play Mode</p>
+</a>
+
+<a class="card" href="Osacate.html" target="_blank" rel="noopener">
+<h2>Osacate Adventure</h2>
+<p>Arcade game</p>
+</a>
+
+<a class="card" href="RunwayDesigns.html" target="_blank" rel="noopener">
+<h2>Runway Designs</h2>
+<p>Design app</p>
+</a>
+
+<a class="card" href="SunHaven.html" target="_blank" rel="noopener">
+<h2>SunHaven</h2>
+<p>StarPlayer - Chibi studio & arcade</p>
+</a>
+
+<a class="card" href="Useful.html" target="_blank" rel="noopener">
+<h2>Useful</h2>
+<p>Connect. Communicate. Grow. — relationship helper</p>
+</a>
+
+</div>
+
+</div>
+
+
+</body>
+
+</html>

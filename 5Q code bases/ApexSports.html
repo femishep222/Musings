@@ -1,812 +1,947 @@
 ﻿<!DOCTYPE html>
-
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ApexSport</title>
+  <title>ApexSport Pro - Next-Gen Athletic Development</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    body{
-      font-family:Arial,sans-serif;
-      background:#1f2c47;
-      color:white;
-      margin:0;
+    :root {
+      --bg-color: #051409;
+      --card-bg: rgba(13, 31, 18, 0.90);
+      --card-border: rgba(138, 255, 140, 0.35);
+      --accent-color: #8aff8c;
+      --accent-glow: rgba(138, 255, 140, 0.4);
+      --secondary-accent: #10b981;
+      --text-color: #f8fafc;
+      --subtext-color: #94a3b8;
+      --dropdown-bg: rgba(5, 20, 9, 0.95);
+      --input-bg: rgba(13, 31, 18, 0.85);
+      --flag-overlay: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(138, 255, 140, 0.08) 50%, rgba(5, 20, 9, 0.85) 100%);
     }
 
-    .container{
-      max-width:700px;
-      margin:30px auto;
-      background:#2e3e58;
-      padding:25px;
-      border-radius:15px;
+    body.theme-dark {
+      --bg-color: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.90);
+      --card-border: rgba(255, 255, 255, 0.18);
+      --accent-color: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.35);
+      --secondary-accent: #0284c7;
+      --text-color: #f8fafc;
+      --subtext-color: #94a3b8;
+      --flag-overlay: linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(56, 189, 248, 0.1) 50%, rgba(15, 23, 42, 0.85) 100%);
+    }
+
+    body.theme-light {
+      --bg-color: #f1f5f9;
+      --card-bg: rgba(255, 255, 255, 0.96);
+      --card-border: rgba(22, 163, 74, 0.3);
+      --accent-color: #16a34a;
+      --accent-glow: rgba(22, 163, 74, 0.25);
+      --secondary-accent: #059669;
+      --text-color: #0f172a;
+      --subtext-color: #475569;
+      --dropdown-bg: rgba(241, 245, 249, 0.95);
+      --input-bg: rgba(255, 255, 255, 0.95);
+      --flag-overlay: linear-gradient(135deg, rgba(22, 163, 74, 0.15) 0%, rgba(255, 255, 255, 0.4) 50%, rgba(241, 245, 249, 0.85) 100%);
+    }
+
+    body.theme-cyan {
+      --bg-color: #031b29;
+      --card-bg: rgba(6, 44, 67, 0.90);
+      --card-border: rgba(56, 189, 248, 0.35);
+      --accent-color: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.45);
+      --secondary-accent: #0ea5e9;
+      --text-color: #f0f9ff;
+      --subtext-color: #7dd3fc;
+      --flag-overlay: linear-gradient(135deg, rgba(14, 165, 233, 0.25) 0%, rgba(56, 189, 248, 0.1) 50%, rgba(3, 27, 41, 0.85) 100%);
+    }
+
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px 10px;
+      transition: all 0.3s ease;
+      min-height: 100vh;
       position: relative;
-      z-index:1;
+      overflow-x: hidden;
     }
 
-    /* ---------- Drifting flag background ---------- */
-    .flagsBg{
-      position:fixed;
-      inset:0;
-      z-index:0;
-      overflow:hidden;
-      pointer-events:none;
-    }
-    .flag{
-      position:absolute;
-      width:60px;
-      height:40px;
-      border-radius:6px;
-      background-repeat:no-repeat;
-      background-size:100% 100%;
-      opacity:0.16;
-      filter:blur(0.3px) saturate(0.85);
-      box-shadow:0 12px 26px rgba(0,0,0,0.4);
-      animation-timing-function:ease-in-out;
-      animation-iteration-count:infinite;
-    }
-    @keyframes driftA{
-      0%{ transform:translate(0,0) rotate(0deg); }
-      25%{ transform:translate(26px,-34px) rotate(6deg); }
-      50%{ transform:translate(-18px,18px) rotate(-4deg); }
-      75%{ transform:translate(22px,30px) rotate(5deg); }
-      100%{ transform:translate(0,0) rotate(0deg); }
-    }
-    @keyframes driftB{
-      0%{ transform:translate(0,0) rotate(0deg); }
-      30%{ transform:translate(-32px,22px) rotate(-8deg); }
-      60%{ transform:translate(20px,-26px) rotate(5deg); }
-      100%{ transform:translate(0,0) rotate(0deg); }
-    }
-    @keyframes driftC{
-      0%{ transform:translate(0,0) rotate(0deg); }
-      40%{ transform:translate(24px,26px) rotate(7deg); }
-      70%{ transform:translate(-26px,-16px) rotate(-6deg); }
-      100%{ transform:translate(0,0) rotate(0deg); }
+    /* CYBER FLAG BACKGROUND LAYER */
+    .flagBackground {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      background: var(--flag-overlay),
+        repeating-linear-gradient(
+          -45deg,
+          rgba(138, 255, 140, 0.03),
+          rgba(138, 255, 140, 0.03) 20px,
+          transparent 20px,
+          transparent 40px
+        );
+      opacity: 0.85;
     }
 
-    .flag-fr{ background-image:linear-gradient(90deg,#0055A4 33%,#fff 33% 66%,#EF4135 66%); }
-    .flag-br{ background-image:linear-gradient(135deg,#009739 45%,#FEDD00 45% 55%,#009739 55%); }
-    .flag-ar{ background-image:linear-gradient(180deg,#74ACDF 33%,#fff 33% 66%,#74ACDF 66%); }
-    .flag-de{ background-image:linear-gradient(180deg,#000 33%,#DD0000 33% 66%,#FFCE00 66%); }
-    .flag-it{ background-image:linear-gradient(90deg,#009246 33%,#fff 33% 66%,#CE2B37 66%); }
-    .flag-es{ background-image:linear-gradient(180deg,#AA151B 25%,#F1BF00 25% 75%,#AA151B 75%); }
-    .flag-pt{ background-image:linear-gradient(90deg,#046A38 40%,#DA291C 40%); }
-    .flag-nl{ background-image:linear-gradient(180deg,#AE1C28 33%,#fff 33% 66%,#21468B 66%); }
-    .flag-ng{ background-image:linear-gradient(90deg,#008751 33%,#fff 33% 66%,#008751 66%); }
-    .flag-cm{ background-image:linear-gradient(90deg,#007A5E 33%,#CE1126 33% 66%,#FCD116 66%); }
-    .flag-jp{
-      background-image:radial-gradient(circle at 50% 50%, #BC002D 26%, transparent 27%),
-                        linear-gradient(#fff,#fff);
-    }
-    .flag-gb{
-      background-image:
-        linear-gradient(#CE1124,#CE1124),
-        linear-gradient(#CE1124,#CE1124),
-        linear-gradient(#fff,#fff);
-      background-size:100% 28%, 28% 100%, 100% 100%;
-      background-position:center, center, center;
-      background-repeat:no-repeat;
+    .container {
+      max-width: 950px;
+      margin: 20px auto;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 28px;
+      border-radius: 20px;
+      position: relative;
+      z-index: 1;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 0 30px var(--accent-glow);
     }
 
-    .ballWrap{
-      position:absolute;
-      top:18px;
-      right:18px;
-      display:flex;
-      align-items:flex-start;
-      gap:10px;
-      user-select:none;
+    .topNav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
-    .ballHint{
-      text-align:right;
-      font-size:12.5px;
-      color:#cbd5e1;
-      line-height:1.25;
-      padding-top:3px;
-      width:140px;
-    }
-    .ballHint .clickMe{
-      color:#7dd3fc;
-      font-weight:700;
-      font-size:13px;
-      margin-bottom:2px;
-    }
-
-    .arrow{
-      display:inline-block;
-      font-size:14px;
-      transform: translateY(-1px) rotate(0deg);
-      color:#8aff8c;
-      margin-right:6px;
+    .navBtn {
+      width: auto;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--card-border);
+      color: var(--text-color);
+      border-radius: 30px;
+      cursor: pointer;
+      margin: 0;
+      transition: all 0.2s ease;
     }
 
-    .ballBtn{
-      width:54px;
-      height:54px;
-      border-radius:14px;
-      border:1px solid rgba(125,211,252,0.25);
-      background:rgba(71,85,105,0.45);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      transition: transform 0.08s ease, background 0.15s ease;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+    .xpContainer {
+      background: rgba(0,0,0,0.35);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .ballBtn:hover{
-      background:rgba(125,211,252,0.12);
-      transform: scale(1.03);
+    .xpBarBg {
+      flex: 1;
+      height: 12px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
     }
-    .ballBtn:active{ transform: scale(0.98); }
-
-    .ballPulse{
-      animation: pulseGlow 1.8s ease-in-out infinite;
-    }
-    @keyframes pulseGlow{
-      0%,100%{ box-shadow: 0 0 0 rgba(138,255,140,0.0); }
-      50%{ box-shadow: 0 0 18px rgba(138,255,140,0.35); }
-    }
-
-    h1{
-      text-align:center;
-      color:#8aff8c;
-      margin:0;
-      padding-top:10px;
+    .xpBarFill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--secondary-accent), var(--accent-color));
+      border-radius: 10px;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 10px var(--accent-color);
     }
 
-    h2{ color:#8aff8c; }
+    .coachBox {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(138, 255, 140, 0.12));
+      border: 1px solid var(--accent-color);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+    .coachAvatar {
+      font-size: 36px;
+      background: rgba(0,0,0,0.3);
+      padding: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1px solid var(--accent-color);
+    }
+    .coachContent { flex: 1; }
+    .coachTitle {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--accent-color);
+      margin-bottom: 4px;
+      letter-spacing: 1px;
+    }
+    .coachMessage { font-size: 13px; line-height: 1.5; color: var(--text-color); }
 
-    /* ---------- Brand banner: soccer-pitch header for the app name ---------- */
-    .brandBanner{
-      position:relative;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:16px;
-      padding:20px 10px 26px;
-      margin:-25px -25px 8px;
-      background:repeating-linear-gradient(
-        90deg,
-        #16a34a 0px, #16a34a 26px,
-        #15803d 26px, #15803d 52px
-      );
-      border-radius:15px 15px 0 0;
-      overflow:hidden;
+    .homeHubGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-top: 15px;
     }
-    /* halfway line */
-    .brandBanner::after{
-      content:"";
-      position:absolute;
-      left:0; right:0; bottom:10px;
-      height:2px;
-      background:rgba(255,255,255,0.55);
+    .hubTile {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
-    /* center-circle mark sitting on the halfway line */
-    .brandBanner::before{
-      content:"";
-      position:absolute;
-      bottom:9px; left:50%;
-      width:16px; height:16px;
-      border:2px solid rgba(255,255,255,0.55);
-      border-radius:50%;
-      transform:translate(-50%,50%);
+    .hubTile:hover {
+      background: rgba(138, 255, 140, 0.12);
+      border-color: var(--accent-color);
+      transform: translateY(-4px);
+      box-shadow: 0 0 20px var(--accent-glow);
     }
+    .hubIcon { font-size: 36px; margin-bottom: 10px; }
+    .hubTitle { font-size: 15px; font-weight: 700; color: var(--text-color); }
+    .hubDesc { font-size: 12px; color: var(--subtext-color); margin-top: 6px; }
 
-    .brandTitle{
-      margin:0;
-      padding:0;
-      font-family:'Anton','Arial Black',Impact,sans-serif;
-      font-size:44px;
-      letter-spacing:2px;
-      text-transform:uppercase;
-      line-height:1;
-      background:linear-gradient(90deg,#ffffff 0%,#c9ffca 32%,#8aff8c 65%,#1f2c47 100%);
-      -webkit-background-clip:text;
-      background-clip:text;
-      color:transparent;
-      filter:drop-shadow(0 3px 2px rgba(0,0,0,0.5));
-      animation:titlePop 2.6s ease-in-out infinite;
-    }
-    @keyframes titlePop{
-      0%,100%{ filter:drop-shadow(0 3px 2px rgba(0,0,0,0.5)) drop-shadow(0 0 0px rgba(138,255,140,0)); }
-      50%{ filter:drop-shadow(0 3px 2px rgba(0,0,0,0.5)) drop-shadow(0 0 14px rgba(138,255,140,0.6)); }
-    }
-
-    /* small CSS-built soccer ball (no emoji) flanking the title */
-    .miniBall{
-      position:relative;
-      flex:0 0 auto;
-      width:34px;
-      height:34px;
-      border-radius:50%;
-      background:radial-gradient(circle at 32% 28%, #ffffff 0%, #f1f5f9 35%, #cbd5e1 68%, #94a3b8 100%);
-      box-shadow:inset -4px -4px 7px rgba(0,0,0,0.28), 0 3px 6px rgba(0,0,0,0.35);
-      animation:ballRoll 2.6s ease-in-out infinite;
-    }
-    .miniBall::before, .miniBall::after{
-      content:"";
-      position:absolute;
-      background:#111827;
-      clip-path:polygon(50% 0%, 95% 35%, 79% 90%, 21% 90%, 5% 35%);
-    }
-    .miniBall::before{
-      top:30%; left:50%;
-      width:32%; height:32%;
-      transform:translate(-50%,-50%);
-    }
-    .miniBall::after{
-      top:4%; left:6%;
-      width:20%; height:20%;
-      opacity:0.9;
-    }
-    @keyframes ballRoll{
-      0%,100%{ transform:translateY(0) rotate(0deg); }
-      50%{ transform:translateY(-6px) rotate(180deg); }
+    h1, h2, h3 { color: var(--accent-color); font-family: 'Orbitron', 'Anton', sans-serif; margin: 0; letter-spacing: 1px; }
+    
+    .brandBanner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px 10px 30px;
+      margin: -28px -28px 20px;
+      background: linear-gradient(135deg, rgba(2, 44, 16, 0.95) 0%, rgba(20, 83, 45, 0.95) 50%, rgba(22, 101, 52, 0.95) 100%),
+                  repeating-linear-gradient(45deg, rgba(138, 255, 140, 0.1) 0, rgba(138, 255, 140, 0.1) 15px, transparent 15px, transparent 30px);
+      border-radius: 20px 20px 0 0;
+      text-align: center;
+      border-bottom: 2px solid var(--accent-color);
+      position: relative;
     }
 
-    button{
-      width:100%;
-      padding:14px;
-      margin-top:15px;
-      border:none;
-      border-radius:10px;
-      background:#8aff8c;
-      color:#1f2c47;
-      font-weight:bold;
-      font-size:17px;
-      cursor:pointer;
-    }
-    /* hover swaps the two brand colours rather than introducing a third shade */
-    button:hover{ background:#1f2c47; color:#8aff8c; }
-
-    .rainbowBtn{
-      background:linear-gradient(90deg,#ef4444,#3b82f6,#22c55e,#3b82f6,#ef4444);
-      background-size:300% 300%;
-      animation:rainbowShift 5s ease infinite;
-      color:white;
-      font-weight:bold;
-    }
-    /* .rainbowBtn:hover needs class+pseudo specificity to beat the plain
-       button:hover rule above, otherwise the gradient gets clobbered by a
-       flat background the moment you hover it */
-    .rainbowBtn:hover{
-      background:linear-gradient(90deg,#ef4444,#3b82f6,#22c55e,#3b82f6,#ef4444);
-      background-size:300% 300%;
-      color:white;
-      animation-duration:1.8s;
-    }
-    @keyframes rainbowShift{
-      0%{background-position:0% 50%;}
-      50%{background-position:100% 50%;}
-      100%{background-position:0% 50%;}
+    .brandBanner::after {
+      content: "🚩";
+      position: absolute;
+      right: 20px;
+      top: 18px;
+      font-size: 24px;
+      opacity: 0.8;
     }
 
-    .dropdown-content{
-      display:none;
-      background:#334155;
-      padding:15px;
-      border-radius:10px;
-    }
-    .dropdown-content label{ display:block; padding:8px; }
-    .show{ display:block; }
-
-    #tipsPage{ display:none; }
-
-    #output{
-      background:#475569;
-      padding:20px;
-      border-radius:10px;
-      margin-top:20px;
+    .brandTitle {
+      font-size: 38px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ffffff 0%, #a7f3d0 40%, #8aff8c 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 20px var(--accent-glow);
     }
 
-    a{ color:#7dd3fc; }
+    button {
+      width: 100%;
+      padding: 12px 18px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 12px;
+      background: var(--accent-color);
+      color: #042f2e;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 0 15px var(--accent-glow); }
 
-    /* Mini popup */
-    #ballModal{
-      position:fixed;
-      inset:0;
-      background:rgba(2,6,23,0.72);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:9999;
-      padding:18px;
+    .dropdown-content {
+      display: none;
+      background: var(--dropdown-bg);
+      padding: 12px;
+      border-radius: 12px;
+      max-height: 220px;
+      overflow-y: auto;
+      border: 1px solid var(--card-border);
+      margin-top: 6px;
     }
-    #ballModal .modalCard{
-      width:min(720px, 100%);
-      background:#0b1224;
-      border:1px solid rgba(125,211,252,0.18);
-      border-radius:16px;
-      padding:18px 18px 16px;
-      box-shadow: 0 20px 70px rgba(0,0,0,0.6);
+    .dropdown-content label { 
+      display: block; 
+      padding: 6px 10px; 
+      font-size: 13px; 
+      cursor: pointer; 
+      border-radius: 6px;
+      transition: all 0.2s ease;
     }
-    #ballModal .modalTop{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:14px;
-      margin-bottom:10px;
-    }
-    #ballModal h2{
-      margin:0;
-      font-size:18px;
-      color:#8aff8c;
-      line-height:1.25;
-    }
-    #ballModal .closeBtn{
-      border:none;
-      background:transparent;
-      color:#cbd5e1;
-      font-size:18px;
-      cursor:pointer;
-      padding:6px 10px;
-      border-radius:10px;
-    }
-    #ballModal .closeBtn:hover{ background:rgba(148,163,184,0.12); }
-
-    #ballModal .content{
-      background:#111a33;
-      border-radius:14px;
-      padding:14px;
-      border:1px solid rgba(125,211,252,0.14);
+    .dropdown-content label.blocked {
+      color: #f87171 !important;
+      background: rgba(239, 68, 68, 0.15) !important;
+      text-decoration: line-through;
+      cursor: not-allowed !important;
+      opacity: 0.6;
     }
 
-    #ballModal .pillRow{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-bottom:10px;
+    .show { display: block; }
+
+    .tabBar {
+      display: flex;
+      gap: 6px;
+      margin: 15px 0;
+      border-bottom: 2px solid var(--card-border);
+      padding-bottom: 8px;
+      overflow-x: auto;
     }
-    #ballModal .pill{
-      font-size:12.5px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(125,211,252,0.18);
-      color:#bae6fd;
-      background:rgba(125,211,252,0.06);
+    .tabBtn {
+      white-space: nowrap;
+      padding: 8px 12px;
+      margin-top: 0;
+      font-size: 12px;
+      background: rgba(255,255,255,0.05);
+      color: var(--subtext-color);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+    }
+    .tabBtn.active {
+      background: var(--accent-color);
+      color: #042f2e;
+      font-weight: 800;
     }
 
-    #ballModal .bigText{
-      margin:0 0 10px;
-      font-size:15.5px;
-      color:#e5e7eb;
-      line-height:1.35;
+    .tabContent { display: none; }
+    .tabContent.active { display: block; }
+
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: var(--input-bg);
+      color: var(--text-color);
+      font-size: 13px;
+      margin-bottom: 8px;
     }
 
-    #ballModal .section{
-      margin-top:12px;
-      padding-top:10px;
-      border-top:1px solid rgba(125,211,252,0.12);
+    .statGrid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .statCard {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+    .statNum { font-size: 20px; font-weight: 800; color: var(--accent-color); }
+    .statLabel { font-size: 10px; color: var(--subtext-color); text-transform: uppercase; }
+
+    .pitch {
+      width: 100%;
+      height: 180px;
+      background: radial-gradient(circle, #14532d 0%, #022c10 100%);
+      border: 2px solid var(--accent-color);
+      border-radius: 10px;
+      position: relative;
+      margin-top: 8px;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    }
+    .playerNode {
+      width: 26px; height: 26px;
+      background: #ef4444; color: white;
+      border: 2px solid white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+      position: absolute;
+      transition: all 0.4s ease;
     }
 
-    #ballModal .label{
-      color:#bae6fd;
-      font-weight:800;
-      font-size:13px;
-      margin-bottom:6px;
-    }
-    #ballModal .text{
-      color:#e5e7eb;
-      font-size:14px;
-      line-height:1.45;
-    }
-
-    #ballModal .smallRow{
-      display:flex;
-      gap:10px;
-      margin-top:14px;
-      align-items:center;
-      flex-wrap:wrap;
+    .settingRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      margin-bottom: 10px;
     }
 
-    #ballModal .smallBtn{
-      width:auto;
-      padding:10px 12px;
-      font-size:14px;
-      background:#1d4ed8;
-      border-radius:12px;
-      color:white;
-      border:none;
-      cursor:pointer;
-    }
-    #ballModal .smallBtn:hover{ background:#1e40af; }
-
-    #ballModal .ghostBtn{
-      width:auto;
-      padding:10px 12px;
-      font-size:14px;
-      background:rgba(148,163,184,0.12);
-      border:1px solid rgba(148,163,184,0.25);
-      border-radius:12px;
-      color:#cbd5e1;
-      cursor:pointer;
-    }
-    #ballModal .ghostBtn:hover{ background:rgba(148,163,184,0.18); }
+    #homePage { display: block; }
+    #tipsPage { display: none; }
   </style>
-
 </head>
 
-<body>
+<body class="theme-green">
 
-<div class="flagsBg" aria-hidden="true">
-  <div class="flag flag-fr" style="top:6%;left:6%;animation-name:driftA;animation-duration:26s;"></div>
-  <div class="flag flag-br" style="top:16%;left:86%;animation-name:driftB;animation-duration:22s;animation-delay:-4s;"></div>
-  <div class="flag flag-ar" style="top:32%;left:3%;animation-name:driftC;animation-duration:30s;animation-delay:-9s;"></div>
-  <div class="flag flag-de" style="top:46%;left:90%;animation-name:driftA;animation-duration:24s;animation-delay:-14s;"></div>
-  <div class="flag flag-it" style="top:62%;left:4%;animation-name:driftB;animation-duration:28s;animation-delay:-2s;"></div>
-  <div class="flag flag-es" style="top:74%;left:88%;animation-name:driftC;animation-duration:20s;animation-delay:-11s;"></div>
-  <div class="flag flag-pt" style="top:86%;left:8%;animation-name:driftA;animation-duration:27s;animation-delay:-6s;"></div>
-  <div class="flag flag-gb" style="top:4%;left:78%;animation-name:driftC;animation-duration:23s;animation-delay:-16s;"></div>
-  <div class="flag flag-nl" style="top:54%;left:47%;animation-name:driftB;animation-duration:25s;animation-delay:-8s;"></div>
-  <div class="flag flag-ng" style="top:24%;left:60%;animation-name:driftA;animation-duration:29s;animation-delay:-19s;"></div>
-  <div class="flag flag-cm" style="top:92%;left:55%;animation-name:driftB;animation-duration:21s;animation-delay:-13s;"></div>
-  <div class="flag flag-jp" style="top:40%;left:20%;animation-name:driftC;animation-duration:31s;animation-delay:-5s;"></div>
-</div>
+<div class="flagBackground"></div>
 
 <div class="container">
 
-  <!-- Right-corner soccer ball + click arrow/label -->
-
-  <div class="ballWrap">
-    <div class="ballHint">
-      <div class="clickMe"><span class="arrow">➜</span>Click me</div>
-      <div>Daily Pro Secret /</div>
-      <div>"Did You Know?"</div>
-    </div>
-
-<div
-  class="ballBtn ballPulse"
-  role="button"
-  tabindex="0"
-  aria-label="Tap for soccer daily fun fact, pro tip, puzzle, and mindset booster"
-  onclick="revealBall()"
-  onkeydown="if(event.key==='Enter' || event.key===' ') revealBall();"
-  id="soccerBallBtn"
->
-  <span style="font-size:28px;">⚽</span>
-</div>
-
+  <div class="topNav">
+    <button class="navBtn" onclick="goToSetupPage()">👤 Profile Setup</button>
+    <button class="navBtn" onclick="goToMainHub()">🏠 Home Hub</button>
+    <button class="navBtn" onclick="askCoachAboutCurrentPage()">❓ Coach Tip</button>
   </div>
 
-  <!-- HOME PAGE -->
+  <div class="xpContainer">
+    <div style="font-weight:800; font-size:13px; color:var(--accent-color);" id="levelTitle">LVL 1 ROOKIE</div>
+    <div class="xpBarBg">
+      <div class="xpBarFill" id="xpBarFill"></div>
+    </div>
+    <div style="font-size:11px; font-weight:700; color:var(--subtext-color);" id="xpText">0 / 100 XP</div>
+  </div>
+
+  <div class="coachBox">
+    <div class="coachAvatar" id="displayAvatar">🧢</div>
+    <div class="coachContent">
+      <div class="coachTitle" id="displayCoachTitle">Coach Apex Explains:</div>
+      <div class="coachMessage" id="coachMessage">
+        Welcome athlete! Select your skill level, positions, strengths, and areas to improve below, then enter your Main Home Hub!
+      </div>
+    </div>
+  </div>
 
   <div id="homePage">
     <div class="brandBanner">
-      <div class="miniBall" aria-hidden="true"></div>
       <h1 class="brandTitle">Apex Sports</h1>
-      <div class="miniBall" aria-hidden="true" style="animation-delay:-1.3s;"></div>
     </div>
-    <p>Create your soccer improvement plan</p>
 
-<button type="button" onclick="toggle('levelBox')">Skill Level ▼</button>
-<div id="levelBox" class="dropdown-content">
-  <label><input type="radio" name="level" value="Beginner">Beginner</label>
-  <label><input type="radio" name="level" value="Intermediate">Intermediate</label>
-  <label><input type="radio" name="level" value="Advanced">Advanced</label>
-</div>
+    <h3>👤 Athlete Profile & Preferences</h3>
 
-<button type="button" onclick="toggle('positionBox')">Position ▼</button>
-<div id="positionBox" class="dropdown-content">
-  <label><input type="checkbox" name="position" value="Forward">Forward</label>
-  <label><input type="checkbox" name="position" value="Midfielder">Midfielder</label>
-  <label><input type="checkbox" name="position" value="Defender">Defender</label>
-  <label><input type="checkbox" name="position" value="Goalkeeper">Goalkeeper</label>
-</div>
+    <button type="button" onclick="toggle('levelBox')">Skill Level (Youth / Amateur) ▼</button>
+    <div id="levelBox" class="dropdown-content">
+      <label><input type="radio" name="level" value="Grassroots / Beginner">Grassroots / Beginner</label>
+      <label><input type="radio" name="level" value="Intermediate Youth">Intermediate Youth</label>
+      <label><input type="radio" name="level" value="Advanced Regional">Advanced Regional</label>
+      <label><input type="radio" name="level" value="Elite Academy Tier">Elite Academy Tier</label>
+    </div>
 
-<button type="button" onclick="toggle('improveBox')">Improvement Areas ▼</button>
-<div id="improveBox" class="dropdown-content">
-  <label><input type="checkbox" name="improve" value="Shooting">Shooting</label>
-  <label><input type="checkbox" name="improve" value="Passing">Passing</label>
-  <label><input type="checkbox" name="improve" value="Dribbling">Dribbling</label>
-  <label><input type="checkbox" name="improve" value="Speed">Speed</label>
-  <label><input type="checkbox" name="improve" value="Defense">Defense</label>
-  <label><input type="checkbox" name="improve" value="First Touch">First Touch</label>
-  <label><input type="checkbox" name="improve" value="Fitness">Fitness</label>
-</div>
+    <button type="button" onclick="toggle('positionBox')">Position(s) - All Roles ▼</button>
+    <div id="positionBox" class="dropdown-content">
+      <label><input type="checkbox" name="position" value="GK">Goalkeeper (GK)</label>
+      <label><input type="checkbox" name="position" value="CB">Center Back (CB)</label>
+      <label><input type="checkbox" name="position" value="LB/RB">Fullback (LB / RB)</label>
+      <label><input type="checkbox" name="position" value="LWB/RWB">Wingback (LWB / RWB)</label>
+      <label><input type="checkbox" name="position" value="CDM">Defensive Midfielder (CDM)</label>
+      <label><input type="checkbox" name="position" value="CM">Central Midfielder (CM)</label>
+      <label><input type="checkbox" name="position" value="CAM">Attacking Midfielder (CAM)</label>
+      <label><input type="checkbox" name="position" value="LW/RW">Winger (LW / RW)</label>
+      <label><input type="checkbox" name="position" value="CF">Second Striker / Center Forward (CF)</label>
+      <label><input type="checkbox" name="position" value="ST">Striker (ST)</label>
+    </div>
 
-<button type="button" onclick="toggle('strengthBox')">Strengths ▼</button>
-<div id="strengthBox" class="dropdown-content">
-  <label><input type="checkbox" name="strength" value="Speed">Speed</label>
-  <label><input type="checkbox" name="strength" value="Passing">Passing</label>
-  <label><input type="checkbox" name="strength" value="Leadership">Leadership</label>
-  <label><input type="checkbox" name="strength" value="Defense">Defense</label>
-  <label><input type="checkbox" name="strength" value="Shooting">Shooting</label>
-  <label><input type="checkbox" name="strength" value="Dribbling">Dribbling</label>
-  <label><input type="checkbox" name="strength" value="Fitness">Fitness</label>
-</div>
+    <button type="button" onclick="toggle('strengthBox')">Current Strengths ▼</button>
+    <div id="strengthBox" class="dropdown-content">
+      <label><input type="checkbox" name="strength" data-category="speed" value="Pace" onchange="syncSelection()">Pace & Sprint Acceleration</label>
+      <label><input type="checkbox" name="strength" data-category="passing" value="Passing" onchange="syncSelection()">Passing Accuracy & Range</label>
+      <label><input type="checkbox" name="strength" data-category="dribbling" value="Dribbling" onchange="syncSelection()">1v1 Dribbling & Ball Control</label>
+      <label><input type="checkbox" name="strength" data-category="tactical" value="Tactical" onchange="syncSelection()">Tactical IQ & Field Vision</label>
+      <label><input type="checkbox" name="strength" data-category="defense" value="Physicality" onchange="syncSelection()">Physicality & Tackling</label>
+      <label><input type="checkbox" name="strength" data-category="shooting" value="Finishing" onchange="syncSelection()">Finishing & Shot Power</label>
+      <label><input type="checkbox" name="strength" data-category="fitness" value="Work Rate" onchange="syncSelection()">Stamina & Work Rate</label>
+      <label><input type="checkbox" name="strength" data-category="weakfoot" value="Weak Foot" onchange="syncSelection()">Weak Foot Proficiency</label>
+      <label><input type="checkbox" name="strength" data-category="aerial" value="Aerial Duels" onchange="syncSelection()">Aerial Duels & Heading</label>
+      <label><input type="checkbox" name="strength" data-category="agility" value="Agility" onchange="syncSelection()">Agility & Quick Footwork</label>
+      <label><input type="checkbox" name="strength" data-category="setpiece" value="Set-Pieces" onchange="syncSelection()">Set-Pieces & Direct Kicks</label>
+      <label><input type="checkbox" name="strength" data-category="offball" value="Off-Ball" onchange="syncSelection()">Off-the-Ball Movement</label>
+    </div>
 
-<button type="button" class="rainbowBtn" onclick="showTips()">Get My Soccer Tips</button>
+    <button type="button" onclick="toggle('improveBox')">Improvement Areas ▼</button>
+    <div id="improveBox" class="dropdown-content">
+      <label><input type="checkbox" name="improve" data-category="speed" value="Speed" onchange="syncSelection()">Pace & Sprint Acceleration</label>
+      <label><input type="checkbox" name="improve" data-category="passing" value="Passing" onchange="syncSelection()">Passing Accuracy & Range</label>
+      <label><input type="checkbox" name="improve" data-category="dribbling" value="Dribbling" onchange="syncSelection()">1v1 Dribbling & Ball Control</label>
+      <label><input type="checkbox" name="improve" data-category="tactical" value="Tactical" onchange="syncSelection()">Tactical IQ & Field Vision</label>
+      <label><input type="checkbox" name="improve" data-category="defense" value="Defense" onchange="syncSelection()">Physicality & Tackling</label>
+      <label><input type="checkbox" name="improve" data-category="shooting" value="Shooting" onchange="syncSelection()">Finishing & Shot Power</label>
+      <label><input type="checkbox" name="improve" data-category="fitness" value="Fitness" onchange="syncSelection()">Stamina & Work Rate</label>
+      <label><input type="checkbox" name="improve" data-category="weakfoot" value="Weak Foot" onchange="syncSelection()">Weak Foot Proficiency</label>
+      <label><input type="checkbox" name="improve" data-category="aerial" value="Aerial Duels" onchange="syncSelection()">Aerial Duels & Heading</label>
+      <label><input type="checkbox" name="improve" data-category="agility" value="Agility" onchange="syncSelection()">Agility & Quick Footwork</label>
+      <label><input type="checkbox" name="improve" data-category="setpiece" value="Set-Pieces" onchange="syncSelection()">Set-Pieces & Direct Kicks</label>
+      <label><input type="checkbox" name="improve" data-category="offball" value="Off-Ball" onchange="syncSelection()">Off-the-Ball Movement</label>
+    </div>
 
+    <button type="button" style="margin-top:20px;" onclick="goToMainHub()">Enter Home Hub Page ⚽</button>
   </div>
-
-  <!-- TIPS PAGE -->
 
   <div id="tipsPage">
-    <h1 style="margin-top:10px;">ApexSport Tips</h1>
-    <div id="output"></div>
-    <button type="button" onclick="back()">⬅ Back</button>
-  </div>
 
-</div>
+    <div id="mainHubScreen">
+      <h2 style="font-size:24px; margin-bottom:6px;">Apex Home Training Hub</h2>
+      <p style="font-size:12px; color:var(--subtext-color); margin-bottom:16px;">Select any tile below to launch features, training utilities, or system settings:</p>
 
-<!-- Daily content modal -->
+      <div class="homeHubGrid">
+        <div class="hubTile" onclick="openModule('tab-settings')">
+          <div class="hubIcon">⚙️</div>
+          <div class="hubTitle">Settings Hub</div>
+          <div class="hubDesc">Themes, sound & nutrition controls</div>
+        </div>
 
-<div id="ballModal" aria-hidden="true">
-  <div class="modalCard">
-    <div class="modalTop">
-      <h2 id="ballTitle">Daily Pro Secret</h2>
-      <button class="closeBtn" type="button" onclick="closeBall()">✕</button>
+        <div class="hubTile" onclick="openModule('tab-dashboard')">
+          <div class="hubIcon">📊</div>
+          <div class="hubTitle">Weekly Schedule</div>
+          <div class="hubDesc">Track daily training targets</div>
+        </div>
+
+        <div class="hubTile" onclick="openModule('tab-workout')">
+          <div class="hubIcon">⏱️</div>
+          <div class="hubTitle">Live Session</div>
+          <div class="hubDesc">Timer to log training minutes</div>
+        </div>
+
+        <div class="hubTile" onclick="openModule('tab-hiit')">
+          <div class="hubIcon">🚨</div>
+          <div class="hubTitle">HIIT Interval Timer</div>
+          <div class="hubDesc">Tabata sprints with audio alerts</div>
+        </div>
+
+        <div class="hubTile" onclick="openModule('tab-benchmarks')">
+          <div class="hubIcon">⚡</div>
+          <div class="hubTitle">Athletic Benchmarks</div>
+          <div class="hubDesc">40m sprint times & vertical leap</div>
+        </div>
+
+        <div class="hubTile" onclick="openModule('tab-tactics')">
+          <div class="hubIcon">⚽</div>
+          <div class="hubTitle">Tactical Pitch</div>
+          <div class="hubDesc">Interactive formation layout</div>
+        </div>
+
+        <div class="hubTile nutrition-feature" onclick="openModule('tab-health')">
+          <div class="hubIcon">🥗</div>
+          <div class="hubTitle">Health & Fuel</div>
+          <div class="hubDesc">Hydration tracker & macros</div>
+        </div>
+
+        <div class="hubTile" onclick="openModule('tab-journal')">
+          <div class="hubIcon">📓</div>
+          <div class="hubTitle">Match Journal</div>
+          <div class="hubDesc">Record performance notes</div>
+        </div>
+
+        <div class="hubTile" onclick="openModule('tab-drills')">
+          <div class="hubIcon">📋</div>
+          <div class="hubTitle">Saved Drills</div>
+          <div class="hubDesc">Custom exercise creator</div>
+        </div>
+      </div>
     </div>
 
-<div class="content">
-  <div class="pillRow">
-    <div class="pill">Daily</div>
-    <div class="pill">Pro Tip + Puzzle</div>
-  </div>
+    <div id="moduleView" style="display:none;">
+      <div class="tabBar">
+        <button type="button" class="tabBtn" onclick="switchTab('tab-settings')">⚙️ Settings</button>
+        <button type="button" class="tabBtn" onclick="switchTab('tab-dashboard')">📊 Overview</button>
+        <button type="button" class="tabBtn" onclick="switchTab('tab-workout')">⏱️ Live Session</button>
+        <button type="button" class="tabBtn" onclick="switchTab('tab-hiit')">🚨 HIIT Sprint</button>
+        <button type="button" class="tabBtn" onclick="switchTab('tab-benchmarks')">⚡ Benchmarks</button>
+        <button type="button" class="tabBtn" onclick="switchTab('tab-tactics')">⚽ Tactics</button>
+        <button type="button" class="tabBtn nutrition-feature" onclick="switchTab('tab-health')">🥗 Fuel</button>
+        <button type="button" class="tabBtn" onclick="switchTab('tab-journal')">📓 Journal</button>
+        <button type="button" class="tabBtn" onclick="switchTab('tab-drills')">📋 Drills</button>
+      </div>
 
-  <p class="bigText" id="didYouKnowText"></p>
+      <div id="tab-settings" class="tabContent">
+        <h3>⚙️ Master Settings Hub</h3>
+        <p style="font-size:12px; color:var(--subtext-color); margin-bottom:14px;">Configure application parameters and preferences.</p>
 
-  <div class="section">
-    <div class="label">Pro Tip</div>
-    <div class="text" id="proTipText"></div>
-  </div>
+        <div class="settingRow">
+          <div>
+            <div style="font-size:13px; font-weight:bold;">🥗 Nutrition & Fuel Features</div>
+            <div style="font-size:11px; color:var(--subtext-color);">Turn macro calculator and water intake on/off</div>
+          </div>
+          <input type="checkbox" id="toggleNutrition" checked onchange="toggleNutritionFeature()" style="width:auto; transform:scale(1.3);">
+        </div>
 
-  <div class="section">
-    <div class="label">Soccer Puzzle (Tap to reveal answer)</div>
-    <div class="text" id="puzzleQuestion"></div>
-    <div class="smallRow">
-      <button class="smallBtn" type="button" onclick="revealPuzzleAnswer()">Reveal Answer</button>
-      <button class="ghostBtn" type="button" onclick="resetPuzzle()">Try Again</button>
+        <div class="settingRow">
+          <div>
+            <div style="font-size:13px; font-weight:bold;">🎨 Color Theme</div>
+            <div style="font-size:11px; color:var(--subtext-color);">Select visual aesthetic</div>
+          </div>
+          <select id="themeSelect" onchange="changeTheme(this.value)" style="width:140px; margin:0;">
+            <option value="theme-green">Futuristic Green</option>
+            <option value="theme-dark">Apex Dark</option>
+            <option value="theme-cyan">Neon Cyan</option>
+            <option value="theme-light">Light Mode</option>
+          </select>
+        </div>
+
+        <div class="settingRow">
+          <div>
+            <div style="font-size:13px; font-weight:bold;">🤖 AI Coach Persona</div>
+            <div style="font-size:11px; color:var(--subtext-color);">Change coach style</div>
+          </div>
+          <select onchange="changeCoachAvatar(this.value)" style="width:140px; margin:0;">
+            <option value="🧢">🧢 Coach Apex</option>
+            <option value="👔">👔 Tactical Master</option>
+            <option value="⚡">⚡ Speed Specialist</option>
+            <option value="🧠">🧠 Performance Mindset</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="tab-dashboard" class="tabContent">
+        <div class="statGrid">
+          <div class="statCard"><div class="statLabel">Workouts</div><div class="statNum" id="statWorkouts">0</div></div>
+          <div class="statCard"><div class="statLabel">Minutes</div><div class="statNum" id="statMinutes">0</div></div>
+          <div class="statCard nutrition-feature"><div class="statLabel">Water Goal</div><div class="statNum" id="statWater">0%</div></div>
+        </div>
+
+        <h3>📅 Weekly Schedule</h3>
+        <input type="text" placeholder="Mon: Speed & Agility Ladder">
+        <input type="text" placeholder="Tue: Shooting & Finishing Drills">
+        <input type="text" placeholder="Wed: Active Recovery">
+      </div>
+
+      <div id="tab-workout" class="tabContent">
+        <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.02); border-radius:12px;">
+          <h3>⏱️ Live Session Timer</h3>
+          <div style="font-size:40px; font-weight:800; font-family:'Orbitron', monospace; color:var(--accent-color); margin:10px 0;" id="workoutTimer">00:00</div>
+          <div style="display:flex; gap:10px; justify-content:center;">
+            <button type="button" onclick="toggleTimer()" id="timerBtn" style="width:auto; padding:8px 20px;">Start Session</button>
+            <button type="button" onclick="resetTimer()" style="width:auto; padding:8px 20px; background:rgba(239, 68, 68, 0.2); color:#fca5a5;">Finish (+50 XP)</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-hiit" class="tabContent">
+        <h3>🚨 Sprint Interval / Tabata Timer</h3>
+        <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.02); border-radius:12px; margin-top:10px;">
+          <div id="hiitState" style="font-size:16px; font-weight:800; color:var(--accent-color);">READY TO SPRINT</div>
+          <div id="hiitClock" style="font-size:48px; font-weight:900; font-family:'Orbitron', monospace; color:var(--accent-color); margin:10px 0;">00:30</div>
+          <div style="display:flex; gap:10px; justify-content:center;">
+            <button type="button" onclick="startHIIT()" style="width:auto; padding:8px 20px;">Start Intervals</button>
+            <button type="button" onclick="stopHIIT()" style="width:auto; padding:8px 20px; background:rgba(239,68,68,0.2); color:#fca5a5;">Stop</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-benchmarks" class="tabContent">
+        <h3>⚡ Physical Benchmarks</h3>
+        <input type="number" id="inputSprint" placeholder="40m Sprint Time (seconds)">
+        <input type="number" id="inputJump" placeholder="Vertical Jump (inches)">
+        <button type="button" onclick="saveBenchmark()">Save Metrics Record</button>
+        <ul id="benchmarkList" style="font-size:12px; padding-left:16px; margin-top:10px;"></ul>
+      </div>
+
+      <div id="tab-tactics" class="tabContent">
+        <h3>⚽ Interactive Tactics Board</h3>
+        <div style="display:flex; gap:6px; margin-bottom:8px;">
+          <button type="button" onclick="setFormation('433')" style="font-size:11px; padding:4px;">4-3-3</button>
+          <button type="button" onclick="setFormation('442')" style="font-size:11px; padding:4px;">4-4-2</button>
+        </div>
+        <div class="pitch">
+          <div class="playerNode" id="node-gk" style="top: 80%; left: 45%;">GK</div>
+          <div class="playerNode" id="node-cb" style="top: 65%; left: 45%;">CB</div>
+          <div class="playerNode" id="node-cm" style="top: 40%; left: 45%;">CM</div>
+          <div class="playerNode" id="node-st" style="top: 15%; left: 45%;">ST</div>
+        </div>
+      </div>
+
+      <div id="tab-health" class="tabContent nutrition-feature">
+        <h3>💧 Daily Hydration Counter</h3>
+        <p id="waterText" style="font-size:14px; font-weight:bold;">0 / 2500 ml</p>
+        <button type="button" onclick="addWater(250)">+ Add Glass (250ml)</button>
+
+        <h3 style="margin-top:20px;">🥗 Matchday Macro Calculator</h3>
+        <input type="number" id="weightInput" placeholder="Body Weight (kg)">
+        <select id="matchIntensity">
+          <option value="light">Light Practice</option>
+          <option value="heavy">Heavy Training</option>
+          <option value="match">Match Day</option>
+        </select>
+        <button type="button" onclick="calculateMacros()">Calculate Target Fuel</button>
+        <div id="macroResult" style="font-size:12px; margin-top:8px; line-height:1.5; color:var(--accent-color);"></div>
+      </div>
+
+      <div id="tab-journal" class="tabContent">
+        <h3>📓 Match Journal</h3>
+        <input type="text" id="journalOpponent" placeholder="Match / Opponent">
+        <textarea id="journalNotes" rows="3" placeholder="Performance notes..."></textarea>
+        <button type="button" onclick="saveJournal()">Log Performance (+25 XP)</button>
+        <ul id="journalList" style="font-size:12px; padding-left:16px; margin-top:10px;"></ul>
+      </div>
+
+      <div id="tab-drills" class="tabContent">
+        <h3>📋 Custom Drill Creator</h3>
+        <input type="text" id="drillName" placeholder="Drill Title">
+        <input type="text" id="drillDesc" placeholder="Sets / Reps / Description">
+        <button type="button" onclick="saveDrill()">Save Drill</button>
+        <ul id="drillList" style="font-size:12px; padding-left:16px; margin-top:10px;"></ul>
+      </div>
+
     </div>
-    <div class="text" style="margin-top:10px; display:none;" id="puzzleAnswerBox"></div>
-  </div>
-
-  <div class="section">
-    <div class="label">Mind Booster</div>
-    <div class="text" id="mindBoosterText"></div>
-  </div>
-
-  <div class="smallRow">
-    <button class="ghostBtn" type="button" onclick="closeBall()">Close</button>
-  </div>
-</div>
 
   </div>
+
 </div>
 
 <script>
-  const tips = {
-    Shooting: "Practice finishing with both feet. Focus on accuracy and shooting quickly.",
-    Passing: "Practice wall passes, one-touch passes, and long passes.",
-    Dribbling: "Use cones to improve close control and quick changes of direction.",
-    Speed: "Practice explosive sprints and quick starts.",
-    Defense: "Improve positioning, tackling timing, and reading the attacker.",
-    "First Touch": "Practice controlling difficult passes and moving after receiving.",
-    Fitness: "Improve endurance with running and strength training."
+  let stats = { workouts: 0, minutes: 0, water: 0 };
+  let playerXP = 0;
+  let playerLevel = 1;
+  let currentTab = 'tab-dashboard';
+  let coachName = "Coach Apex";
+
+  const coachExplanations = {
+    'setup': "Profile Setup: Select your youth/amateur skill level, field positions, and mutual-exclusion strengths vs targets.",
+    'hub': "Welcome to your Main Home Hub! Click any tile card to launch tools, timers, or settings.",
+    'tab-settings': "Settings Hub: Configure visual themes, coach avatars, and toggle nutrition features.",
+    'tab-dashboard': "Weekly Schedule: Plan out daily drill schedules and monitor your weekly output.",
+    'tab-workout': "Live Session Timer: Measure active pitch workouts to gain athlete XP.",
+    'tab-hiit': "HIIT Sprint Timer: Run intense interval sprints with automated audio cues.",
+    'tab-benchmarks': "Physical Benchmarks: Record 40m sprint times and vertical leap progression.",
+    'tab-tactics': "Tactics Pitch: Analyze team formations and positional roles.",
+    'tab-health': "Fuel & Health: Compute carbohydrate goals and track hydration intake.",
+    'tab-journal': "Match Journal: Reflect on match performance and log key mistakes.",
+    'tab-drills': "Drill Creator: Save personalized solo training drills."
   };
 
-  function toggle(id){
+  function updateCoach(key) {
+    const msg = coachExplanations[key] || `${coachName} is here to assist your development!`;
+    document.getElementById("coachMessage").textContent = msg;
+  }
+
+  function changeTheme(themeClass) {
+    document.body.className = themeClass;
+  }
+
+  function toggleNutritionFeature() {
+    const isChecked = document.getElementById("toggleNutrition").checked;
+    const elements = document.querySelectorAll('.nutrition-feature');
+    elements.forEach(el => {
+      el.style.display = isChecked ? '' : 'none';
+    });
+  }
+
+  function changeCoachAvatar(emoji) {
+    document.getElementById("displayAvatar").textContent = emoji;
+  }
+
+  function addXP(amount) {
+    playerXP += amount;
+    const reqXP = playerLevel * 100;
+    if (playerXP >= reqXP) {
+      playerXP -= reqXP;
+      playerLevel++;
+      alert(`🎉 LEVEL UP! You reached Level ${playerLevel}!`);
+    }
+    const pct = Math.min(100, Math.round((playerXP / (playerLevel * 100)) * 100));
+    document.getElementById("xpBarFill").style.width = pct + "%";
+    document.getElementById("xpText").textContent = `${playerXP} / ${playerLevel * 100} XP`;
+    document.getElementById("levelTitle").textContent = `LVL ${playerLevel} ATHLETE`;
+  }
+
+  function syncSelection() {
+    const strengths = document.querySelectorAll('input[name="strength"]');
+    const improvements = document.querySelectorAll('input[name="improve"]');
+
+    improvements.forEach(imp => {
+      imp.disabled = false;
+      imp.parentElement.classList.remove('blocked');
+    });
+    strengths.forEach(str => {
+      str.disabled = false;
+      str.parentElement.classList.remove('blocked');
+    });
+
+    strengths.forEach(str => {
+      if (str.checked) {
+        const cat = str.getAttribute('data-category');
+        const targetImp = document.querySelector(`input[name="improve"][data-category="${cat}"]`);
+        if (targetImp) {
+          targetImp.checked = false;
+          targetImp.disabled = true;
+          targetImp.parentElement.classList.add('blocked');
+        }
+      }
+    });
+
+    improvements.forEach(imp => {
+      if (imp.checked) {
+        const cat = imp.getAttribute('data-category');
+        const targetStr = document.querySelector(`input[name="strength"][data-category="${cat}"]`);
+        if (targetStr) {
+          targetStr.checked = false;
+          targetStr.disabled = true;
+          targetStr.parentElement.classList.add('blocked');
+        }
+      }
+    });
+  }
+
+  function toggle(id) {
     document.getElementById(id).classList.toggle("show");
   }
 
-  function getRadioValue(name){
-    const el = document.querySelector('input[name="'+name+'"]:checked');
-    return el ? el.value : null;
+  function goToSetupPage() {
+    document.getElementById("homePage").style.display = "block";
+    document.getElementById("tipsPage").style.display = "none";
+    updateCoach('setup');
   }
 
-  function getChecked(name){
-    return [...document.querySelectorAll('input[name="'+name+'"]:checked')].map(x => x.value);
-  }
-
-  function save(){
-    const data = {
-      level: getRadioValue("level"),
-      position: getChecked("position"),
-      improve: getChecked("improve"),
-      strength: getChecked("strength")
-    };
-    localStorage.setItem("ApexSport", JSON.stringify(data));
-    return data;
-  }
-
-  function load(){
-    const saved = localStorage.getItem("ApexSport");
-    if(!saved) return;
-
-    const data = JSON.parse(saved);
-
-    if (data.level) {
-      const levelRadio = document.querySelector(
-        'input[name="level"][value="' + CSS.escape(data.level) + '"]'
-      );
-      if(levelRadio) levelRadio.checked = true;
-    }
-
-    for(let type of ["position","improve","strength"]){
-      if(!Array.isArray(data[type])) continue;
-      data[type].forEach(value => {
-        const checkbox = document.querySelector(
-          'input[name="'+type+'"][value="'+CSS.escape(value)+'"]'
-        );
-        if(checkbox) checkbox.checked = true;
-      });
-    }
-  }
-
-  function showTips(){
-    const data = save();
-
+  function goToMainHub() {
     document.getElementById("homePage").style.display = "none";
     document.getElementById("tipsPage").style.display = "block";
-
-    const improveList = (data.improve && data.improve.length)
-      ? data.improve.map(skill => {
-          const tip = tips[skill] || "Focus on drills that target this skill consistently (accuracy, repetition, and quality touches).";
-          return `<li><b>${skill}</b>: ${tip}</li>`;
-        }).join("")
-      : `<li><b>No improvement areas selected.</b> Choose at least one area on the home page.</li>`;
-
-    const videoList = (data.improve && data.improve.length)
-      ? data.improve.map(skill => {
-          const q = encodeURIComponent(skill + " soccer drills");
-          return `
-            <li>
-              <a target="_blank" rel="noopener noreferrer"
-                 href="https://www.youtube.com/results?search_query=${q}">
-                ${skill} Training Videos
-              </a>
-            </li>`;
-        }).join("")
-      : `<li>Select improvement areas to get matching training video links.</li>`;
-
-    document.getElementById("output").innerHTML = `
-      <p><b>Skill Level:</b> ${data.level || "—"}</p>
-      <p><b>Position:</b> ${data.position && data.position.length ? data.position.join(", ") : "—"}</p>
-      <p><b>Strengths:</b> ${data.strength && data.strength.length ? data.strength.join(", ") : "—"}</p>
-
-      <h2>Training Tips</h2>
-      <ul>${improveList}</ul>
-
-      <h2>Video Help</h2>
-      <ul>${videoList}</ul>
-    `;
-
-    window.scrollTo({top:0, left:0, behavior:"smooth"});
+    document.getElementById("mainHubScreen").style.display = "block";
+    document.getElementById("moduleView").style.display = "none";
+    updateCoach('hub');
   }
 
-  function back(){
-    document.getElementById("tipsPage").style.display = "none";
-    document.getElementById("homePage").style.display = "block";
+  function openModule(tabId) {
+    document.getElementById("mainHubScreen").style.display = "none";
+    document.getElementById("moduleView").style.display = "block";
+    switchTab(tabId);
   }
 
-  // -------- Daily rotating content (preloaded) --------
-  // This makes the content change every day, without needing live Google scraping.
-  const DAILY_PACKS = [
-    {
-      didYouKnow: "Did You Know? Great players often spend more time scanning than sprinting—information first, speed second.",
-      proTip: "Before receiving, do a quick head-check: opponents → open lane. Then receive with your body already facing the next move.",
-      puzzleQ: "Soccer Puzzle: Can a goal be scored directly from a throw-in?",
-      puzzleA: "No. A throw-in can’t directly result in a goal; the ball must be touched by another player first.",
-      mindBooster: "Mind Booster: Consistency beats intensity. Show up today—your future self will thank you."
-    },
-    {
-      didYouKnow: "Did You Know? A ‘through ball’ works best when you trigger it half a step before the defender thinks.",
-      proTip: "When you pass forward, aim slightly into the runner’s path—not at their feet—so they can accelerate immediately.",
-      puzzleQ: "Soccer Puzzle: In soccer, how many players are on the field per team (excluding substitutes)?",
-      puzzleA: "11 players per team on the field.",
-      mindBooster: "Mind Booster: Reset after mistakes. One breath, one cue, one action."
-    },
-    {
-      didYouKnow: "Did You Know? Low shots are hard to save because keepers have less time to react.",
-      proTip: "Shoot for the center-lower part of the ball with your laces to keep it skimming and on target.",
-      puzzleQ: "Soccer Puzzle: What usually happens if a team commits offside at the moment the ball is played by the passer?",
-      puzzleA: "Play is stopped and the opposing team gets an indirect free kick.",
-      mindBooster: "Mind Booster: Small improvements compound. Train the basics like a pro today."
-    },
-    {
-      didYouKnow: "Did You Know? First touch is a skill of timing—your touch decides the next option.",
-      proTip: "Try the ‘touch to travel’: after receiving, let the ball move you toward the best passing lane or space.",
-      puzzleQ: "Soccer Puzzle: Does a corner kick belong to the attacking team or the defending team?",
-      puzzleA: "It belongs to the attacking team.",
-      mindBooster: "Mind Booster: Your next touch is your new opportunity."
-    },
-    {
-      didYouKnow: "Did You Know? Defenders don’t just chase—they manage space and angles.",
-      proTip: "When pressuring, block the ‘easy pass’ lane first. You’re winning by forcing a worse choice.",
-      puzzleQ: "Soccer Puzzle: Is the goalkeeper allowed to handle the ball in their own penalty area?",
-      puzzleA: "Yes—inside their own penalty area, the goalkeeper can handle the ball.",
-      mindBooster: "Mind Booster: Focus on what you can control: body shape, steps, and decisions."
-    },
-    {
-      didYouKnow: "Did You Know? Using your non-kicking foot to position is a massive part of accuracy.",
-      proTip: "Plant your non-kicking foot next to (not behind) the ball for better power and control on strikes.",
-      puzzleQ: "Soccer Puzzle: How many steps are typical for a direct free-kick setup (roughly)?",
-      puzzleA: "There isn’t a fixed number—players choose their run-up to time the strike. Many take a short, consistent approach.",
-      mindBooster: "Mind Booster: Technique loves repetition. One rep now can level you up."
+  function switchTab(tabId) {
+    document.querySelectorAll('.tabContent').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tabBtn').forEach(b => b.classList.remove('active'));
+
+    const activeContent = document.getElementById(tabId);
+    if (activeContent) activeContent.classList.add('active');
+
+    const activeButton = document.querySelector(`.tabBtn[onclick*="${tabId}"]`);
+    if (activeButton) activeButton.classList.add('active');
+
+    currentTab = tabId;
+    updateCoach(tabId);
+  }
+
+  function askCoachAboutCurrentPage() {
+    if (document.getElementById("homePage").style.display !== "none") {
+      updateCoach('setup');
+    } else if (document.getElementById("mainHubScreen").style.display !== "none") {
+      updateCoach('hub');
+    } else {
+      updateCoach(currentTab);
     }
-  ];
-
-  function dayKeyLocal(){
-    const d = new Date();
-    return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); // local date
   }
 
-  function hashString(str){
-    let h = 0;
-    for(let i=0;i<str.length;i++){
-      h = ((h << 5) - h) + str.charCodeAt(i);
-      h |= 0;
+  let seconds = 0;
+  let timerInterval = null;
+
+  function toggleTimer() {
+    const btn = document.getElementById("timerBtn");
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      btn.textContent = "Resume Session";
+    } else {
+      btn.textContent = "Pause Session";
+      timerInterval = setInterval(() => {
+        seconds++;
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        document.getElementById("workoutTimer").textContent = `${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
+      }, 1000);
     }
-    return Math.abs(h);
   }
 
-  let todayPackIndex = 0;
-  let puzzleRevealed = false;
-
-  function pickTodayPack(){
-    const key = dayKeyLocal();
-    const h = hashString(key);
-    return h % DAILY_PACKS.length;
+  function resetTimer() {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    if (seconds > 0) {
+      stats.workouts += 1;
+      stats.minutes += Math.max(1, Math.round(seconds / 60));
+      document.getElementById("statWorkouts").textContent = stats.workouts;
+      document.getElementById("statMinutes").textContent = stats.minutes;
+      addXP(50);
+    }
+    seconds = 0;
+    document.getElementById("workoutTimer").textContent = "00:00";
+    document.getElementById("timerBtn").textContent = "Start Session";
   }
 
-  function openBall(){
-    document.getElementById("ballModal").style.display = "flex";
-    document.getElementById("ballModal").setAttribute("aria-hidden","false");
+  let hiitInterval = null;
+  let hiitTime = 30;
+
+  function startHIIT() {
+    if (hiitInterval) return;
+    hiitInterval = setInterval(() => {
+      hiitTime--;
+      document.getElementById("hiitClock").textContent = `00:${hiitTime < 10 ? '0' : ''}${hiitTime}`;
+      if (hiitTime <= 0) {
+        hiitTime = 30;
+        addXP(15);
+      }
+    }, 1000);
   }
 
-  function closeBall(){
-    document.getElementById("ballModal").style.display = "none";
-    document.getElementById("ballModal").setAttribute("aria-hidden","true");
+  function stopHIIT() {
+    clearInterval(hiitInterval);
+    hiitInterval = null;
+    hiitTime = 30;
+    document.getElementById("hiitClock").textContent = "00:30";
   }
 
-  function revealBall(){
-    todayPackIndex = pickTodayPack();
-    puzzleRevealed = false;
-
-    const pack = DAILY_PACKS[todayPackIndex];
-
-    document.getElementById("ballTitle").textContent = "Daily Pro Secret · " + dayKeyLocal();
-
-    document.getElementById("didYouKnowText").textContent = pack.didYouKnow;
-    document.getElementById("proTipText").textContent = pack.proTip;
-
-    document.getElementById("puzzleQuestion").textContent = pack.puzzleQ;
-
-    const ansBox = document.getElementById("puzzleAnswerBox");
-    ansBox.style.display = "none";
-    ansBox.textContent = "";
-
-    document.getElementById("mindBoosterText").textContent = pack.mindBooster;
-
-    resetPuzzle(); // ensure clean state
-    openBall();
+  function saveBenchmark() {
+    const sprint = document.getElementById("inputSprint").value;
+    const jump = document.getElementById("inputJump").value;
+    if (!sprint && !jump) return;
+    const list = document.getElementById("benchmarkList");
+    const li = document.createElement("li");
+    li.textContent = `Record: 40m Sprint: ${sprint || '--'}s | Vertical Jump: ${jump || '--'}"`;
+    list.appendChild(li);
+    addXP(15);
   }
 
-  function revealPuzzleAnswer(){
-    const pack = DAILY_PACKS[todayPackIndex];
-    const ansBox = document.getElementById("puzzleAnswerBox");
-    ansBox.style.display = "block";
-    ansBox.textContent = "Answer: " + pack.puzzleA;
-    puzzleRevealed = true;
+  function calculateMacros() {
+    const weight = parseFloat(document.getElementById("weightInput").value);
+    const intensity = document.getElementById("matchIntensity").value;
+    if (!weight) return;
+    let carbs = weight * (intensity === 'match' ? 7 : 5);
+    document.getElementById("macroResult").innerHTML = `Target Carbs: ${Math.round(carbs)}g | Target Protein: ${Math.round(weight * 1.6)}g`;
   }
 
-  function resetPuzzle(){
-    const ansBox = document.getElementById("puzzleAnswerBox");
-    ansBox.style.display = "none";
-    ansBox.textContent = "";
-    puzzleRevealed = false;
+  function addWater(amount) {
+    stats.water = Math.min(2500, stats.water + amount);
+    document.getElementById("waterText").textContent = `${stats.water} / 2500 ml`;
+    const pct = Math.round((stats.water / 2500) * 100);
+    document.getElementById("statWater").textContent = `${pct}%`;
   }
 
-  document.addEventListener("keydown", (e) => {
-    if(e.key === "Escape") closeBall();
-  });
+  function setFormation(fmt) {
+    const cb = document.getElementById("node-cb");
+    const cm = document.getElementById("node-cm");
+    if (fmt === '442') { cb.style.left = "35%"; cm.style.left = "65%"; }
+    else { cb.style.left = "45%"; cm.style.left = "45%"; }
+  }
 
-  load();
+  function saveJournal() {
+    const opp = document.getElementById("journalOpponent").value;
+    const notes = document.getElementById("journalNotes").value;
+    if (!opp) return;
+    const list = document.getElementById("journalList");
+    const li = document.createElement("li");
+    li.textContent = `${opp}: ${notes}`;
+    list.appendChild(li);
+    addXP(25);
+  }
+
+  function saveDrill() {
+    const name = document.getElementById("drillName").value;
+    const desc = document.getElementById("drillDesc").value;
+    if (!name) return;
+    const list = document.getElementById("drillList");
+    const li = document.createElement("li");
+    li.textContent = `${name} - ${desc}`;
+    list.appendChild(li);
+    addXP(10);
+  }
 </script>
 
 </body>
 </html>
+

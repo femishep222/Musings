@@ -4,62 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RunwayDesigns</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
 
 <style>
 body{
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: Georgia, serif;
     background:#f4f4f4;
     margin:0;
     padding:40px;
     color: #000000;
-    box-sizing:border-box;
-    min-height:100vh;
-    position:relative;
-}
-
-/* ---------- Split background video: catwalk (left) / dressing a
-   mannequin (right) -- streamed from Pexels' CDN, nothing uploaded ---------- */
-.videoBg{
-    position:fixed;
-    inset:0;
-    z-index:0;
-    display:flex;
-    overflow:hidden;
-}
-.videoBg .half{
-    position:relative;
-    width:50%;
-    height:100%;
-    overflow:hidden;
-}
-.videoBg .half:first-child{
-    border-right:2px solid rgba(255,255,255,.35);
-}
-.videoBg video{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-    filter:brightness(.55) saturate(.9);
-}
-.videoBg .half::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:rgba(0,0,0,.15);
 }
 
 /* Container with a seamless black and white floral pattern border */
 .container{
-    position:relative;
-    z-index:1;
     max-width:650px;
     margin:auto;
-    background:rgba(255,255,255,.55);
-    -webkit-backdrop-filter:blur(6px);
-    backdrop-filter:blur(6px);
+    background:white;
     padding:25px;
     border-radius:12px;
     box-shadow:0 0 10px rgba(0,0,0,.15);
@@ -118,14 +77,6 @@ h1{
     text-shadow: 0 2px 8px #000000;
 }
 
-/* Brand name pops relative to the softer "Welcome to" lead-in */
-.image-banner h2 .brandName{
-    font-weight: 700;
-    font-style: normal;
-    font-size: 1.2em;
-    letter-spacing: 1px;
-}
-
 /* WHITE SPARKLES CLASS */
 .sparkle {
     position: absolute;
@@ -159,7 +110,7 @@ input,select,button{
     padding:12px;
     margin-top:12px;
     font-size:16px;
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: Georgia, serif;
     box-sizing: border-box;
 }
 
@@ -197,23 +148,9 @@ ul{
 
 <body>
 
-<!-- Background video, streamed directly from Pexels (free stock footage,
-     no attribution required) -- left half is a runway walk for modeling,
-     right half is a designer dressing a mannequin for fashion design. -->
-<div class="videoBg" aria-hidden="true">
-    <div class="half">
-        <video autoplay muted loop playsinline preload="auto"
-            src="https://videos.pexels.com/video-files/9511841/9511841-uhd_2732_1440_25fps.mp4">
-        </video>
-    </div>
-    <div class="half">
-        <video autoplay muted loop playsinline preload="auto"
-            src="https://videos.pexels.com/video-files/4620563/4620563-uhd_1440_2732_25fps.mp4">
-        </video>
-    </div>
-</div>
-
 <div class="container">
+
+<h1>RunwayDesigns</h1>
 
 <!-- Black frame containing explicit white sparkle elements -->
 <div class="image-banner">
@@ -224,7 +161,7 @@ ul{
     <div class="sparkle sp-5"></div>
     <div class="sparkle sp-6"></div>
     
-    <h2>Welcome to <span class="brandName">RunwayDesigns</span></h2>
+    <h2>Welcome to RunwayDesigns</h2>
 </div>
 
 <p>
@@ -300,3 +237,5 @@ function findPlaces(){
 
 </body>
 </html>
+
+

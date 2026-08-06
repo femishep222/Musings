@@ -83,25 +83,39 @@ background:#ffb6d5;
 }
 
 
+/* Rainbow Button */
+
 .rainbow-btn{
-background:linear-gradient(90deg,#ff5252,#ffb347,#ffe066,#6bd47a,#4fb2ff,#8c6bff,#ff6bcb);
+background:linear-gradient(
+90deg,
+red,
+orange,
+yellow,
+lime,
+cyan,
+blue,
+violet
+);
 background-size:300% 300%;
-animation:rainbowShift 4s ease infinite;
+animation:rainbowMove 4s linear infinite;
 color:white;
 font-weight:bold;
-text-shadow:0 1px 2px rgba(0,0,0,.35);
 }
 
 .rainbow-btn:hover{
-background:linear-gradient(90deg,#ff5252,#ffb347,#ffe066,#6bd47a,#4fb2ff,#8c6bff,#ff6bcb);
-background-size:300% 300%;
-animation:rainbowShift 1.5s ease infinite;
+filter:brightness(1.1);
 }
 
-@keyframes rainbowShift{
-0%{background-position:0% 50%;}
-50%{background-position:100% 50%;}
-100%{background-position:0% 50%;}
+@keyframes rainbowMove{
+0%{
+background-position:0% 50%;
+}
+50%{
+background-position:100% 50%;
+}
+100%{
+background-position:0% 50%;
+}
 }
 
 
@@ -170,7 +184,6 @@ font-weight:bold;
 }
 
 
-.add-dessert,
 .recipe,
 .login{
 
@@ -220,7 +233,6 @@ padding:20px;
 }
 
 </style>
-
 </head>
 
 
@@ -251,31 +263,35 @@ padding:20px;
 
 <nav>
 
-<button onclick="showPage('home')">Home</button>
-
-<button class="rainbow-btn" onclick="showPage('recipes')">
-Recipes
+<button onclick="showPage('home')">
+Home
 </button>
+
+
+<button onclick="showPage('dozen')" class="rainbow-btn">
+🥐 Baker's Dozen
+</button>
+
 
 <button onclick="showPage('market')">
 Bake Market
 </button>
 
+
 <button onclick="showPage('cart')">
 🛒 Cart (<span id="cartCount">0</span>)
 </button>
+
 
 <button onclick="showPage('measure')">
 Measurements
 </button>
 
+
 <button onclick="showPage('videos')">
 Videos
 </button>
 
-<button onclick="showPage('login')">
-Login
-</button>
 
 
 <div class="search-box">
@@ -283,15 +299,12 @@ Login
 <input id="dessertSearch" placeholder="Search dessert 🍰">
 
 <button onclick="searchDessert()">
-🌀 Zarobbee Search
+Search
 </button>
 
 </div>
 
 </nav>
-
-
-
 <section id="home" class="page active">
 
 <h2>Welcome to Baker's Life 🍰</h2>
@@ -317,23 +330,6 @@ style="border-radius:20px;">
 
 
 <h2>🛒 Bake Market</h2>
-
-
-<div class="add-dessert">
-
-<h3>Add New Dessert 🍰</h3>
-
-<input id="dessertName" placeholder="Dessert name">
-
-<input id="dessertPrice" placeholder="Price example $8.99">
-
-<input id="dessertImage" type="file" accept="image/*">
-
-<button onclick="addDessert()">
-Add Dessert
-</button>
-
-</div>
 
 
 <div class="grid" id="dessertMarket">
@@ -393,6 +389,7 @@ Add Dessert
 
 
 
+
 <section id="cart" class="page">
 
 <h2>🛒 Shopping Cart</h2>
@@ -448,182 +445,223 @@ Bake 20 minutes.
 
 </div>
 
+</section>
+
+
+
+
+
+<section id="dozen" class="page">
+
+<h2>🥐 Baker's Dozen - 13 Special Recipes</h2>
+
 
 <div class="recipe">
 
-<h3>🍫 Fudge Brownies</h3>
+<h3>1. Chocolate Fudge Cake</h3>
 
 <p>
-1 cup butter<br>
-2 cups sugar<br>
-4 eggs<br>
+2 cups flour<br>
 1 cup cocoa powder<br>
-1 cup flour<br>
-Bake at 350°F for 25 minutes.
-</p>
-
-</div>
-
-
-<div class="recipe">
-
-<h3>🍌 Banana Bread</h3>
-
-<p>
-3 ripe bananas, mashed<br>
-1/3 cup melted butter<br>
-3/4 cup sugar<br>
-1 egg<br>
-1 1/2 cups flour<br>
-Bake at 350°F for 55 minutes.
-</p>
-
-</div>
-
-
-<div class="recipe">
-
-<h3>🫐 Blueberry Muffins</h3>
-
-<p>
-2 cups flour<br>
-3/4 cup sugar<br>
+1½ cups sugar<br>
 2 eggs<br>
-1 cup milk<br>
-1 1/2 cups blueberries<br>
-Bake at 375°F for 20 minutes.
-</p>
-
-</div>
-
-
-<div class="recipe">
-
-<h3>🌀 Cinnamon Rolls</h3>
-
-<p>
-3 cups flour<br>
-1/4 cup sugar<br>
-1 packet yeast<br>
-1/4 cup melted butter<br>
-2 tablespoons cinnamon<br>
-Bake at 375°F for 18 minutes.
-</p>
-
-</div>
-
-
-<div class="recipe">
-
-<h3>🍋 Lemon Bars</h3>
-
-<p>
-2 cups flour<br>
-1 cup butter<br>
-4 eggs<br>
-1 1/2 cups sugar<br>
-1/2 cup lemon juice<br>
-Bake at 350°F for 25 minutes.
-</p>
-
-</div>
-
-
-<div class="recipe">
-
-<h3>🍎 Apple Pie</h3>
-
-<p>
-6 apples, sliced<br>
-3/4 cup sugar<br>
-1 teaspoon cinnamon<br>
-2 pie crusts<br>
-2 tablespoons butter<br>
-Bake at 375°F for 45 minutes.
-</p>
-
-</div>
-
-
-<div class="recipe">
-
-<h3>🥕 Carrot Cake</h3>
-
-<p>
-2 cups flour<br>
-2 cups grated carrots<br>
-1 1/2 cups sugar<br>
-4 eggs<br>
-1 cup vegetable oil<br>
-Bake at 350°F for 35 minutes.
-</p>
-
-</div>
-
-
-<div class="recipe">
-
-<h3>❤️ Red Velvet Cake</h3>
-
-<p>
-2 1/2 cups flour<br>
-1 1/2 cups sugar<br>
-2 eggs<br>
-1 cup buttermilk<br>
-2 tablespoons cocoa powder<br>
 Bake at 350°F for 30 minutes.
 </p>
 
 </div>
 
 
+
 <div class="recipe">
 
-<h3>🥜 Peanut Butter Cookies</h3>
+<h3>2. Blueberry Muffins</h3>
 
 <p>
-1 cup peanut butter<br>
+2 cups flour<br>
+1 cup blueberries<br>
+¾ cup sugar<br>
+1 egg<br>
+Bake at 375°F for 20 minutes.
+</p>
+
+</div>
+
+
+
+<div class="recipe">
+
+<h3>3. Cinnamon Rolls</h3>
+
+<p>
+3 cups flour<br>
+1 cup milk<br>
+2 teaspoons cinnamon<br>
+½ cup sugar<br>
+Bake at 350°F for 25 minutes.
+</p>
+
+</div>
+
+
+
+<div class="recipe">
+
+<h3>4. Lemon Pound Cake</h3>
+
+<p>
+2 cups flour<br>
+1 cup butter<br>
 1 cup sugar<br>
+2 tablespoons lemon juice<br>
+Bake at 350°F for 50 minutes.
+</p>
+
+</div>
+
+
+
+<div class="recipe">
+
+<h3>5. Red Velvet Cupcakes</h3>
+
+<p>
+2 cups flour<br>
+1 cup sugar<br>
+2 eggs<br>
+2 tablespoons cocoa<br>
+Bake at 350°F for 20 minutes.
+</p>
+
+</div>
+
+
+
+<div class="recipe">
+
+<h3>6. Apple Pie</h3>
+
+<p>
+6 apples<br>
+2 cups flour for crust<br>
+1 cup sugar<br>
+1 teaspoon cinnamon<br>
+Bake at 375°F for 45 minutes.
+</p>
+
+</div>
+<div class="recipe">
+
+<h3>7. Banana Bread</h3>
+
+<p>
+3 bananas<br>
+2 cups flour<br>
+1 cup sugar<br>
+2 eggs<br>
+Bake at 350°F for 55 minutes.
+</p>
+
+</div>
+
+
+
+<div class="recipe">
+
+<h3>8. Strawberry Cheesecake</h3>
+
+<p>
+2 cups cream cheese<br>
+1 cup strawberries<br>
+1 cup sugar<br>
+1 graham cracker crust<br>
+Bake at 325°F for 45 minutes.
+</p>
+
+</div>
+
+
+
+<div class="recipe">
+
+<h3>9. Carrot Cake</h3>
+
+<p>
+2 cups flour<br>
+2 cups carrots<br>
+1 cup sugar<br>
+2 eggs<br>
+Bake at 350°F for 35 minutes.
+</p>
+
+</div>
+
+
+
+<div class="recipe">
+
+<h3>10. Chocolate Brownies</h3>
+
+<p>
+1 cup cocoa<br>
+1 cup flour<br>
+1 cup sugar<br>
+2 eggs<br>
+Bake at 350°F for 25 minutes.
+</p>
+
+</div>
+
+
+
+<div class="recipe">
+
+<h3>11. Vanilla Donuts</h3>
+
+<p>
+2 cups flour<br>
+1 cup milk<br>
 1 egg<br>
 1 teaspoon vanilla<br>
-Bake at 350°F for 10 minutes.
+Bake at 375°F for 15 minutes.
 </p>
 
 </div>
 
 
-<div class="recipe">
-
-<h3>🌾 Oatmeal Raisin Cookies</h3>
-
-<p>
-1 cup butter<br>
-1 cup brown sugar<br>
-2 eggs<br>
-3 cups rolled oats<br>
-1 cup raisins<br>
-Bake at 350°F for 12 minutes.
-</p>
-
-</div>
-
 
 <div class="recipe">
 
-<h3>🍯 Sugar Cookies</h3>
+<h3>12. Coconut Macaroons</h3>
 
 <p>
-1 cup butter<br>
-1 1/2 cups sugar<br>
-2 eggs<br>
+3 cups coconut<br>
+1 cup sugar<br>
+2 egg whites<br>
 1 teaspoon vanilla<br>
-3 cups flour<br>
-Bake at 375°F for 8 minutes.
+Bake at 325°F for 20 minutes.
 </p>
 
 </div>
+
+
+
+<div class="recipe">
+
+<h3>13. Raspberry Tart</h3>
+
+<p>
+1 pastry crust<br>
+2 cups raspberries<br>
+½ cup sugar<br>
+1 tablespoon lemon juice<br>
+Bake at 350°F for 30 minutes.
+</p>
+
+</div>
+
 
 </section>
+
 
 
 
@@ -641,6 +679,7 @@ Convert
 <h3 id="answer"></h3>
 
 </section>
+
 
 
 
@@ -678,12 +717,12 @@ Login
 
 
 
+
 <footer>
 
 ❤️ Baker's Life Bakery App ❤️
 
 </footer>
-
 
 
 
@@ -789,67 +828,6 @@ total.toFixed(2);
 
 
 
-function addDessert(){
-
-let name=document.getElementById("dessertName").value;
-
-let price=document.getElementById("dessertPrice").value;
-
-let image=document.getElementById("dessertImage").files[0];
-
-
-if(name=="" || price=="" || !image){
-
-alert("Please add name, price, and photo");
-
-return;
-
-}
-
-
-let reader=new FileReader();
-
-
-reader.onload=function(e){
-
-
-let card=document.createElement("div");
-
-card.className="card";
-
-
-let cleanPrice=parseFloat(price.replace("$",""));
-
-
-card.innerHTML=`
-
-<img src="${e.target.result}">
-
-<h3>${name}</h3>
-
-<p class="price">${price}</p>
-
-<button onclick="addToCart('${name}',${cleanPrice})">
-🛒 Add To Cart
-</button>
-
-`;
-
-
-document.getElementById("dessertMarket")
-.appendChild(card);
-
-
-};
-
-
-reader.readAsDataURL(image);
-
-}
-
-
-
-
 
 function convert(){
 
@@ -868,23 +846,15 @@ cups+" cups = "+result.toFixed(2)+" mL";
 
 
 
-// Zarobbee's taste profile, baked into every search: cinnamon +
-// powdered-sugar forward, buttery, unhurried from-scratch recipes -- and
-// the fancier / more restaurant-plated the result looks, the better.
-const ZAROBBEE_FLAVOR = "cinnamon powdered sugar buttery";
-const ZAROBBEE_STYLE = "elegant restaurant-style plating gourmet from-scratch multi-step";
-
 function searchDessert(){
 
-let dessert=document.getElementById("dessertSearch").value.trim();
+let dessert=document.getElementById("dessertSearch").value;
 
 
-if(dessert!=""){
-
-let query = dessert+" dessert recipe "+ZAROBBEE_FLAVOR+" "+ZAROBBEE_STYLE;
+if(dessert.trim()!=""){
 
 window.open(
-"https://www.google.com/search?q="+encodeURIComponent(query),
+"https://www.google.com/search?q="+dessert+"+dessert+recipes",
 "_blank"
 );
 
