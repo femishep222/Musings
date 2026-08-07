@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>5Q Code Bases - App Index</title>
+<title>Summer Learning 2026 - Pitch & Code Bases - App Index</title>
 
 <style>
 
@@ -22,7 +22,7 @@ body{
 }
 
 .container{
-    max-width:900px;
+    max-width:960px;
     margin:auto;
 }
 
@@ -58,47 +58,85 @@ body{
 
 .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
     gap:18px;
 }
 
-a.card{
-    display:block;
-    position:relative;
+.card{
     background:#1e1e1e;
     padding:22px;
     border-radius:16px;
     box-shadow:0 8px 25px rgba(0,0,0,.5);
-    text-decoration:none;
-    color:#e5e5e5;
     border:1px solid #2a2a2a;
     transition:transform .15s ease, border-color .15s ease;
+    display:flex;
+    flex-direction:column;
 }
 
-a.card::after{
-    content:"↗";
-    position:absolute;
-    top:16px;
-    right:18px;
-    color:#7ca4f3;
-    font-size:16px;
-}
-
-a.card:hover{
+.card:hover{
     transform:translateY(-3px);
     border-color:#7ca4f3;
 }
 
-a.card h2{
+.card h2{
     margin:0 0 8px;
     font-size:20px;
-    color:#7ca4f3;
+    color:#e5e5e5;
 }
 
-a.card p{
+.card p{
     margin:0;
     font-size:14px;
     color:#a0a0a0;
+    flex-grow:1;
+}
+
+.card-links{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+}
+
+.btn{
+    flex:1;
+    text-align:center;
+    padding:11px 10px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:700;
+    text-decoration:none;
+    transition:opacity .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.btn-pitch{
+    background:linear-gradient(90deg,#8B5CF6,#7ca4f3);
+    color:#0F172A;
+}
+
+.btn-pitch:hover{
+    opacity:.88;
+}
+
+.btn-app{
+    background:transparent;
+    border:1px solid #333;
+    color:#a0a0a0;
+}
+
+.btn-app:hover{
+    border-color:#7ca4f3;
+    color:#7ca4f3;
+}
+
+.btn-solo{
+    background:transparent;
+    border:1px solid #333;
+    color:#e5e5e5;
+}
+
+.btn-solo:hover{
+    border-color:#7ca4f3;
+    color:#7ca4f3;
 }
 
 </style>
@@ -112,46 +150,74 @@ a.card p{
 <div class="container">
 
 <div class="header">
-<h1>5Q Code Bases</h1>
-<p>Pick an app to open</p>
+<h1>Summer Learning 2026</h1>
+<p>View the pitch, then launch the app</p>
 </div>
 
 <div class="grid">
 
-<a class="card" href="ApexSports.html" target="_blank" rel="noopener">
+<div class="card">
 <h2>Apex Sports</h2>
 <p>Sports tips app</p>
-</a>
+<div class="card-links">
+<a class="btn btn-pitch" href="Poster%20-%20Apex%20Sports.pdf" target="_blank" rel="noopener">View Pitch</a>
+<a class="btn btn-app" href="ApexSports.html" target="_blank" rel="noopener">Launch App</a>
+</div>
+</div>
 
-<a class="card" href="BakersLife.html" target="_blank" rel="noopener">
+<div class="card">
 <h2>Baker's Life</h2>
 <p>Baking helper</p>
-</a>
+<div class="card-links">
+<a class="btn btn-pitch" href="Poster%20-%20Bakers%20Life.pdf" target="_blank" rel="noopener">View Pitch</a>
+<a class="btn btn-app" href="BakersLife.html" target="_blank" rel="noopener">Launch App</a>
+</div>
+</div>
 
-<a class="card" href="FirstGame.html" target="_blank" rel="noopener">
+<div class="card">
 <h2>First Game</h2>
 <p>Arcade Edition with Play Mode</p>
-</a>
+<div class="card-links">
+<a class="btn btn-pitch" href="Poster%20-%20First%20Game.pdf" target="_blank" rel="noopener">View Pitch</a>
+<a class="btn btn-app" href="FirstGame.html" target="_blank" rel="noopener">Launch App</a>
+</div>
+</div>
 
-<a class="card" href="Osacate.html" target="_blank" rel="noopener">
+<div class="card">
 <h2>Osacate Adventure</h2>
 <p>Arcade game</p>
-</a>
+<div class="card-links">
+<a class="btn btn-pitch" href="Poster%20-%20Osacate.pdf" target="_blank" rel="noopener">View Pitch</a>
+<a class="btn btn-app" href="Osacate.html" target="_blank" rel="noopener">Launch App</a>
+</div>
+</div>
 
-<a class="card" href="RunwayDesigns.html" target="_blank" rel="noopener">
+<div class="card">
 <h2>Runway Designs</h2>
 <p>Design app</p>
-</a>
+<div class="card-links">
+<a class="btn btn-pitch" href="Poster%20-%20Runway%20Designs.pdf" target="_blank" rel="noopener">View Pitch</a>
+<a class="btn btn-app" href="RunwayDesigns.html" target="_blank" rel="noopener">Launch App</a>
+</div>
+</div>
 
-<a class="card" href="SunHaven.html" target="_blank" rel="noopener">
+<div class="card">
 <h2>SunHaven</h2>
 <p>StarPlayer - Chibi studio & arcade</p>
-</a>
+<div class="card-links">
+<a class="btn btn-pitch" href="Poster%20-%20Sun%20Haven.pdf" target="_blank" rel="noopener">View Pitch</a>
+<a class="btn btn-app" href="SunHaven.html" target="_blank" rel="noopener">Launch App</a>
+</div>
+</div>
 
-<a class="card" href="Useful.html" target="_blank" rel="noopener">
+<div class="card">
 <h2>Useful</h2>
 <p>Connect. Communicate. Grow. — relationship helper</p>
-</a>
+<div class="card-links">
+    <a class="btn btn-pitch" href="Poster%20-%20Useful.pdf" target="_blank" rel="noopener">View Pitch</a>
+<a class="btn btn-solo" href="Useful.html" target="_blank" rel="noopener">Launch App</a>
+</div>
+</div>
 
 </div>
 
